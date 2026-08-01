@@ -1,7 +1,9 @@
-import React from 'react'
+import { LoginForm } from "../../components";
 
 export const LoginPage = () => {
   return (
-    <div>LoginPage</div>
-  )
-}
+    <div className="flex min-h-screen items-center justify-center bg-neutral-950 p-6">
+      <LoginForm onLoginExitoso={() => console.log("¡Sesión iniciada!")} />
+    </div>
+  );
+};
