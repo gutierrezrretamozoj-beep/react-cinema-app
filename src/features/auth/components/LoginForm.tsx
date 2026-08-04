@@ -1,31 +1,42 @@
-import { useState, type FormEvent } from "react";
-import { iniciarSesion } from "../store";
+import { useState } from "react";
+import { signIn } from "../store";
 
 interface LoginFormProps {
-  onLoginExitoso?: () => void;
+  onLoginSuccess?: () => void;
 }
 
-export const LoginForm = ({ onLoginExitoso }: LoginFormProps) => {
-  const [correo, setCorreo] = useState("");
-  const [contraseña, setContraseña] = useState("");
-  const [cargando, setCargando] = useState(false);
+/**
+ * Login form that authenticates the user against the mock store.
+ *
+ * @param props - Component props.
+ * @param props.onLoginSuccess - Optional callback invoked after a successful login.
+ */
+export const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function manejarEnvio(evento: FormEvent) {
-    evento.preventDefault();
+  /**
+   * Handles form submission and calls the sign-in action.
+   *
+   * @param event - The form submit event.
+   */
+  async function handleSubmit(event: React.SubmitEvent) {
+    event.preventDefault();
     setError(null);
-    setCargando(true);
+    setLoading(true);
 
-    const respuesta = await iniciarSesion({ correo, contraseña });
+    const response = await signIn({ email, password });
 
-    setCargando(false);
+    setLoading(false);
 
-    if (!respuesta.exito) {
-      setError(respuesta.mensaje ?? "Ocurrió un error al iniciar sesión.");
+    if (!response.success) {
+      setError(response.message ?? "Ocurrió un error al iniciar sesión.");
       return;
     }
 
-    onLoginExitoso?.();
+    onLoginSuccess?.();
   }
 
   return (
@@ -43,13 +54,13 @@ export const LoginForm = ({ onLoginExitoso }: LoginFormProps) => {
 
       <div className="-mx-9 mb-6 border-t border-dashed border-yellow-900/40" />
 
-      <form className="flex flex-col gap-4" onSubmit={manejarEnvio} noValidate>
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
         <label className="flex flex-col gap-1.5 text-xs text-neutral-300">
           <span>Correo</span>
           <input
             type="email"
-            value={correo}
-            onChange={(e) => setCorreo(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="tu@correo.com"
             autoComplete="email"
             required
@@ -61,8 +72,8 @@ export const LoginForm = ({ onLoginExitoso }: LoginFormProps) => {
           <span>Contraseña</span>
           <input
             type="password"
-            value={contraseña}
-            onChange={(e) => setContraseña(e.target.value)}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
             autoComplete="current-password"
             required
@@ -78,10 +89,10 @@ export const LoginForm = ({ onLoginExitoso }: LoginFormProps) => {
 
         <button
           type="submit"
-          disabled={cargando}
+          disabled={loading}
           className="mt-1 rounded-lg bg-yellow-500 py-3 text-sm font-bold tracking-wide text-neutral-950 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {cargando ? "Validando..." : "Entrar a la sala"}
+          {loading ? "Validando..." : "Entrar a la sala"}
         </button>
       </form>
 
