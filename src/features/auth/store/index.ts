@@ -1,4 +1,4 @@
-import type { CredencialesLogin, RespuestaLogin, Usuario } from "../interfaces";
+import type { CredencialesLogin, DatosRegistro, RespuestaLogin, RespuestaRegistro, Usuario } from "../interfaces";
 
 /**
  * Por ahora no hay backend ni librería de estado (Zustand/Context) instalada,
@@ -31,12 +31,44 @@ export function iniciarSesion(credenciales: CredencialesLogin): Promise<Respuest
         return;
       }
 
-      const { contraseña, ...usuarioSinContraseña } = usuarioEncontrado;
+      const usuarioSinContraseña: Usuario = {
+        id: usuarioEncontrado.id,
+        nombre: usuarioEncontrado.nombre,
+        correo: usuarioEncontrado.correo,
+      };
 
       localStorage.setItem("token_cine", `token-${usuarioEncontrado.id}`);
       localStorage.setItem("usuario_cine", JSON.stringify(usuarioSinContraseña));
 
       resolve({ exito: true, usuario: usuarioSinContraseña });
+    }, RETARDO_SIMULADO_MS);
+  });
+}
+
+export function registrarUsuario(datos: DatosRegistro): Promise<RespuestaRegistro> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const correoExiste = USUARIOS_MOCK.some(
+        (u) => u.correo.toLowerCase() === datos.correo.toLowerCase()
+      );
+
+      if (correoExiste) {
+        resolve({ exito: false, mensaje: "Ya existe una cuenta con ese correo." });
+        return;
+      }
+
+      const nuevoUsuario: Usuario = {
+        id: String(Date.now()),
+        nombre: datos.nombre,
+        correo: datos.correo,
+      };
+
+      USUARIOS_MOCK.push({ ...nuevoUsuario, contraseña: datos.contraseña });
+
+      localStorage.setItem("token_cine", `token-${nuevoUsuario.id}`);
+      localStorage.setItem("usuario_cine", JSON.stringify(nuevoUsuario));
+
+      resolve({ exito: true, usuario: nuevoUsuario });
     }, RETARDO_SIMULADO_MS);
   });
 }
