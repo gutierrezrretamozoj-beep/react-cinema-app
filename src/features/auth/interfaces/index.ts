@@ -14,3 +14,15 @@ export interface RespuestaLogin {
   usuario?: Usuario;
   mensaje?: string;
 }
+
+export interface DatosRegistro {
+  nombre: string;
+  correo: string;
+  contraseña: string;
+}
+
+export interface RespuestaRegistro {
+  exito: boolean;
+  usuario?: Usuario;
+  mensaje?: string;
+}
