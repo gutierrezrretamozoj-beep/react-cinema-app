@@ -1,24 +1,27 @@
 import { useState } from "react";
-import { signIn } from "../store";
+import { useNavigate } from "react-router";
+import { registerUser } from "../store";
 
-interface LoginFormProps {
-  onLoginSuccess?: () => void;
+interface RegisterFormProps {
+  onRegisterSuccess?: () => void;
 }
 
 /**
- * Login form that authenticates the user against the mock store.
+ * Registration form that creates a new account through the mock store.
  *
  * @param props - Component props.
- * @param props.onLoginSuccess - Optional callback invoked after a successful login.
+ * @param props.onRegisterSuccess - Optional callback invoked after a successful registration.
  */
-export const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
+export const RegisterForm = ({ onRegisterSuccess }: RegisterFormProps) => {
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Handles form submission and calls the sign-in action.
+   * Handles form submission and calls the registration action.
    *
    * @param event - The form submit event.
    */
@@ -27,16 +30,17 @@ export const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
     setError(null);
     setLoading(true);
 
-    const response = await signIn({ email, password });
+    const response = await registerUser({ name, email, password });
 
     setLoading(false);
 
     if (!response.success) {
-      setError(response.message ?? "Ocurrió un error al iniciar sesión.");
+      setError(response.message ?? "Ocurrió un error al crear tu cuenta.");
       return;
     }
 
-    onLoginSuccess?.();
+    onRegisterSuccess?.();
+    navigate("/auth/login");
   }
 
   return (
@@ -46,17 +50,30 @@ export const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
 
       <div className="mb-5 text-center">
         <span className="text-[11px] font-semibold tracking-[3px] text-yellow-500">
-          ADMIT ONE
+          NUEVO BOLETO
         </span>
         <h1 className="mt-1 text-3xl font-extrabold tracking-wide">CineApp</h1>
-        <p className="text-sm text-neutral-400">Tu función empieza aquí</p>
+        <p className="text-sm text-neutral-400">Crea tu cuenta y únete a la función</p>
       </div>
 
       <div className="-mx-9 mb-6 border-t border-dashed border-yellow-900/40" />
 
       <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
         <label className="flex flex-col gap-1.5 text-xs text-neutral-300">
-          <span>Correo</span>
+          <span>Nombre</span>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Tu nombre"
+            autoComplete="name"
+            required
+            className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2.5 text-sm text-neutral-100 outline-none focus:border-yellow-500"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1.5 text-xs text-neutral-300">
+          <span>Gmail</span>
           <input
             type="email"
             value={email}
@@ -75,7 +92,7 @@ export const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            autoComplete="current-password"
+            autoComplete="new-password"
             required
             className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2.5 text-sm text-neutral-100 outline-none focus:border-yellow-500"
           />
@@ -92,17 +109,13 @@ export const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
           disabled={loading}
           className="mt-1 rounded-lg bg-yellow-500 py-3 text-sm font-bold tracking-wide text-neutral-950 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading ? "Validando..." : "Entrar a la sala"}
+          {loading ? "Creando cuenta..." : "Crear cuenta"}
         </button>
       </form>
 
       <p className="mt-4 text-center text-[11px] text-neutral-500">
-        ¿No tienes cuenta?{" "}
-        <a href="/auth/register" className="text-yellow-500 hover:underline">Regístrate</a>
-      </p>
-
-      <p className="mt-2 text-center text-[11px] text-neutral-500">
-        Usuario de prueba: milton@cine.com / 123456
+        ¿Ya tienes cuenta?{" "}
+        <a href="/auth/login" className="text-yellow-500 hover:underline">Inicia sesión</a>
       </p>
     </div>
   );

@@ -9,6 +9,9 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"),
+      "@features": path.resolve(import.meta.dirname, "./src/features"),
+      "@shared": path.resolve(import.meta.dirname, "./src/shared"),
+      "@router": path.resolve(import.meta.dirname, "./src/router"),
     },
   },
 });

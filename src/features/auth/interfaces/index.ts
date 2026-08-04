@@ -1,16 +1,28 @@
-export interface Usuario {
+export interface User {
   id: string;
-  nombre: string;
-  correo: string;
+  name: string;
+  email: string;
 }
 
-export interface CredencialesLogin {
-  correo: string;
-  contraseña: string;
+export interface LoginCredentials {
+  email: string;
+  password: string;
 }
 
-export interface RespuestaLogin {
-  exito: boolean;
-  usuario?: Usuario;
-  mensaje?: string;
+export interface LoginResponse {
+  success: boolean;
+  user?: User;
+  message?: string;
+}
+
+export interface RegistrationData {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface RegistrationResponse {
+  success: boolean;
+  user?: User;
+  message?: string;
 }
