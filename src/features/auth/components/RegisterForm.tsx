@@ -1,11 +1,17 @@
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
-import { registrarUsuario } from "../store";
+import { registerUser } from "../store";
 
 interface RegisterFormProps {
   onRegisterSuccess?: () => void;
 }
 
+/**
+ * Registration form that creates a new account through the mock store.
+ *
+ * @param props - Component props.
+ * @param props.onRegisterSuccess - Optional callback invoked after a successful registration.
+ */
 export const RegisterForm = ({ onRegisterSuccess }: RegisterFormProps) => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -14,17 +20,22 @@ export const RegisterForm = ({ onRegisterSuccess }: RegisterFormProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(event: FormEvent) {
+  /**
+   * Handles form submission and calls the registration action.
+   *
+   * @param event - The form submit event.
+   */
+  async function handleSubmit(event: React.SubmitEvent) {
     event.preventDefault();
     setError(null);
     setLoading(true);
 
-    const response = await registrarUsuario({ nombre: name, correo: email, contraseña: password });
+    const response = await registerUser({ name, email, password });
 
     setLoading(false);
 
-    if (!response.exito) {
-      setError(response.mensaje ?? "Ocurrió un error al crear tu cuenta.");
+    if (!response.success) {
+      setError(response.message ?? "Ocurrió un error al crear tu cuenta.");
       return;
     }
 
