@@ -86,6 +86,11 @@ export const LoginForm = ({ onLoginExitoso }: LoginFormProps) => {
       </form>
 
       <p className="mt-4 text-center text-[11px] text-neutral-500">
+        ¿No tienes cuenta?{" "}
+        <a href="/auth/register" className="text-yellow-500 hover:underline">Regístrate</a>
+      </p>
+
+      <p className="mt-2 text-center text-[11px] text-neutral-500">
         Usuario de prueba: milton@cine.com / 123456
       </p>
     </div>
