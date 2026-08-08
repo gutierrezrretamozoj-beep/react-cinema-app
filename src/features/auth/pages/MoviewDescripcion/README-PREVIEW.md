@@ -12,6 +12,7 @@ This document summarizes the UI enhancements implemented during this chat for th
 - A Spanish-language movie detail page with richer information blocks and a more polished layout.
 - A green confirmation alert when tickets are purchased, using a toast-style notification.
 - Responsive improvements for small screens, including better spacing and layout behavior to avoid horizontal overflow.
+- A slide transition animation between the Home page and the movie detail page for a smoother navigation experience.
 
 ## UX behavior
 

@@ -28,3 +28,12 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+::selection {
+  background-color: rgba(234, 179, 8, 0.3);
+  color: #fff;
+}
+
+main {
+  will-change: transform, opacity;
+}
