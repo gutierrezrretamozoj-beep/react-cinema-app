@@ -2,6 +2,7 @@ import { Link } from "react-router";
 
 const LINKS = [
   { path: "/", label: "Inicio" },
+  { path: "/home", label: "Cartelera" },
   { path: "/auth/login", label: "Login" },
   { path: "/auth/register", label: "Registro" },
 ];
