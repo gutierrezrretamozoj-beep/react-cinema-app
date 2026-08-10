@@ -125,18 +125,21 @@ export const MovieCard = ({ movie, onBuy }: MovieCardProps) => {
             // Rota sobre los tres ejes de perspectiva y se desvanece simulando caer físicamente por gravedad.
             <motion.div
               key="stub-button"
-              initial={{ rotateX: 0, rotateY: 0, rotateZ: 0, x: 0, y: 0, opacity: 1 }}
+              initial={{ rotateX: 0, rotateY: 0, rotateZ: 0, skewX: 0, x: 0, y: 0, opacity: 1 }}
               exit={{
-                rotateX: -45,
-                rotateY: -35,
-                rotateZ: 25,
-                x: 30,
-                y: 110,
-                opacity: 0,
+                // Asymmetric multi-axis keyframes to simulate physical paper tearing and organic fluttering down
+                rotateX: [0, 15, -30, -65],
+                rotateY: [0, -10, 25, 45],
+                rotateZ: [0, 12, 35, 60],
+                skewX: [0, 15, -10, 0],
+                x: [0, -10, -25, -45],
+                y: [0, 15, 65, 180],
+                opacity: [1, 1, 0.7, 0],
               }}
               transition={{
-                duration: 0.9,
-                ease: [0.32, 0, 0.67, 0],
+                duration: 1.1,
+                times: [0, 0.25, 0.6, 1],
+                ease: "easeInOut",
               }}
               style={{ transformOrigin: 'top right' }}
               className="absolute inset-0 w-full bg-neutral-900 border-x border-b border-neutral-800 rounded-b-2xl p-4 flex items-center justify-center shadow-md overflow-hidden"
@@ -162,33 +165,29 @@ export const MovieCard = ({ movie, onBuy }: MovieCardProps) => {
             </motion.div>
           ) : (
             // motion.div (Stub confirmed): Vista final tras el desgarre
-            // Muestra un código de barras digital y el resumen del horario seleccionado.
+            // Muestra un código QR interactivo y las instrucciones de escaneo/revisión de correo.
             <motion.div
               key="stub-confirmed"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5, duration: 0.4 }}
-              className="absolute inset-0 w-full bg-neutral-900/30 border-x border-b border-dashed border-neutral-800/80 rounded-b-2xl p-3 flex flex-col items-center justify-center"
+              className="absolute inset-0 w-full bg-neutral-900/30 border-x border-b border-dashed border-neutral-800/80 rounded-b-2xl p-2.5 flex flex-col items-center justify-center gap-1.5"
             >
-              <div className="flex gap-0.5 items-center h-6 justify-center w-full opacity-65">
-                <div className="w-px h-full bg-neutral-500" />
-                <div className="w-0.5 h-full bg-neutral-500" />
-                <div className="w-px h-full bg-neutral-500" />
-                <div className="w-1 h-full bg-neutral-500" />
-                <div className="w-0.5 h-full bg-neutral-500" />
-                <div className="w-px h-full bg-neutral-500" />
-                <div className="w-0.5 h-full bg-neutral-500" />
-                <div className="w-px h-full bg-neutral-500" />
-                <div className="w-0.5 h-full bg-neutral-500" />
-                <div className="w-1 h-full bg-neutral-500" />
-                <div className="w-px h-full bg-neutral-500" />
-                <div className="w-0.5 h-full bg-neutral-500" />
-                <div className="w-px h-full bg-neutral-500" />
-                <div className="w-0.5 h-full bg-neutral-500" />
+              {/* QR Code SVG: Vector estilizado con Finder Patterns en las esquinas */}
+              <svg className="w-10 h-10 text-yellow-500/80 opacity-80" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M2 2h6v6H2V2zm1 1v4h4V3H3zm1 1h2v2H4V4zM16 2h6v6h-6V2zm1 1v4h4V3h-3zm1 1h2v2h-2V4zM2 16h6v6H2v-6zm1 1v4h4V3H3zm1 1h2v2H4v-2z" />
+                <path d="M12 2h2v2h-2zm0 4h2v2h-2zm4 8h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 4h2v2h-2zm-8-4h2v2H8zm4-8h2v2h-2zm8 4h2v2h-2z" />
+                <path d="M10 10h2v2h-2zm2 2h2v2h-2zm-2 2h2v2h-2zm6-4h2v2h-2zm2 2h2v2h-2zm-4 4h2v2h-2z" />
+              </svg>
+              
+              <div className="flex flex-col items-center text-center">
+                <span className="text-[8px] font-bold text-neutral-200 uppercase tracking-widest leading-none">
+                  TICKET COMPRADO • {selectedTime}
+                </span>
+                <span className="text-[7.5px] text-neutral-400 mt-1 max-w-[190px] leading-tight">
+                  Escanea el código o revisa tu correo para ver tu boleto.
+                </span>
               </div>
-              <span className="text-[9px] font-mono text-neutral-500 uppercase tracking-widest mt-1">
-                TICKET COMPRADO • {selectedTime}
-              </span>
             </motion.div>
           )}
         </AnimatePresence>
