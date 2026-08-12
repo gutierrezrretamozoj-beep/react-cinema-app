@@ -179,7 +179,7 @@ export const HomePage = () => {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center border border-dashed border-neutral-850 rounded-2xl py-16 px-4 text-center bg-neutral-900/10">
+          <div className="flex flex-col items-center justify-center border border-dashed border-neutral-800 rounded-2xl py-16 px-4 text-center bg-neutral-900/10">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -216,7 +216,8 @@ export const HomePage = () => {
 
       {/* Notificación Toast: Aviso flotante de compra */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 flex max-w-sm animate-slide-in rounded-xl border border-yellow-500/20 bg-neutral-900 p-4 shadow-2xl shadow-yellow-500/5 backdrop-blur-md">
+        <div className="fixed bottom-6 right-6 z-50 flex max-w-sm rounded-xl border border-yellow-500/20 bg-neutral-900 p-4 shadow-2xl shadow-yellow-500/5 backdrop-blur-md"
+        >
           <div className="flex gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-yellow-500/10 text-yellow-400">
               <svg
