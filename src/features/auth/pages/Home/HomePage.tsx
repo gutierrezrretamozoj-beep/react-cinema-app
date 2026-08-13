@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { MovieCard } from "./components/MovieCard";
 import { FeaturedCarousel } from "./components/FeaturedCarousel";
-import { MOVIES } from "./data/movieData";
-import type { Movie } from "./data/movieData";
+import type { Movie } from "./data/movieData.ts";
+import { MovieCard } from "./components/MovieCard";
+import { MOVIES } from "./data/movieData.ts";
 
 // HomePage: Componente de la página principal de la Cartelera de Cine
 // Controla los filtros, estados de notificaciones, y organiza la visualización del carrusel y listado de tickets.
@@ -11,6 +11,18 @@ export const HomePage = () => {
   const [activeTab, setActiveTab] = useState<"now-playing" | "coming-soon">("now-playing");
   const [selectedGenre, setSelectedGenre] = useState<string>("Todos");
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
+  const [activePreviewMovieId, setActivePreviewMovieId] = useState<string | null>(null);
+  
+  // handleBuyConfirm: Confirmación de boleto adquirido
+  // Despliega la notificación flotante exitosa con el título de la película y el horario tras el desgarre 3D.
+  const handleBuyConfirm = (movie: Movie, time: string) => {
+    setToast({
+      message: movie.status === 'coming-soon' ? `¡Preventa Confirmada!` : `¡Boleto Adquirido!`,
+      subMessage: movie.status === 'coming-soon'
+        ? `Precompra de ${movie.title} realizada para la función de las ${time}. ¡Te avisaremos el día del estreno!`
+        : `${movie.title} • Función de hoy a las ${time} • ¡Disfruta la función!`
+    });
+  };
   
   // Toast: Estado para el mensaje flotante interactivo
   const [toast, setToast] = useState<{ message: string; subMessage?: string } | null>(null);
@@ -54,18 +66,6 @@ export const HomePage = () => {
       }
     }, 150);
   };
-
-  // handleBuyConfirm: Confirmación de boleto adquirido
-  // Despliega la notificación flotante exitosa con el título de la película y el horario tras el desgarre 3D.
-  const handleBuyConfirm = (movie: Movie, time: string) => {
-    setToast({
-      message: movie.status === 'coming-soon' ? `¡Preventa Confirmada!` : `¡Boleto Adquirido!`,
-      subMessage: movie.status === 'coming-soon'
-        ? `Precompra de ${movie.title} realizada para la función de las ${time}. ¡Te avisaremos el día del estreno!`
-        : `${movie.title} • Función de hoy a las ${time} • ¡Disfruta la función!`
-    });
-  };
-
   // filteredMovies: Selector dinámico del grid de películas
   // Filtra en tiempo real los boletos por cartelera/estreno, categoría de género y selección de horarios rápidos.
   const filteredMovies = MOVIES.filter((movie) => {
@@ -174,6 +174,8 @@ export const HomePage = () => {
               <MovieCard
                 key={movie.id}
                 movie={movie}
+                isDimmed={Boolean(activePreviewMovieId) && activePreviewMovieId !== movie.id}
+                onPreviewChange={setActivePreviewMovieId}
                 onBuy={handleBuyConfirm}
               />
             ))}
