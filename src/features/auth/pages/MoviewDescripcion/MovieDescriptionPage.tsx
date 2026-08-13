@@ -83,15 +83,15 @@ export const MovieDescriptionPage = () => {
               </div>
 
               <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-3">
-                <InfoBlock label="Director" value={movie.director} />
-                <InfoBlock label="Fecha de estreno" value={movie.releaseDate} />
-                <InfoBlock label="Idiomas" value={movie.languages.join(", ")} />
-                <InfoBlock label="Formatos" value={movie.formats.join(", ")} />
-                <InfoBlock label="Precios" value={movie.prices.join(" • ")} />
-                <InfoBlock label="Calificación promedio" value={movie.averageRating} />
+                <InfoBlock label="Director" value={movie.director ?? "—"} />
+                <InfoBlock label="Fecha de estreno" value={movie.releaseDate ?? "—"} />
+                <InfoBlock label="Idiomas" value={(movie.languages?.join(", ") ?? "—")} />
+                <InfoBlock label="Formatos" value={(movie.formats?.join(", ") ?? "—")} />
+                <InfoBlock label="Precios" value={(movie.prices?.join(" • ") ?? "—")} />
+                <InfoBlock label="Calificación promedio" value={movie.averageRating ?? "—"} />
                 <InfoBlock label="Clasificación" value={movie.rating} />
                 <InfoBlock label="Estado" value={movie.status === "coming-soon" ? "Próximamente" : "En cartelera"} />
-                <InfoBlock label="Reparto" value={movie.cast.slice(0, 3).join(" • ")} />
+                <InfoBlock label="Reparto" value={(movie.cast ?? []).slice(0, 3).join(" • ") || "—"} />
               </div>
             </div>
 
