@@ -30,29 +30,22 @@ const PageShell = () => {
 
 export const appRouter = createBrowserRouter([
   {
+    path: "/",
     element: <PageShell />,
     children: [
       {
-        path: "/",
+        index: true,
         element: (
           <main className="p-10">
             <h1 className="text-2xl font-bold">Inicio</h1>
-            <p className="mt-2 text-neutral-400">
-              Navega con el menú superior entre Login, Registro y Cartelera.
-            </p>
+            <p className="mt-2 text-neutral-400">Navega con el menú superior entre Login, Registro y Cartelera.</p>
           </main>
         ),
       },
+      { path: "home", element: <HomePage /> },
+      { path: "movies/:movieId", element: <MovieDescriptionPage /> },
       {
-        path: "/home",
-        element: <HomePage />,
-      },
-      {
-        path: "/movies/:movieId",
-        element: <MovieDescriptionPage />,
-      },
-      {
-        path: "/auth",
+        path: "auth",
         children: [
           { path: "login", element: <LoginPage /> },
           { path: "register", element: <RegisterPage /> },

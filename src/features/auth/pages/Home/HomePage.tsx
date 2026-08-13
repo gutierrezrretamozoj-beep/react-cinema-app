@@ -13,6 +13,18 @@ export const HomePage = () => {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [activePreviewMovieId, setActivePreviewMovieId] = useState<string | null>(null);
   
+  // handleBuyConfirm: Confirmación de boleto adquirido
+  // Despliega la notificación flotante exitosa con el título de la película y el horario tras el desgarre 3D.
+  const handleBuyConfirm = (movie: Movie, time: string) => {
+    setToast({
+      message: movie.status === 'coming-soon' ? `¡Preventa Confirmada!` : `¡Boleto Adquirido!`,
+      subMessage: movie.status === 'coming-soon'
+        ? `Precompra de ${movie.title} realizada para la función de las ${time}. ¡Te avisaremos el día del estreno!`
+        : `${movie.title} • Función de hoy a las ${time} • ¡Disfruta la función!`
+    });
+  };
+>>>>>>> origin/feature-HomePage
+  
   // Toast: Estado para el mensaje flotante interactivo
   const [toast, setToast] = useState<{ message: string; subMessage?: string } | null>(null);
 
@@ -56,6 +68,20 @@ export const HomePage = () => {
     }, 150);
   };
 
+<<<<<<< HEAD
+=======
+  // handleBuyConfirm: Confirmación de boleto adquirido
+  // Despliega la notificación flotante exitosa con el título de la película y el horario tras el desgarre 3D.
+  const handleBuyConfirm = (movie: Movie, time: string) => {
+    setToast({
+      message: movie.status === 'coming-soon' ? `¡Preventa Confirmada!` : `¡Boleto Adquirido!`,
+      subMessage: movie.status === 'coming-soon'
+        ? `Precompra de ${movie.title} realizada para la función de las ${time}. ¡Te avisaremos el día del estreno!`
+        : `${movie.title} • Función de hoy a las ${time} • ¡Disfruta la función!`
+    });
+  };
+
+>>>>>>> origin/feature-HomePage
   // filteredMovies: Selector dinámico del grid de películas
   // Filtra en tiempo real los boletos por cartelera/estreno, categoría de género y selección de horarios rápidos.
   const filteredMovies = MOVIES.filter((movie) => {
@@ -166,6 +192,7 @@ export const HomePage = () => {
                 movie={movie}
                 isDimmed={Boolean(activePreviewMovieId) && activePreviewMovieId !== movie.id}
                 onPreviewChange={setActivePreviewMovieId}
+                onBuy={handleBuyConfirm}
               />
             ))}
           </div>
