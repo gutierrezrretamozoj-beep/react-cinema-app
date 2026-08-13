@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { MovieCard } from "./components/MovieCard";
 import { FeaturedCarousel } from "./components/FeaturedCarousel";
-import { MOVIES } from "./data/movieData";
-import type { Movie } from "./data/movieData";
+import type { Movie } from "./data/movieData.ts";
+import { MovieCard } from "./components/MovieCard";
+import { MOVIES } from "./data/movieData.ts";
 
 // HomePage: Componente de la página principal de la Cartelera de Cine
 // Controla los filtros, estados de notificaciones, y organiza la visualización del carrusel y listado de tickets.

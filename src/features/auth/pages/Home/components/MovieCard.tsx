@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
-
-import type { Movie } from "../data/movieData";
 import { Badge } from "./Badge";
+import type { Movie } from "../data/movieData";
 
 interface MovieCardProps {
   movie: Movie;
@@ -233,7 +232,7 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
               </svg>
               <div className="flex flex-col items-center text-center">
                 <span className="text-[8px] font-bold text-neutral-200 uppercase tracking-widest leading-none">TICKET COMPRADO • {selectedTime}</span>
-                <span className="text-[7.5px] text-neutral-400 mt-1 max-w-[190px] leading-tight">Escanea el código o revisa tu correo para ver tu boleto.</span>
+                <span className="text-[7.5px] text-neutral-400 mt-1 max-w-190px leading-tight">Escanea el código o revisa tu correo para ver tu boleto.</span>
               </div>
             </motion.div>
           )}
