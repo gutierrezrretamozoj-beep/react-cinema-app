@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { MOVIES } from "../Home/data/movieData";
 
+
 export const MovieDescriptionPage = () => {
   // Read the movie identifier from the route parameters.
   const { movieId } = useParams();
@@ -58,10 +59,10 @@ export const MovieDescriptionPage = () => {
     // Main container for the full movie detail experience.
     <div className="flex w-full flex-col gap-4 overflow-x-hidden px-3 py-4 sm:gap-6 sm:px-4 sm:py-6 md:gap-8 md:px-8 lg:px-10">
       {/* Hero section with the movie banner, title, and summary. */}
-      <div className="w-full overflow-hidden rounded-[1.5rem] border border-neutral-800 bg-neutral-900 shadow-2xl shadow-black/30 sm:rounded-[2rem]">
+      <div className="w-full overflow-hidden rounded-1.5rem border border-neutral-800 bg-neutral-900 shadow-2xl shadow-black/30 sm:rounded-2rem">
         <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="relative min-h-[220px] sm:min-h-[280px] lg:min-h-[360px]">
-            <img src={movie.backdropUrl} alt={movie.title} className="h-[220px] w-full object-cover sm:h-[280px] lg:h-full" />
+          <div className="relative min-h-220px sm:min-h-280px lg:min-h-360px">
+            <img src={movie.backdropUrl} alt={movie.title} className="h-220px w-full object-cover sm:h-280px lg:h-full" />
             <div className="absolute inset-0 bg-linear-to-r from-neutral-950 via-neutral-950/70 to-transparent" />
             <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 md:p-8">
               <p className="mb-2 inline-flex w-fit rounded-full border border-yellow-500/30 bg-yellow-500/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.3em] text-yellow-400 sm:mb-3 sm:px-3 sm:py-1 sm:text-[10px]">
@@ -108,7 +109,7 @@ export const MovieDescriptionPage = () => {
 
       {/* Booking and cast information section. */}
       <div className="grid min-w-0 gap-4 sm:gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <section className="min-w-0 rounded-[1.25rem] border border-neutral-800 bg-neutral-900/80 p-4 sm:rounded-[1.5rem] sm:p-6">
+        <section className="min-w-0 rounded-[1.25rem] border border-neutral-800 bg-neutral-900/80 p-4 sm:rounded-1.5rem sm:p-6">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white sm:text-xl">Funciones y reserva</h2>
           </div>
@@ -136,7 +137,7 @@ export const MovieDescriptionPage = () => {
           </div>
         </section>
 
-        <section className="min-w-0 rounded-[1.25rem] border border-neutral-800 bg-neutral-900/80 p-4 sm:rounded-[1.5rem] sm:p-6">
+        <section className="min-w-0 rounded-[1.25rem] border border-neutral-800 bg-neutral-900/80 p-4 sm:rounded-1.5rem sm:p-6">
           <h2 className="text-lg font-semibold text-white sm:text-xl">Reparto</h2>
           <div className="mt-3 flex flex-wrap gap-2 sm:mt-4">
             {movie.cast.map((actor) => (
@@ -148,7 +149,7 @@ export const MovieDescriptionPage = () => {
         </section>
       </div>
 
-      <section className="min-w-0 rounded-[1.25rem] border border-neutral-800 bg-neutral-900/80 p-4 sm:rounded-[1.5rem] sm:p-6">
+      <section className="min-w-0 rounded-[1.25rem] border border-neutral-800 bg-neutral-900/80 p-4 sm:rounded-1.5rem sm:p-6">
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-lg font-semibold text-white sm:text-xl">Películas recomendadas</h2>
           <Link to="/home" className="text-xs text-neutral-400 transition hover:text-yellow-400 sm:text-sm">Ver todas</Link>

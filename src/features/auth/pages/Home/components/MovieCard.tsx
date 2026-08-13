@@ -17,7 +17,7 @@ export const MovieCard = ({ movie, isDimmed = false, onPreviewChange }: MovieCar
   const [selectedTime, setSelectedTime] = useState<string | null>(showtimes[0] ?? null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const PREVIEW_DELAY = 3500;
+  const PREVIEW_DELAY = 1000;
 
   const clearHoverTimer = () => {
     if (hoverTimerRef.current) {
@@ -66,7 +66,7 @@ export const MovieCard = ({ movie, isDimmed = false, onPreviewChange }: MovieCar
       onFocus={handlePreviewStart}
       onBlur={handlePreviewEnd}
       tabIndex={0}
-      className="mx-auto flex h-full w-full max-w-[17rem] flex-col items-stretch select-none group relative"
+      className="mx-auto flex h-full w-full max-w-17rem flex-col items-stretch select-none group relative"
     >
       <div className={`flex h-full flex-col overflow-hidden rounded-[1.3rem] border border-neutral-800 bg-neutral-900 transition-all duration-300 ${isPreviewing ? "border-yellow-500/30 shadow-[0_0_0_1px_rgba(234,179,8,0.15)]" : isDimmed ? "border-neutral-800/70" : "border-neutral-800"}`}>
         <div className={`relative h-56 w-full overflow-hidden bg-neutral-950 transition-all duration-500 ${isPreviewing ? "h-64" : "h-56"}`}>
