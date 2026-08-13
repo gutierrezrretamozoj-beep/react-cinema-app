@@ -140,11 +140,15 @@ export const MovieDescriptionPage = () => {
         <section className="min-w-0 rounded-[1.25rem] border border-neutral-800 bg-neutral-900/80 p-4 sm:rounded-1.5rem sm:p-6">
           <h2 className="text-lg font-semibold text-white sm:text-xl">Reparto</h2>
           <div className="mt-3 flex flex-wrap gap-2 sm:mt-4">
-            {movie.cast.map((actor) => (
-              <span key={actor} className="rounded-full border border-neutral-700 bg-neutral-950/60 px-3 py-1.5 text-sm text-neutral-300">
-                {actor}
-              </span>
-            ))}
+            {(movie.cast ?? []).length > 0 ? (
+              (movie.cast ?? []).map((actor) => (
+                <span key={actor} className="rounded-full border border-neutral-700 bg-neutral-950/60 px-3 py-1.5 text-sm text-neutral-300">
+                  {actor}
+                </span>
+              ))
+            ) : (
+              <span className="text-sm text-neutral-400">Sin información del reparto.</span>
+            )}
           </div>
         </section>
       </div>
