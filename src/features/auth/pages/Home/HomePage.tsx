@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { FeaturedCarousel } from "./components/FeaturedCarousel";
 import type { Movie, MovieGenre } from "@/features/movies";
 import { MovieCard } from "./components/MovieCard";
-import { useMovieListings } from "@/features/movies";
+import { LocationSelector } from "@/features/movies/components/LocationSelector";
+import { getEffectiveCity, useMovieListings } from "@/features/movies";
 
 const QUICK_TIME_SLOTS = ["14:30", "17:45", "21:00"];
 
@@ -16,8 +17,20 @@ const GENRES: Array<"Todos" | MovieGenre> = ["Todos", "Acción", "Drama", "Sci-F
  * parameter so the state can be shared or restored.
  */
 export const HomePage = () => {
-  const { loading, allMovies, movies, status, genre, timeSlot, setStatus, setGenre, setTimeSlot, clearAllFilters } =
-    useMovieListings();
+  const {
+    loading,
+    allMovies,
+    movies,
+    status,
+    genre,
+    timeSlot,
+    setStatus,
+    setGenre,
+    setTimeSlot,
+    clearAllFilters,
+    needsLocationSelection,
+    selectCity,
+  } = useMovieListings();
 
   const [activePreviewMovieId, setActivePreviewMovieId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; subMessage?: string } | null>(null);
@@ -199,6 +212,12 @@ export const HomePage = () => {
           </div>
         )}
       </section>
+
+      {needsLocationSelection && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <LocationSelector onSelect={selectCity} onCancel={() => selectCity(getEffectiveCity())} />
+        </div>
+      )}
 
       {toast && (
         <div className="fixed bottom-6 right-6 z-50 flex max-w-sm animate-slide-in rounded-xl border border-yellow-500/20 bg-neutral-900 p-4 shadow-2xl shadow-yellow-500/5 backdrop-blur-md">
