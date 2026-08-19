@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "./Badge";
-import type { Movie } from "../data/movieData";
+import type { Movie, Showtime } from "@/features/movies";
 
 interface MovieCardProps {
   movie: Movie;
@@ -11,10 +11,18 @@ interface MovieCardProps {
   onPreviewChange?: (movieId: string | null) => void;
 }
 
+/**
+ * Movie card shaped like a movie ticket, with trailer preview on hover and a
+ * 3D tearing animation when the ticket is bought. Sold-out showtimes are shown
+ * disabled with a strikethrough.
+ */
 export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: MovieCardProps) => {
   const { id, title, genre, rating, posterUrl, duration, synopsis, showtimes, trailerUrl } = movie;
 
-  const [selectedTime, setSelectedTime] = useState<string | null>(showtimes[0] ?? null);
+  const activeShowtimes = showtimes;
+  const firstAvailable = activeShowtimes.find((item) => !item.isSoldOut) ?? activeShowtimes[0];
+
+  const [selectedTime, setSelectedTime] = useState<string | null>(firstAvailable?.time ?? null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const [isPeeling, setIsPeeling] = useState(false);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -45,12 +53,10 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
     onPreviewChange?.(null);
   };
 
-  const isTimeAvailable = (_time: string, index: number) => {
-    return !((Number(id) % 2 === 0 && index === 0) || (Number(id) % 3 === 0 && index === 2));
-  };
-
   const handleBuy = () => {
     if (!selectedTime || isPeeling) return;
+    const selectedShowtime = activeShowtimes.find((item) => item.time === selectedTime);
+    if (selectedShowtime?.isSoldOut) return;
 
     setIsPeeling(true);
 
@@ -136,23 +142,22 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
 
           <div className="mt-auto space-y-2">
             <div className="flex flex-wrap gap-1.5">
-              {showtimes.map((time, index) => {
-                const available = isTimeAvailable(time, index);
-                const isSelected = selectedTime === time;
+              {activeShowtimes.map((showtime: Showtime) => {
+                const isSelected = selectedTime === showtime.time;
                 return (
                   <button
-                    key={index}
-                    disabled={!available || isPeeling}
-                    onClick={() => setSelectedTime(time)}
+                    key={showtime.id}
+                    disabled={showtime.isSoldOut || isPeeling}
+                    onClick={() => setSelectedTime(showtime.time)}
                     className={`rounded-lg border px-2.5 py-1.5 text-[10px] font-mono font-bold transition-all duration-150 ${
-                      !available
-                        ? "cursor-not-allowed border-neutral-900 bg-neutral-950 text-neutral-600 line-through"
+                      showtime.isSoldOut
+                        ? "cursor-not-allowed border-red-900/40 bg-neutral-950 text-red-500/60 line-through"
                         : isSelected
                         ? "border-yellow-500 bg-yellow-500 text-neutral-950 shadow-md shadow-yellow-500/10"
                         : "border-neutral-800 bg-neutral-950 text-neutral-400 hover:border-yellow-500/30 hover:text-yellow-400"
                     }`}
                   >
-                    {time}
+                    {showtime.time}
                   </button>
                 );
               })}
@@ -195,7 +200,7 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
                 times: [0, 0.25, 0.6, 1],
                 ease: "easeInOut",
               }}
-              style={{ transformOrigin: 'top right' }}
+              style={{ transformOrigin: "top right" }}
               className="absolute inset-0 w-full bg-neutral-900 border-x border-b border-neutral-800 rounded-b-2xl p-4 flex items-center justify-center shadow-md overflow-hidden"
             >
               <motion.div
@@ -207,14 +212,14 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
 
               <button
                 onClick={handleBuy}
-                disabled={!selectedTime}
+                disabled={!selectedTime || isPeeling}
                 className={`w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-md relative z-10 ${
                   !selectedTime
-                    ? 'bg-neutral-950 border border-neutral-900 text-neutral-600 cursor-not-allowed'
-                    : 'bg-yellow-500 hover:bg-yellow-400 text-neutral-950 active:scale-95 hover:shadow-lg hover:shadow-yellow-500/20'
+                    ? "bg-neutral-950 border border-neutral-900 text-neutral-600 cursor-not-allowed"
+                    : "bg-yellow-500 hover:bg-yellow-400 text-neutral-950 active:scale-95 hover:shadow-lg hover:shadow-yellow-500/20"
                 }`}
               >
-                {movie.status === 'coming-soon' ? 'Precomprar Ticket' : 'Comprar Ticket'}
+                {movie.status === "coming-soon" ? "Precomprar Ticket" : "Comprar Ticket"}
               </button>
             </motion.div>
           ) : (
@@ -240,4 +245,4 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
       </div>
     </motion.div>
   );
-}
+};
