@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { getMovies, type ListingsResponse, type Movie, type Showtime } from "@/features/movies";
-import { getSavedCity } from "@/features/movies";
+import { getMovies, getEffectiveCity, type ListingsResponse, type Movie, type Showtime } from "@/features/movies";
 
 export const MovieDescriptionPage = () => {
   const { movieId } = useParams();
@@ -11,7 +10,7 @@ export const MovieDescriptionPage = () => {
   const [toast, setToast] = useState<{ message: string; subMessage?: string } | null>(null);
 
   useEffect(() => {
-    getMovies({ city: getSavedCity() })
+    getMovies({ city: getEffectiveCity() })
       .then((response: ListingsResponse) => {
         const found = response.movies.find((item) => item.id === movieId) ?? null;
         setCatalog(response.movies);
