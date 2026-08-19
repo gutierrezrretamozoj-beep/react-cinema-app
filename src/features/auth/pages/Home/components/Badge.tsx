@@ -1,9 +1,9 @@
-import type { Movie } from "../data/movieData";
+import type { MovieRating } from "@/features/movies";
 
 interface BadgeProps {
   variant: 'genre' | 'rating' | 'featured' | 'pre-purchase';
   text: string;
-  ratingType?: Movie['rating'];
+  ratingType?: MovieRating;
   className?: string;
 }
 
