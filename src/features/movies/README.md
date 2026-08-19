@@ -9,6 +9,7 @@ de filtros con persistencia en la URL.
 movies/
 ├── api/
 │   ├── moviesApi.ts        # Cliente HTTP (Fetch) para los 4 endpoints
+│   ├── geographyApi.ts     # Países → departamentos → ciudades (GET de geografía)
 │   └── locationService.ts  # Detección/guardado de la ciudad del visitante
 ├── data/
 │   ├── movies.json         # Contrato mock consumido por la capa de API
@@ -37,6 +38,20 @@ está disponible, cada función resuelve con el mock de `data/movies.json`.
 
 Todas las peticiones incluyen la ciudad guardada (`city`) como parámetro de
 consulta; se obtiene con `getSavedCity()` / `detectCity()`.
+
+Si el permiso de geolocalización es rechazado o no está disponible,
+`detectCity()` resuelve con `status: "denied"` y la UI muestra
+`LocationSelector` (país → departamento → ciudad) para elegir manualmente.
+
+## Endpoints de geografía
+
+`geographyApi.ts` consume el catálogo geográfico con fallback a `data/geo.json`:
+
+| Endpoint                        | Función          | Descripción                          |
+| ------------------------------- | ---------------- | ------------------------------------ |
+| `GET /countries`                | `getCountries`   | Catálogo de países.                  |
+| `GET /departments?countryId=`   | `getDepartments` | Departamentos de un país.            |
+| `GET /cities?departmentId=`     | `getCities`      | Ciudades activas de un departamento. |
 
 ## Mock data (`movies.json`)
 
