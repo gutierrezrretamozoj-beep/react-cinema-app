@@ -1,5 +1,6 @@
 export * from "./interfaces";
 export * from "./api/moviesApi";
+export * from "./api/geographyApi";
 export * from "./api/locationService";
 export * from "./helpers/filterHelpers";
 export * from "./helpers/showtimeHelpers";

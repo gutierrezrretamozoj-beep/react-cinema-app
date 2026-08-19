@@ -1,0 +1,38 @@
+{
+  "countries": [
+    { "id": 1, "name": "Colombia" },
+    { "id": 2, "name": "México" }
+  ],
+  "departments": [
+    { "id": 5, "countryId": 1, "name": "Atlántico" },
+    { "id": 8, "countryId": 1, "name": "Antioquia" },
+    { "id": 11, "countryId": 1, "name": "Córdoba" },
+    { "id": 14, "countryId": 1, "name": "Chocó" },
+    { "id": 20, "countryId": 2, "name": "Jalisco" },
+    { "id": 21, "countryId": 2, "name": "Ciudad de México" },
+    { "id": 22, "countryId": 2, "name": "Nuevo León" }
+  ],
+  "cities": [
+    { "id": 1, "departmentId": 5, "name": "Barranquilla", "isActive": true },
+    { "id": 2, "departmentId": 5, "name": "Soledad", "isActive": true },
+    { "id": 3, "departmentId": 5, "name": "Sabanalarga", "isActive": true },
+    { "id": 4, "departmentId": 8, "name": "Medellín", "isActive": true },
+    { "id": 5, "departmentId": 8, "name": "Envigado", "isActive": true },
+    { "id": 6, "departmentId": 8, "name": "Bello", "isActive": true },
+    { "id": 7, "departmentId": 11, "name": "Montería", "isActive": true },
+    { "id": 8, "departmentId": 11, "name": "Lorica", "isActive": true },
+    { "id": 9, "departmentId": 11, "name": "Sahagún", "isActive": true },
+    { "id": 10, "departmentId": 14, "name": "Quibdó", "isActive": true },
+    { "id": 11, "departmentId": 14, "name": "Istmina", "isActive": true },
+    { "id": 12, "departmentId": 14, "name": "Condoto", "isActive": true },
+    { "id": 13, "departmentId": 20, "name": "Guadalajara", "isActive": true },
+    { "id": 14, "departmentId": 20, "name": "Zapopan", "isActive": true },
+    { "id": 15, "departmentId": 20, "name": "Tlaquepaque", "isActive": true },
+    { "id": 16, "departmentId": 21, "name": "Ciudad de México", "isActive": true },
+    { "id": 17, "departmentId": 21, "name": "Coyoacán", "isActive": true },
+    { "id": 18, "departmentId": 21, "name": "Tlalpan", "isActive": true },
+    { "id": 19, "departmentId": 22, "name": "Monterrey", "isActive": true },
+    { "id": 20, "departmentId": 22, "name": "San Pedro", "isActive": true },
+    { "id": 21, "departmentId": 22, "name": "Apodaca", "isActive": true }
+  ]
+}

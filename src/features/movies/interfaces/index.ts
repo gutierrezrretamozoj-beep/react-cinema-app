@@ -2,6 +2,24 @@ export type MovieStatus = "now-playing" | "coming-soon";
 export type MovieGenre = "Acción" | "Drama" | "Sci-Fi" | "Thriller" | "Terror";
 export type MovieRating = "A" | "B" | "B15" | "C";
 
+export interface Country {
+  id: number;
+  name: string;
+}
+
+export interface Department {
+  id: number;
+  countryId: number;
+  name: string;
+}
+
+export interface City {
+  id: number;
+  departmentId: number;
+  name: string;
+  isActive: boolean;
+}
+
 export interface Showtime {
   id: string;
   time: string;
