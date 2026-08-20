@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { signIn } from "../../store";
 import { Link, useNavigate } from "react-router";
+import { MOVIES } from "../Home/data/movieData";
 
 // ─── Partícula flotante ───────────────────────────────────────────────────────
 interface Particle {
@@ -162,26 +163,6 @@ export const LoginPage = () => {
         />
       </div>
 
-      {/* ── Patrón de película (perforaciones) ───────────────────── */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-10 opacity-20 content-center hidden lg:block">
-        {Array.from({ length: 32 }).map((_, i) => (
-          <div
-            key={i}
-            className="mx-auto my-3 w-5 rounded-sm bg-neutral-700"
-            style={{ height: 14, marginTop: i === 0 ? 24 : undefined }}
-          />
-        ))}
-      </div>
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-10 opacity-20 content-center hidden lg:block">
-        {Array.from({ length: 32 }).map((_, i) => (
-          <div
-            key={i}
-            className="mx-auto my-3 w-5 rounded-sm bg-neutral-700"
-            style={{ height: 14, marginTop: i === 0 ? 24 : undefined }}
-          />
-        ))}
-      </div>
-
       {/* ── Panel izquierdo: marca y ambiente ────────────────────── */}
       <div
         className="hidden lg:flex lg:w-3/5 flex-col items-center justify-center relative"
@@ -192,6 +173,7 @@ export const LoginPage = () => {
         }}
       >
         {/* Poster cinematográfico */}
+        
           {/* Pantalla de cine para trailer */}
           <div
             className="relative w-full max-w-3xl overflow-hidden rounded-2xl"
@@ -203,6 +185,7 @@ export const LoginPage = () => {
               aspectRatio: "16/9",
             }}
           >
+            
             {/* Pantalla - Área del trailer */}
             <div
               className="relative w-full h-full flex items-center justify-center overflow-hidden"
@@ -210,8 +193,14 @@ export const LoginPage = () => {
             >
               {/* Placeholder para video/trailer */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center z-10">
-                  <p className="text-sm text-neutral-400">Reemplaza con tu video/iframe</p>
+                <div className="h-full w-full">
+                  <iframe
+                    className="block h-full w-full border-0"
+                    src={MOVIES[6].trailerUrl}
+                    title="Trailer"
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                  />
                 </div>
               </div>
               {/* Efecto de luz de pantalla */}
@@ -221,42 +210,31 @@ export const LoginPage = () => {
               />
             </div>
           </div>
-
-          {/* Descripción */}
-          <div className="text-center space-y-2 mt-8">
-            <p className="text-neutral-300 text-lg font-semibold leading-relaxed max-w-2xl">
-              Disfruta del mejor cine en <span className="text-yellow-400">alta definición</span>
-            </p>
-            <p className="text-neutral-500 text-sm max-w-2xl">
-              Más de <span className="text-yellow-400 font-semibold">500 películas</span> disponibles. Tu próxima aventura cinematográfica te espera.
-            </p>
-          </div>
       </div>
 
       {/* ─────────────────── Panel derecho: formulario ─────────────────── */}
-      <div className="flex flex-col w-full lg:w-2/5 items-center justify-center px-6 py-12">
-        {/* Logo */}
-          <div className="flex flex-col items-center gap-3 mb-5">
-            <div
-              className="flex h-20 w-20 items-center justify-center rounded-2xl"
-              style={{
-                background: "linear-gradient(135deg, rgba(234,179,8,0.15) 0%, rgba(234,179,8,0.05) 100%)",
-                border: "1px solid rgba(234,179,8,0.2)",
-                boxShadow: "0 0 40px rgba(234,179,8,0.08), inset 0 1px 0 rgba(234,179,8,0.1)",
-              }}
-            >
-              <svg viewBox="0 0 24 24" fill="none" className="w-10 h-10 text-yellow-400">
-                <path d="M7 4v16M17 4v16M3 8h4m10 0h4M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <div className="text-center">
-              <p className="text-xs font-bold tracking-[5px] text-yellow-500/70 uppercase mb-1">Bienvenido a</p>
-              <h1 className="text-5xl font-black tracking-tight text-white" style={{ fontFamily: "'Helvetica Neue', sans-serif" }}>
-                Cine<span className="text-yellow-400">App</span>
-              </h1>
-            </div>
+      <div className="flex flex-col w-full lg:w-2/5 items-center justify-center px-6 py-5">
+          {/* Logo */}
+        <div className="flex flex-col items-center gap-3 mb-5">
+          <div
+            className="flex h-14 w-14 items-center justify-center rounded-2xl"
+            style={{
+              background: "linear-gradient(135deg, rgba(234,179,8,0.15) 0%, rgba(234,179,8,0.05) 100%)",
+              border: "1px solid rgba(234,179,8,0.2)",
+              boxShadow: "0 0 40px rgba(234,179,8,0.08), inset 0 1px 0 rgba(234,179,8,0.1)",
+            }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" className="w-7 h-7 text-yellow-400">
+              <path d="M7 4v16M17 4v16M3 8h4m10 0h4M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </div>
-
+          <div className="text-center">
+            <p className="text-xs font-bold tracking-[5px] text-yellow-500/70 uppercase mb-1">Bienvenido a</p>
+            <h1 className="text-4xl font-black tracking-tight text-white" style={{ fontFamily: "'Helvetica Neue', sans-serif" }}>
+              Cine<span className="text-yellow-400">App</span>
+            </h1>
+          </div>
+        </div>
         <div
           className="w-full max-w-md"
           style={{
@@ -267,7 +245,7 @@ export const LoginPage = () => {
         >
           {/* Card con efecto de ticket */}
           <div
-            className={`relative overflow-visible rounded-3xl p-8 ${shake ? "animate-shake" : ""}`}
+            className={`relative overflow-visible rounded-3xl p-6 ${shake ? "animate-shake" : ""}`}
             style={{
               background: "linear-gradient(135deg, rgba(20,20,35,0.95) 0%, rgba(10,10,20,0.98) 100%)",
               border: "1px solid rgba(255,255,255,0.07)",
@@ -279,19 +257,19 @@ export const LoginPage = () => {
           >
 
             {/* Header del formulario */}
-            <div className="mb-7 text-center">
+            <div className="mb-5 text-center">
               <div className="flex items-center justify-center gap-2 mb-3">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent to-yellow-500/20" />
+                <div className="h-px flex-1 bg-linear-to-r from-transparent to-yellow-500/20" />
                 <span className="text-[10px] font-bold tracking-[4px] text-yellow-500/60 uppercase px-2">Admit One</span>
-                <div className="h-px flex-1 bg-gradient-to-l from-transparent to-yellow-500/20" />
+                <div className="h-px flex-1 bg-linear-to-l from-transparent to-yellow-500/20" />
               </div>
               <h2 className="text-2xl font-black text-white mb-1">Accede a tu cuenta</h2>
               <p className="text-sm text-neutral-500">Tu función empieza aquí</p>
             </div>
 
             {/* Divisor de ticket */}
-            <div className="relative -mx-8 mb-7">
-              <div className="border-t border-dashed border-white/[0.06]" />
+            <div className="relative -mx-6 mb-5">
+              <div className="border-t border-dashed border-white-[0.06]" />
               <div className="absolute left-0 -top-2 w-4 h-4 rounded-full" style={{ background: "#050810" }} />
               <div className="absolute right-0 -top-2 w-4 h-4 rounded-full" style={{ background: "#050810" }} />
             </div>
@@ -310,7 +288,7 @@ export const LoginPage = () => {
 
             {/* Formulario */}
             {!success && (
-              <form onSubmit={handleSubmit} noValidate className="space-y-4">
+                <form onSubmit={handleSubmit} noValidate className="space-y-3">
                 {/* Email */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider">
@@ -342,7 +320,7 @@ export const LoginPage = () => {
                       placeholder="tu@correo.com"
                       autoComplete="email"
                       required
-                      className="w-full bg-transparent pl-10 pr-4 py-3.5 text-sm text-white placeholder-neutral-600 outline-none"
+                      className="w-full bg-transparent pl-10 pr-4 py-2.5 text-sm text-white placeholder-neutral-600 outline-none"
                     />
                   </div>
                 </div>
@@ -377,7 +355,7 @@ export const LoginPage = () => {
                       placeholder="••••••••"
                       autoComplete="current-password"
                       required
-                      className="w-full bg-transparent pl-10 pr-12 py-3.5 text-sm text-white placeholder-neutral-600 outline-none"
+                      className="w-full bg-transparent pl-10 pr-12 py-2.5 text-sm text-white placeholder-neutral-600 outline-none"
                     />
                     <button
                       type="button"
@@ -416,7 +394,7 @@ export const LoginPage = () => {
                 <button
                   type="submit"
                   disabled={loading || !email || !password}
-                  className="relative w-full overflow-hidden rounded-xl py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500/40 disabled:cursor-not-allowed mt-4"
+                  className="relative mt-2 w-full overflow-hidden rounded-xl py-3 text-sm font-bold tracking-widest uppercase transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500/40 disabled:cursor-not-allowed"
                   style={{
                     background: loading || !email || !password
                       ? "rgba(255,255,255,0.05)"
@@ -456,8 +434,8 @@ export const LoginPage = () => {
             )}
 
             {/* Footer */}
-            <div className="relative mt-6">
-              <div className="border-t border-dashed border-white/[0.05] -mx-8 mb-5">
+            <div className="relative mt-4">
+              <div className="border-t border-dashed border-white-[0.05] -mx-6 mb-4">
                 <div className="absolute left-0 -top-2 w-4 h-4 rounded-full" style={{ background: "#050810" }} />
                 <div className="absolute right-0 -top-2 w-4 h-4 rounded-full" style={{ background: "#050810" }} />
               </div>
