@@ -67,7 +67,7 @@ export const FeaturedCarousel = ({ movies, onSelectMovie }: FeaturedCarouselProp
 
   return (
     <div 
-      className="relative w-full h-80 sm:h-[24rem] md:h-[26rem] overflow-hidden rounded-3xl border border-neutral-800/80 bg-neutral-950 shadow-2xl"
+      className="relative w-full h-80 sm:h-95 md:h-105 overflow-hidden rounded-3xl border border-neutral-800/80 bg-neutral-950 shadow-2xl"
       onMouseEnter={stopTimer}
       onMouseLeave={startTimer}
     >
@@ -88,9 +88,9 @@ export const FeaturedCarousel = ({ movies, onSelectMovie }: FeaturedCarouselProp
             className="w-full h-full object-cover"
           />
 
-          <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/70 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-neutral-950 via-neutral-950/70 to-transparent" />
           
-          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/90 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-neutral-950/90 via-transparent to-transparent" />
 
           <div className="absolute inset-y-0 left-0 p-8 sm:p-12 md:p-16 flex flex-col justify-center max-w-lg z-10 gap-3.5 text-left">
             <div className="flex gap-2 items-center">
@@ -102,11 +102,11 @@ export const FeaturedCarousel = ({ movies, onSelectMovie }: FeaturedCarouselProp
               <Badge variant="rating" text={currentMovie.rating} ratingType={currentMovie.rating} />
             </div>
 
-            <h1 className="text-xl sm:text-2xl md:text-4xl font-extrabold text-neutral-100 font-serif leading-tight">
+            <h1 className="text-xl sm:text-2xl md:text-3.5xl font-extrabold text-neutral-100 font-serif leading-tight">
               {currentMovie.title}
             </h1>
 
-            <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed max-h-[4.5rem] overflow-hidden font-normal max-w-md">
+            <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed line-clamp-3 font-normal max-w-md">
               {currentMovie.synopsis}
             </p>
 

@@ -1,78 +1,88 @@
 import { useState, useEffect } from "react";
 import { MovieCard } from "./components/MovieCard";
 import { FeaturedCarousel } from "./components/FeaturedCarousel";
+import { DateSelector } from "./components/DateSelector";
+import { EmptyState } from "./components/EmptyState";
+import { MovieGridSkeleton } from "./components/MovieCardSkeleton";
 import { MOVIES } from "./data/movieData";
 import type { Movie } from "./data/movieData";
 
 // HomePage: Componente de la página principal de la Cartelera de Cine
-// Controla los filtros, estados de notificaciones, y organiza la visualización del carrusel y listado de tickets.
+// Controla los filtros, estados de carga, notificaciones y visualización del carrusel y listado de películas.
 export const HomePage = () => {
-  // Filtros de navegación: Estados locales de control de pestañas, géneros y horarios rápidos
+  // ── Estado de carga inicial ──
+  const [isLoading, setIsLoading] = useState(true);
+
+  // ── Filtros de navegación ──
   const [activeTab, setActiveTab] = useState<"now-playing" | "coming-soon">("now-playing");
   const [selectedGenre, setSelectedGenre] = useState<string>("Todos");
+  const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
-  
-  // Toast: Estado para el mensaje flotante interactivo
-  const [toast, setToast] = useState<{ message: string; subMessage?: string } | null>(null);
+  const [activePreviewMovieId, setActivePreviewMovieId] = useState<string | null>(null);
 
-  // useEffect (Toast Timer): Temporizador de auto-cierre
-  // Desvanece el Toast de forma segura después de 4 segundos de inactividad del usuario.
+  // ── Toast flotante ──
+  const [toast, setToast] = useState<{ message: string; subMessage?: string; type?: "buy" | "info" } | null>(null);
+
+  // Simula la carga inicial de datos (fetch real reemplazaría este timeout)
   useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => {
-        setToast(null);
-      }, 4000);
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => setIsLoading(false), 1800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Auto-cierre del toast tras 4 segundos
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 4000);
+    return () => clearTimeout(timer);
   }, [toast]);
 
-  // handleCarouselBuyClick: Acción de enfoque de compra del carrusel
-  // Ajusta tabuladores/géneros para mostrar la película oculta, realiza scroll suave y resalta temporalmente el ticket con un aro dorado.
+  // handleCarouselBuyClick: Acción de enfoque de compra desde el carrusel
   const handleCarouselBuyClick = (movie: Movie) => {
     setToast({
-      message: movie.status === 'coming-soon' ? `Precomprar boletos para: ${movie.title}` : `Comprar boletos para: ${movie.title}`,
-      subMessage: "Selecciona un horario disponible en el boleto de abajo para confirmar tu compra."
+      message: movie.status === "coming-soon"
+        ? `Precomprar boletos para: ${movie.title}`
+        : `Comprar boletos para: ${movie.title}`,
+      subMessage: "Selecciona un horario disponible en la tarjeta de abajo para confirmar.",
+      type: "info",
     });
 
-    if (movie.status !== activeTab) {
-      setActiveTab(movie.status);
-    }
-
-    if (selectedGenre !== "Todos" && movie.genre !== selectedGenre) {
-      setSelectedGenre("Todos");
-    }
+    if (movie.status !== activeTab) setActiveTab(movie.status);
+    if (selectedGenre !== "Todos" && movie.genre !== selectedGenre) setSelectedGenre("Todos");
 
     setTimeout(() => {
       const element = document.getElementById(`movie-card-${movie.id}`);
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
-        
         element.classList.add("ring-2", "ring-yellow-500", "scale-105");
-        setTimeout(() => {
-          element.classList.remove("ring-2", "ring-yellow-500", "scale-105");
-        }, 2000);
+        setTimeout(() => element.classList.remove("ring-2", "ring-yellow-500", "scale-105"), 2000);
       }
     }, 150);
   };
 
-  // handleBuyConfirm: Confirmación de boleto adquirido
-  // Despliega la notificación flotante exitosa con el título de la película y el horario tras el desgarre 3D.
-  const handleBuyConfirm = (movie: Movie, time: string) => {
+  // handleBuy: Acción de compra desde la tarjeta de película
+  const handleBuy = (movie: Movie, selectedTime: string) => {
     setToast({
-      message: movie.status === 'coming-soon' ? `¡Preventa Confirmada!` : `¡Boleto Adquirido!`,
-      subMessage: movie.status === 'coming-soon'
-        ? `Precompra de ${movie.title} realizada para la función de las ${time}. ¡Te avisaremos el día del estreno!`
-        : `${movie.title} • Función de hoy a las ${time} • ¡Disfruta la función!`
+      message: movie.status === "coming-soon"
+        ? `¡Precompra registrada! ${movie.title}`
+        : `¡Compra exitosa! ${movie.title}`,
+      subMessage: `Horario: ${selectedTime} • Tu entrada ha sido reservada.`,
+      type: "buy",
     });
   };
 
+  // handleReset: Restablece todos los filtros al estado inicial
+  const handleReset = () => {
+    setSelectedGenre("Todos");
+    setSelectedTimeSlot(null);
+    setSelectedDate("");
+    setActiveTab("now-playing");
+  };
+
   // filteredMovies: Selector dinámico del grid de películas
-  // Filtra en tiempo real los boletos por cartelera/estreno, categoría de género y selección de horarios rápidos.
   const filteredMovies = MOVIES.filter((movie) => {
     const matchesTab = movie.status === activeTab;
     const matchesGenre = selectedGenre === "Todos" || movie.genre === selectedGenre;
     const matchesTimeSlot = !selectedTimeSlot || movie.showtimes.includes(selectedTimeSlot);
-
     return matchesTab && matchesGenre && matchesTimeSlot;
   });
 
@@ -81,10 +91,13 @@ export const HomePage = () => {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 flex flex-col gap-6 md:gap-8">
-      {/* Carrusel destacado: Panel panorámico superior */}
+      {/* Carrusel destacado */}
       <FeaturedCarousel movies={MOVIES} onSelectMovie={handleCarouselBuyClick} />
 
-      {/* Sección 1: Filtros de Horarios Rápidos de Hoy */}
+      {/* Selector de fecha (7 días) */}
+      <DateSelector selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+
+      {/* Horarios rápidos */}
       <section className="rounded-xl border border-neutral-900 bg-neutral-950 p-6 shadow-sm">
         <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400 mb-3.5">
           Horarios de hoy (Filtro rápido)
@@ -96,7 +109,7 @@ export const HomePage = () => {
               <button
                 key={time}
                 onClick={() => setSelectedTimeSlot(isActive ? null : time)}
-                className={`rounded-lg px-5 py-2.5 font-mono text-sm font-semibold transition-all duration-200 border ${
+                className={`rounded-lg px-5 py-2.5 font-mono text-sm font-semibold transition-all duration-200 border focus:outline-none focus:ring-2 focus:ring-yellow-500/40 ${
                   isActive
                     ? "border-yellow-500 bg-yellow-500/10 text-yellow-400 shadow-md shadow-yellow-500/5"
                     : "border-neutral-900 bg-neutral-900/40 text-neutral-400 hover:border-neutral-800 hover:text-neutral-200"
@@ -106,38 +119,37 @@ export const HomePage = () => {
               </button>
             );
           })}
+          {selectedDate && (
+            <div className="flex items-center rounded-lg border border-yellow-500/30 bg-yellow-500/5 px-3 py-2.5 text-xs text-yellow-400">
+              <span className="font-mono font-semibold">{selectedDate}</span>
+              <button
+                onClick={() => setSelectedDate("")}
+                className="ml-2 text-yellow-500/60 hover:text-yellow-400"
+                aria-label="Quitar filtro de fecha"
+              >
+                ✕
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Sección 2: Tabuladores de Cartelera y Botones de Género */}
+      {/* Tabuladores y filtros de género */}
       <section className="flex flex-col gap-4">
         <div className="flex border-b border-neutral-900">
-          <button
-            onClick={() => {
-              setActiveTab("now-playing");
-              setSelectedTimeSlot(null);
-            }}
-            className={`pb-3 text-sm font-semibold uppercase tracking-wider transition-all border-b-2 px-4 ${
-              activeTab === "now-playing"
-                ? "border-yellow-500 text-yellow-400"
-                : "border-transparent text-neutral-500 hover:text-neutral-300"
-            }`}
-          >
-            En Cartelera
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab("coming-soon");
-              setSelectedTimeSlot(null);
-            }}
-            className={`pb-3 text-sm font-semibold uppercase tracking-wider transition-all border-b-2 px-4 ${
-              activeTab === "coming-soon"
-                ? "border-yellow-500 text-yellow-400"
-                : "border-transparent text-neutral-500 hover:text-neutral-300"
-            }`}
-          >
-            Próximamente
-          </button>
+          {(["now-playing", "coming-soon"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => { setActiveTab(tab); setSelectedTimeSlot(null); }}
+              className={`pb-3 text-sm font-semibold uppercase tracking-wider transition-all border-b-2 px-4 focus:outline-none ${
+                activeTab === tab
+                  ? "border-yellow-500 text-yellow-400"
+                  : "border-transparent text-neutral-500 hover:text-neutral-300"
+              }`}
+            >
+              {tab === "now-playing" ? "En Cartelera" : "Próximamente"}
+            </button>
+          ))}
         </div>
 
         <div className="flex gap-2 flex-wrap pb-2">
@@ -147,7 +159,7 @@ export const HomePage = () => {
               <button
                 key={genre}
                 onClick={() => setSelectedGenre(genre)}
-                className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 border ${
+                className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 border focus:outline-none focus:ring-2 focus:ring-yellow-500/30 ${
                   isActive
                     ? "border-yellow-500/80 bg-yellow-500/5 text-yellow-400"
                     : "border-neutral-800 bg-transparent text-neutral-400 hover:border-neutral-700 hover:text-neutral-200"
@@ -160,74 +172,68 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* Sección 3: Conteo y Lista del Grid de Películas */}
+      {/* Grid de películas con skeleton, empty state y resultados */}
       <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
-            {filteredMovies.length} {filteredMovies.length === 1 ? "película" : "películas"} encontradas
+            {isLoading
+              ? "Cargando películas..."
+              : `${filteredMovies.length} ${filteredMovies.length === 1 ? "película" : "películas"} encontradas`}
           </span>
+          {(selectedGenre !== "Todos" || selectedTimeSlot || selectedDate) && !isLoading && (
+            <button
+              onClick={handleReset}
+              className="text-[11px] text-neutral-500 hover:text-yellow-400 transition-colors underline underline-offset-2"
+            >
+              Limpiar filtros
+            </button>
+          )}
         </div>
 
-        {filteredMovies.length > 0 ? (
+        {/* Loading skeleton */}
+        {isLoading ? (
+          <MovieGridSkeleton count={4} />
+        ) : filteredMovies.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pt-2">
             {filteredMovies.map((movie) => (
               <MovieCard
                 key={movie.id}
                 movie={movie}
-                onBuy={handleBuyConfirm}
+                isDimmed={Boolean(activePreviewMovieId) && activePreviewMovieId !== movie.id}
+                onPreviewChange={setActivePreviewMovieId}
+                onBuy={handleBuy}
               />
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center border border-dashed border-neutral-800 rounded-2xl py-16 px-4 text-center bg-neutral-900/10">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-10 h-10 text-neutral-600 mb-3"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
-              />
-            </svg>
-            <h4 className="text-sm font-bold text-neutral-300">
-              No hay resultados para esta búsqueda
-            </h4>
-            <p className="text-xs text-neutral-500 mt-1 max-w-sm">
-              Prueba cambiando la pestaña de estreno, quitando el filtro de horario rápido o seleccionando otro género.
-            </p>
-            <button
-              onClick={() => {
-                setSelectedGenre("Todos");
-                setSelectedTimeSlot(null);
-                setActiveTab("now-playing");
-              }}
-              className="mt-4 rounded-lg bg-neutral-800 hover:bg-neutral-700 px-4 py-2 text-xs font-semibold text-neutral-200 transition"
-            >
-              Restablecer filtros
-            </button>
-          </div>
+          <EmptyState onReset={handleReset} />
         )}
       </section>
 
-      {/* Notificación Toast: Aviso flotante de compra */}
+      {/* Toast flotante */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 flex max-w-sm rounded-xl border border-yellow-500/20 bg-neutral-900 p-4 shadow-2xl shadow-yellow-500/5 backdrop-blur-md"
+        <div
+          className={`fixed bottom-6 right-6 z-50 flex max-w-sm animate-slide-in rounded-xl border bg-neutral-900 p-4 shadow-2xl backdrop-blur-md ${
+            toast.type === "buy"
+              ? "border-emerald-500/20 shadow-emerald-500/5"
+              : "border-yellow-500/20 shadow-yellow-500/5"
+          }`}
         >
           <div className="flex gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-yellow-500/10 text-yellow-400">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="h-5 w-5"
-              >
-                <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm11.378-3.917c-.89-.777-2.384-.179-2.384 1.009v1.231H10a.75.75 0 1 0 0 1.5h1.25V15a.75.75 0 1 0 1.5 0v-3.178c0-.687.525-1.25 1.182-1.25a.75.75 0 1 0 0-1.5c-.22 0-.424.08-.58.211Z" clipRule="evenodd" />
-              </svg>
+            <div
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+                toast.type === "buy" ? "bg-emerald-500/10 text-emerald-400" : "bg-yellow-500/10 text-yellow-400"
+              }`}
+            >
+              {toast.type === "buy" ? (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                  <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                  <path d="M2.25 2.25a.75.75 0 0 0 0 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 0 0-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 0 0 0-1.5H5.378A2.25 2.25 0 0 1 7.5 15h11.218a.75.75 0 0 0 .674-.421 60.358 60.358 0 0 0 2.96-7.228.75.75 0 0 0-.525-.965A60.864 60.864 0 0 0 5.68 4.509l-.232-.867A1.875 1.875 0 0 0 3.636 2.25H2.25Z" />
+                </svg>
+              )}
             </div>
             <div className="flex flex-col gap-0.5">
               <h5 className="text-xs font-bold text-neutral-100">{toast.message}</h5>
@@ -237,7 +243,8 @@ export const HomePage = () => {
             </div>
             <button
               onClick={() => setToast(null)}
-              className="text-neutral-500 hover:text-neutral-350 shrink-0 ml-auto"
+              className="text-neutral-500 hover:text-neutral-300 shrink-0 ml-auto focus:outline-none"
+              aria-label="Cerrar notificación"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

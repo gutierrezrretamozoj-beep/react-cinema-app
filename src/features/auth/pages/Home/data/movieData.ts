@@ -12,6 +12,14 @@ export interface Movie {
   duration: string;
   synopsis: string;
   showtimes: string[];
+  trailerUrl: string;
+  director: string;
+  cast: string[];
+  releaseDate: string;
+  languages: string[];
+  formats: string[];
+  prices: string[];
+  averageRating: string;
 }
 
 // MOVIES: Base de datos estática de películas en cartelera y próximos estrenos
@@ -28,7 +36,15 @@ export const MOVIES: Movie[] = [
     featured: true,
     duration: "148 min",
     synopsis: "Un grupo de científicos emprende un viaje sin retorno a través de una anomalía en el espacio para rescatar los restos de una expedición perdida.",
-    showtimes: ["14:30", "17:45", "21:00"]
+    showtimes: ["14:30", "17:45", "21:00"],
+    trailerUrl: "https://www.youtube.com/embed/ScMzIvxBSi4?autoplay=1&mute=1&controls=0&loop=1&playlist=ScMzIvxBSi4",
+    director: "Christopher Nolan",
+    cast: ["Matthew McConaughey", "Jessica Chastain", "Anne Hathaway"],
+    releaseDate: "2026-09-18",
+    languages: ["English", "Spanish"],
+    formats: ["2D", "IMAX", "4DX"],
+    prices: ["$9.50", "$13.00", "$16.50"],
+    averageRating: "4.8/5"
   },
   {
     id: "2",
@@ -41,7 +57,15 @@ export const MOVIES: Movie[] = [
     featured: false,
     duration: "112 min",
     synopsis: "La cruda historia de un hombre que busca reconstruir su vida en un pueblo costero tras perder la memoria en un trágico accidente de barco.",
-    showtimes: ["15:00", "18:30", "21:30"]
+    showtimes: ["15:00", "18:30", "21:30"],
+    trailerUrl: "https://www.youtube.com/embed/aqz-KE-bpKQ?autoplay=1&mute=1&controls=0&loop=1&playlist=aqz-KE-bpKQ",
+    director: "María Solís",
+    cast: ["Daniel Ortega", "Lucía Vega", "Sofía Lira"],
+    releaseDate: "2026-10-02",
+    languages: ["Spanish"],
+    formats: ["2D", "3D"],
+    prices: ["$8.00", "$11.50"],
+    averageRating: "4.2/5"
   },
   {
     id: "3",
@@ -54,7 +78,15 @@ export const MOVIES: Movie[] = [
     featured: false,
     duration: "105 min",
     synopsis: "Cuando un portal antiguo se abre a través de una reliquia familiar, una joven debe enfrentar sus peores pesadillas hechas realidad.",
-    showtimes: ["16:15", "19:00", "22:00"]
+    showtimes: ["16:15", "19:00", "22:00"],
+    trailerUrl: "https://www.youtube.com/embed/2x-5KJ8FxHo?autoplay=1&mute=1&controls=0&loop=1&playlist=2x-5KJ8FxHo",
+    director: "Nadia Flores",
+    cast: ["Eva Moreno", "Tomás Ríos", "Clara Vega"],
+    releaseDate: "2026-08-29",
+    languages: ["Spanish", "English"],
+    formats: ["2D", "4DX"],
+    prices: ["$7.50", "$12.00"],
+    averageRating: "4.0/5"
   },
   {
     id: "4",
@@ -67,7 +99,15 @@ export const MOVIES: Movie[] = [
     featured: true,
     duration: "124 min",
     synopsis: "Un detective atormentado por su pasado se ve envuelto en una red de conspiraciones y traiciones en el corazón nocturno de la ciudad.",
-    showtimes: ["14:00", "17:15", "20:30"]
+    showtimes: ["14:00", "17:15", "20:30"],
+    trailerUrl: "https://www.youtube.com/embed/6ZfuNTqbHE8?autoplay=1&mute=1&controls=0&loop=1&playlist=6ZfuNTqbHE8",
+    director: "Javier Cárdenas",
+    cast: ["Luis Peña", "Mara Torres", "Bruno Salas"],
+    releaseDate: "2026-07-10",
+    languages: ["Spanish"],
+    formats: ["2D", "IMAX"],
+    prices: ["$8.50", "$12.50"],
+    averageRating: "4.4/5"
   },
   {
     id: "5",
@@ -80,7 +120,15 @@ export const MOVIES: Movie[] = [
     featured: false,
     duration: "118 min",
     synopsis: "Una mujer redescubre sus raíces y la importancia del perdón familiar al regresar a la hacienda donde pasó su infancia.",
-    showtimes: ["15:30", "18:00", "20:45"]
+    showtimes: ["15:30", "18:00", "20:45"],
+    trailerUrl: "https://www.youtube.com/embed/l2s2vLw2314?autoplay=1&mute=1&controls=0&loop=1&playlist=l2s2vLw2314",
+    director: "Elena Domínguez",
+    cast: ["Sofía Ruiz", "Andrés Mena", "Patricia Lazo"],
+    releaseDate: "2026-11-14",
+    languages: ["Spanish"],
+    formats: ["2D"],
+    prices: ["$7.00"],
+    averageRating: "4.1/5"
   },
   {
     id: "6",
@@ -93,7 +141,15 @@ export const MOVIES: Movie[] = [
     featured: false,
     duration: "98 min",
     synopsis: "Un campamento de verano se convierte en una lucha de supervivencia cuando una presencia ancestral despierta entre los árboles.",
-    showtimes: ["18:00", "20:30", "23:00"]
+    showtimes: ["18:00", "20:30", "23:00"],
+    trailerUrl: "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1&mute=1&controls=0&loop=1&playlist=5qap5aO4i9A",
+    director: "Diego Arrieta",
+    cast: ["Paula Rojas", "Mateo Vidal", "Cecilia Ponce"],
+    releaseDate: "2026-12-05",
+    languages: ["Spanish", "English"],
+    formats: ["2D", "4DX"],
+    prices: ["$8.00", "$13.50"],
+    averageRating: "3.9/5"
   },
   {
     id: "7",
@@ -106,7 +162,15 @@ export const MOVIES: Movie[] = [
     featured: false,
     duration: "135 min",
     synopsis: "Un corredor de élite retirado es forzado a realizar una última entrega a alta velocidad a través de una metrópolis sitiada.",
-    showtimes: ["13:00", "16:00", "19:00"]
+    showtimes: ["13:00", "16:00", "19:00"],
+    trailerUrl: "https://www.youtube.com/embed/6hB3S9bIaco?autoplay=1&mute=1&controls=0&loop=1&playlist=6hB3S9bIaco",
+    director: "Alex Rivera",
+    cast: ["Carlos Méndez", "Alicia Flores", "Nico Torres"],
+    releaseDate: "2026-09-26",
+    languages: ["Spanish", "English"],
+    formats: ["2D", "IMAX"],
+    prices: ["$9.00", "$13.50"],
+    averageRating: "4.3/5"
   },
   {
     id: "8",
@@ -119,6 +183,14 @@ export const MOVIES: Movie[] = [
     featured: true,
     duration: "110 min",
     synopsis: "La tripulación de la estación internacional debe improvisar un escape desesperado cuando una lluvia imprevista de basura espacial destruye sus naves de retorno.",
-    showtimes: ["14:30", "17:30", "20:30"]
+    showtimes: ["14:30", "17:30", "20:30"],
+    trailerUrl: "https://www.youtube.com/embed/2LqzF5WauAw?autoplay=1&mute=1&controls=0&loop=1&playlist=2LqzF5WauAw",
+    director: "Lina Ortega",
+    cast: ["Jonas Pike", "Mina Brooks", "David Chen"],
+    releaseDate: "2026-10-30",
+    languages: ["English", "Spanish"],
+    formats: ["2D", "3D", "IMAX"],
+    prices: ["$10.00", "$14.00", "$18.00"],
+    averageRating: "4.6/5"
   }
 ];
