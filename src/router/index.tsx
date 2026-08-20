@@ -1,32 +1,9 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { createBrowserRouter, Outlet, useLocation } from "react-router";
+import { createBrowserRouter } from "react-router";
 import { LoginPage } from "@/features/auth/pages/login/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/register/RegisterPage";
 import { HomePage } from "@/features/auth/pages/Home/HomePage";
 import { MovieDescriptionPage } from "@/features/auth/pages/MoviewDescripcion/MovieDescriptionPage";
-import { Navbar } from "@/shared/components";
-
-const PageShell = () => {
-  const location = useLocation();
-
-  return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
-      <Navbar />
-      <AnimatePresence mode="wait">
-        <motion.main
-          key={location.pathname}
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -40 }}
-          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full"
-        >
-          <Outlet />
-        </motion.main>
-      </AnimatePresence>
-    </div>
-  );
-};
+import { PageShell } from "./PageShell";
 
 export const appRouter = createBrowserRouter([
   {
