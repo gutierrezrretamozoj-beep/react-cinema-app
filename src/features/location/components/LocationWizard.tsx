@@ -1,4 +1,4 @@
-import type { LocationOption, LocationSelection } from "../types/location.types";
+import type { LocationOption, LocationSelection } from "../types/indextypes";
 
 interface LocationWizardProps {
   isOpen: boolean;
