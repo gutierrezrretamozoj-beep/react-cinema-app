@@ -19,6 +19,9 @@ export interface RegistrationData {
   name: string;
   email: string;
   password: string;
+  country: string;
+  department: string;
+  city: string;
 }
 
 export interface RegistrationResponse {
