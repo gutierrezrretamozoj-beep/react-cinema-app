@@ -1,4 +1,4 @@
-import type { LocationOption, LocationSelection } from "../types/indextypes";
+import type { LocationOption, LocationSelection } from "../types/location.types";
 
 interface LocationWizardProps {
   isOpen: boolean;
@@ -77,9 +77,12 @@ export const LocationWizard = ({
   }
 
   const isComplete =
-    selection.country !== "" &&
-    selection.department !== "" &&
-    selection.city !== "";
+    Boolean(selection.country) &&
+    Boolean(selection.department) &&
+    Boolean(selection.city);
+
+  const hasCountry = Boolean(selection.country);
+  const hasDepartment = Boolean(selection.department);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
@@ -131,7 +134,7 @@ export const LocationWizard = ({
             label="Departamento"
             value={selection.department}
             options={departments}
-            disabled={!selection.country}
+            disabled={!hasCountry}
             onChange={onDepartmentChange}
           />
 
@@ -139,7 +142,7 @@ export const LocationWizard = ({
             label="Ciudad"
             value={selection.city}
             options={cities}
-            disabled={!selection.department}
+            disabled={!hasDepartment}
             onChange={onCityChange}
           />
         </div>

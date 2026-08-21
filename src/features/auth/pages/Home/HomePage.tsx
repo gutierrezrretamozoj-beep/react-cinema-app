@@ -8,12 +8,7 @@ import {
   LocationSelector,
   LocationModal,
 } from "@/features/location/components";
-
-import type {
-  Country,
-  Department,
-  City,
-} from "@/features/location/types/location.types";
+import { useLocation } from "@/features/location/hooks/useLocation";
 
 // HomePage: Componente de la página principal de la Cartelera de Cine
 export const HomePage = () => {
@@ -40,69 +35,18 @@ export const HomePage = () => {
   const [isLocationModalOpen, setIsLocationModalOpen] =
     useState(false);
 
-  /*
-   * Estos estados son temporales para conectar la UI.
-   *
-   * Posteriormente Developer B podrá reemplazarlos
-   * por el estado proveniente de su hook.
-   */
-
-  const [selectedCountry, setSelectedCountry] =
-    useState("");
-
-  const [selectedDepartment, setSelectedDepartment] =
-    useState("");
-
-  const [selectedCity, setSelectedCity] =
-    useState("");
-
-  /*
-   * Datos temporales para probar la interfaz.
-   *
-   * Cuando Developer B termine la lógica,
-   * estos datos vendrán desde su hook/API.
-   */
-
-  const [countries] = useState<Country[]>([
-    {
-      id: 1,
-      name: "Colombia",
-    },
-  ]);
-
-  const [departments] = useState<Department[]>([
-    {
-      id: 1,
-      name: "Atlántico",
-      countryId: 1,
-    },
-    {
-      id: 2,
-      name: "Antioquia",
-      countryId: 1,
-    },
-  ]);
-
-  const [cities] = useState<City[]>([
-    {
-      id: 1,
-      name: "Barranquilla",
-      departamentId: 1,
-      isActive: true,
-    },
-    {
-      id: 2,
-      name: "Soledad",
-      departamentId: 1,
-      isActive: true,
-    },
-    {
-      id: 3,
-      name: "Medellín",
-      departamentId: 2,
-      isActive: true,
-    },
-  ]);
+  // La ubicacion se carga desde la API y se conserva en localStorage.
+  const {
+    countries,
+    departments,
+    cities,
+    selectedCountry,
+    selectedDepartment,
+    selectedCity,
+    setSelectedCountry,
+    setSelectedDepartment,
+    setSelectedCity,
+  } = useLocation();
 
   // --------------------------------------------------
   // TOAST
@@ -203,31 +147,30 @@ export const HomePage = () => {
   // LOCATION - CAMBIO DE PAÍS
   // --------------------------------------------------
 
-  const handleCountryChange = (country: string) => {
-    setSelectedCountry(country);
-
-    // Al cambiar país se limpian los campos dependientes
-    setSelectedDepartment("");
-    setSelectedCity("");
+  const handleCountryChange = (countryId: string) => {
+    const country = countries.find((item) => item.id === Number(countryId));
+    setSelectedCountry(country ?? null);
+    setSelectedDepartment(null);
+    setSelectedCity(null);
   };
 
   // --------------------------------------------------
   // LOCATION - CAMBIO DE DEPARTAMENTO
   // --------------------------------------------------
 
-  const handleDepartmentChange = (department: string) => {
-    setSelectedDepartment(department);
-
-    // Al cambiar departamento se limpia la ciudad
-    setSelectedCity("");
+  const handleDepartmentChange = (departmentId: string) => {
+    const department = departments.find((item) => item.id === Number(departmentId));
+    setSelectedDepartment(department ?? null);
+    setSelectedCity(null);
   };
 
   // --------------------------------------------------
   // LOCATION - CAMBIO DE CIUDAD
   // --------------------------------------------------
 
-  const handleCityChange = (city: string) => {
-    setSelectedCity(city);
+  const handleCityChange = (cityId: string) => {
+    const city = cities.find((item) => item.id === Number(cityId));
+    setSelectedCity(city ?? null);
   };
 
   // --------------------------------------------------
@@ -236,9 +179,7 @@ export const HomePage = () => {
 
   const handleLocationConfirm = () => {
     if (
-      !selectedCountry ||
-      !selectedDepartment ||
-      !selectedCity
+      !selectedCountry || !selectedDepartment || !selectedCity
     ) {
       return;
     }
@@ -287,8 +228,7 @@ export const HomePage = () => {
   // LOCATION MOSTRADA EN EL BOTÓN
   // --------------------------------------------------
 
-  const locationName =
-    selectedCity || "Seleccionar ubicación";
+  const locationName = selectedCity?.name || "Seleccionar ubicación";
 
   // --------------------------------------------------
   // RENDER
@@ -347,7 +287,7 @@ export const HomePage = () => {
 
 
   {/* DERECHA: ubicación */}
-  <div className="flex min-h-[120px] items-center justify-center md:justify-center">
+  <div className="flex min-h-30 items-center justify-center md:justify-center">
 
     <LocationSelector
       locationName={locationName}
@@ -596,9 +536,9 @@ export const HomePage = () => {
         departments={departments}
         cities={cities}
 
-        selectedCountry={selectedCountry}
-        selectedDepartment={selectedDepartment}
-        selectedCity={selectedCity}
+        selectedCountry={selectedCountry?.id ?? ""}
+        selectedDepartment={selectedDepartment?.id ?? ""}
+        selectedCity={selectedCity?.id ?? ""}
 
         onCountryChange={handleCountryChange}
         onDepartmentChange={handleDepartmentChange}
