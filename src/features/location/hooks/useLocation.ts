@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 
 import type {
   Country,
@@ -22,14 +22,20 @@ export function useLocation() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [cities, setCities] = useState<City[]>([]);
 
-  const [selectedCountry, setSelectedCountry] =
-    useState<Country | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<Country | null>(() => {
+    const savedLocation = getLocation();
+    return savedLocation?.country ?? null;
+  });
 
-  const [selectedDepartment, setSelectedDepartment] =
-    useState<Department | null>(null);
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(() => {
+    const savedLocation = getLocation();
+    return savedLocation?.department ?? null;
+  });
 
-  const [selectedCity, setSelectedCity] =
-    useState<City | null>(null);
+  const [selectedCity, setSelectedCity] = useState<City | null>(() => {
+    const savedLocation = getLocation();
+    return savedLocation?.city ?? null;
+  });
 
   useEffect(() => {
     getCountries()
@@ -41,8 +47,10 @@ export function useLocation() {
 
   useEffect(() => {
     if (!selectedCountry) {
-      setDepartments([]);
-      setCities([]);
+      startTransition(() => {
+        setDepartments([]);
+        setCities([]);
+      });
       return;
     }
 
@@ -55,7 +63,7 @@ export function useLocation() {
 
   useEffect(() => {
     if (!selectedCountry || !selectedDepartment) {
-      setCities([]);
+      startTransition(() => setCities([]));
       return;
     }
 
@@ -68,16 +76,6 @@ export function useLocation() {
         console.error("Error al cargar ciudades:", error)
       );
   }, [selectedCountry, selectedDepartment]);
-
-  useEffect(() => {
-    const savedLocation = getLocation();
-
-    if (savedLocation) {
-      setSelectedCountry(savedLocation.country);
-      setSelectedDepartment(savedLocation.department);
-      setSelectedCity(savedLocation.city);
-    }
-  }, []);
 
   useEffect(() => {
     if (
