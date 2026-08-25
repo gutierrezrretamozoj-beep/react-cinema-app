@@ -1,28 +1,27 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { getMovies, getEffectiveCity, type ListingsResponse, type Movie, type Showtime } from "@/features/movies";
+import { MOVIES } from "../Home/data/movieData";
+import type { Movie as RealMovie } from "@/features/movies/interfaces";
+
 
 export const MovieDescriptionPage = () => {
+  // Read the movie identifier from the route parameters.
   const { movieId } = useParams();
-  const [catalog, setCatalog] = useState<Movie[]>([]);
-  const [movie, setMovie] = useState<Movie | null>(null);
+  // Find the selected movie from the static catalog data.
+  const movie = MOVIES.find((item) => item.id === movieId) as RealMovie | undefined;
+  // Track the currently selected showtime for the reservation flow.
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  // Store the confirmation message shown after a purchase action.
   const [toast, setToast] = useState<{ message: string; subMessage?: string } | null>(null);
 
+  // Default to the first available showtime whenever the movie changes.
   useEffect(() => {
-    getMovies({ city: getEffectiveCity() })
-      .then((response: ListingsResponse) => {
-        const found = response.movies.find((item) => item.id === movieId) ?? null;
-        setCatalog(response.movies);
-        setMovie(found);
-        if (found) {
-          const firstAvailable = found.showtimes.find((item) => !item.isSoldOut);
-          setSelectedTime(firstAvailable?.time ?? null);
-        }
-      })
-      .catch(() => setMovie(null));
-  }, [movieId]);
+    if (movie?.showtimes?.[0]) {
+      setSelectedTime(movie.showtimes[0].time);
+    }
+  }, [movie]);
 
+  // Hide the toast automatically after a few seconds.
   useEffect(() => {
     if (!toast) return;
 
@@ -30,35 +29,37 @@ export const MovieDescriptionPage = () => {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
+  // Render a fallback state when the requested movie is not found.
   if (!movie) {
     return (
       <div className="mx-auto flex min-h-[70vh] max-w-5xl flex-col items-center justify-center px-6 text-center">
         <h1 className="text-2xl font-semibold text-neutral-100">Película no encontrada</h1>
         <p className="mt-2 text-sm text-neutral-400">No se pudo encontrar la película seleccionada.</p>
-        <Link
-          to="/home"
-          className="mt-6 rounded-full border border-neutral-700 px-4 py-2 text-sm text-neutral-300 transition hover:border-yellow-500/40 hover:text-yellow-400"
-        >
+        <Link to="/home" className="mt-6 rounded-full border border-neutral-700 px-4 py-2 text-sm text-neutral-300 transition hover:border-yellow-500/40 hover:text-yellow-400">
           Volver al inicio
         </Link>
       </div>
     );
   }
 
-  const selectedShowtime = movie.showtimes.find((item) => item.time === selectedTime);
-  const recommendations = catalog.filter((item) => item.id !== movie.id).slice(0, 3);
-
+  // Confirm the ticket purchase only when a showtime has been selected.
   const handleBuyTickets = () => {
-    if (!selectedTime || selectedShowtime?.isSoldOut) return;
+    if (!selectedTime) return;
 
+    // Show a confirmation toast with the chosen movie and time.
     setToast({
       message: `Entradas confirmadas para: ${movie.title}`,
       subMessage: `Horario seleccionado ${selectedTime}. Tu compra ha sido registrada correctamente.`
     });
   };
 
+  // Create a short list of related movie suggestions excluding the current one.
+  const recommendations = MOVIES.filter((item) => item.id !== movie.id).slice(0, 3);
+
   return (
+    // Main container for the full movie detail experience.
     <div className="flex w-full flex-col gap-4 overflow-x-hidden px-3 py-4 sm:gap-6 sm:px-4 sm:py-6 md:gap-8 md:px-8 lg:px-10">
+      {/* Hero section with the movie banner, title, and summary. */}
       <div className="w-full overflow-hidden rounded-1.5rem border border-neutral-800 bg-neutral-900 shadow-2xl shadow-black/30 sm:rounded-2rem">
         <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="relative min-h-220px sm:min-h-280px lg:min-h-360px">
@@ -73,6 +74,7 @@ export const MovieDescriptionPage = () => {
             </div>
           </div>
 
+          {/* Movie metadata and primary actions. */}
           <div className="flex flex-col justify-between bg-neutral-900/90 p-4 sm:p-6 md:p-8">
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
@@ -98,14 +100,15 @@ export const MovieDescriptionPage = () => {
               <Link to="/home" className="rounded-full border border-neutral-700 px-3 py-2 text-xs text-neutral-300 transition hover:border-yellow-500/40 hover:text-yellow-400 sm:px-4 sm:py-2 sm:text-sm">
                 Volver al catálogo
               </Link>
-              <button onClick={handleBuyTickets} disabled={selectedShowtime?.isSoldOut} className="rounded-full bg-yellow-500 px-3 py-2 text-xs font-semibold text-neutral-950 transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2 sm:text-sm">
-                {selectedShowtime?.isSoldOut ? "Agotado" : "Comprar entradas"}
+              <button onClick={handleBuyTickets} className="rounded-full bg-yellow-500 px-3 py-2 text-xs font-semibold text-neutral-950 transition hover:bg-yellow-400 sm:px-4 sm:py-2 sm:text-sm">
+                Comprar entradas
               </button>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Booking and cast information section. */}
       <div className="grid min-w-0 gap-4 sm:gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <section className="min-w-0 rounded-[1.25rem] border border-neutral-800 bg-neutral-900/80 p-4 sm:rounded-1.5rem sm:p-6">
           <div className="flex items-center justify-between">
@@ -113,20 +116,20 @@ export const MovieDescriptionPage = () => {
           </div>
 
           <div className="mt-3 flex flex-wrap gap-2 sm:mt-4">
-            {movie.showtimes.map((showtime: Showtime) => (
+            {movie.showtimes.map((st) => (
               <button
-                key={showtime.id}
-                disabled={showtime.isSoldOut}
-                onClick={() => setSelectedTime(showtime.time)}
+                key={st.id}
+                onClick={() => setSelectedTime(st.time)}
+                disabled={st.isSoldOut || !st.isActive}
                 className={`rounded-full px-3 py-2 text-sm font-semibold transition ${
-                  showtime.isSoldOut
-                    ? "cursor-not-allowed border border-red-900/40 bg-neutral-950/50 text-red-500/60 line-through"
-                    : selectedTime === showtime.time
+                  selectedTime === st.time
                     ? "bg-yellow-500 text-neutral-950"
+                    : st.isSoldOut
+                    ? "border border-neutral-800 bg-neutral-950/50 text-neutral-600 line-through cursor-not-allowed"
                     : "border border-neutral-700 bg-neutral-950/50 text-neutral-300 hover:border-yellow-500/40 hover:text-yellow-400"
                 }`}
               >
-                {showtime.time}
+                {st.time}
               </button>
             ))}
           </div>
@@ -154,24 +157,23 @@ export const MovieDescriptionPage = () => {
         </section>
       </div>
 
-      {recommendations.length > 0 && (
-        <section className="min-w-0 rounded-[1.25rem] border border-neutral-800 bg-neutral-900/80 p-4 sm:rounded-1.5rem sm:p-6">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-lg font-semibold text-white sm:text-xl">Películas recomendadas</h2>
-            <Link to="/home" className="text-xs text-neutral-400 transition hover:text-yellow-400 sm:text-sm">Ver todas</Link>
-          </div>
-          <div className="mt-4 grid gap-3 sm:mt-5 sm:gap-4 md:grid-cols-3">
-            {recommendations.map((item) => (
-              <Link key={item.id} to={`/movies/${item.id}`} className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-3 transition hover:border-yellow-500/40 sm:p-4">
-                <img src={item.posterUrl} alt={item.title} className="h-28 w-full rounded-xl object-cover sm:h-36" />
-                <p className="mt-3 text-sm font-semibold text-neutral-100">{item.title}</p>
-                <p className="mt-2 text-xs leading-5 text-neutral-400 sm:text-sm">{item.synopsis}</p>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+      <section className="min-w-0 rounded-[1.25rem] border border-neutral-800 bg-neutral-900/80 p-4 sm:rounded-1.5rem sm:p-6">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold text-white sm:text-xl">Películas recomendadas</h2>
+          <Link to="/home" className="text-xs text-neutral-400 transition hover:text-yellow-400 sm:text-sm">Ver todas</Link>
+        </div>
+        <div className="mt-4 grid gap-3 sm:mt-5 sm:gap-4 md:grid-cols-3">
+          {recommendations.map((item) => (
+            <Link key={item.id} to={`/movies/${item.id}`} className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-3 transition hover:border-yellow-500/40 sm:p-4">
+              <img src={item.posterUrl} alt={item.title} className="h-28 w-full rounded-xl object-cover sm:h-36" />
+              <p className="mt-3 text-sm font-semibold text-neutral-100">{item.title}</p>
+              <p className="mt-2 text-xs leading-5 text-neutral-400 sm:text-sm">{item.synopsis}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
 
+      {/* Confirmation toast shown after successful ticket purchase. */}
       {toast && (
         <div className="fixed bottom-3 right-3 z-50 flex max-w-[calc(100vw-1.5rem)] animate-slide-in rounded-xl border border-emerald-500/20 bg-neutral-900 p-3 shadow-2xl shadow-emerald-500/5 backdrop-blur-md sm:bottom-6 sm:right-6 sm:max-w-sm sm:p-4">
           <div className="flex gap-3">

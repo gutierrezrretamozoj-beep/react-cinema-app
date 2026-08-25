@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Movie } from "@/features/movies";
+import type { Movie } from "../data/movieData";
 import { Badge } from "./Badge";
 
 interface FeaturedCarouselProps {
@@ -17,40 +17,31 @@ export const FeaturedCarousel = ({ movies, onSelectMovie }: FeaturedCarouselProp
   // Filtrado de destacadas: Extrae solo los elementos con la etiqueta "featured" activa
   const activeMovies = movies.filter(m => m.featured);
 
-  // useEffect (Timer cycle): Control del ciclo de vida del autoplay
-  // Avanza cada 5 segundos y limpia el intervalo al desmontar o al cambiar de slide.
-  useEffect(() => {
-    if (activeMovies.length === 0) return;
-
-    timerRef.current = setInterval(() => {
-      setIndex((prevIndex) => (prevIndex + 1) % activeMovies.length);
-    }, 5000);
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, [index, activeMovies.length]);
-
   // startTimer: Autoplay del carrusel
-  // Reinicia el intervalo de 5 segundos, usado al salir el cursor del carrusel.
+  // Inicializa un intervalo de 5 segundos para pasar a la siguiente diapositiva automáticamente.
   const startTimer = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
+    stopTimer();
     timerRef.current = setInterval(() => {
-      setIndex((prevIndex) => (prevIndex + 1) % activeMovies.length);
+      handleNext();
     }, 5000);
   };
 
   // stopTimer: Pausado del autoplay
-  // Limpia el temporizador mientras el usuario interactúa.
+  // Limpia el temporizador para evitar saltos bruscos mientras el usuario interactúa.
   const stopTimer = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
   };
+
+  // useEffect (Timer cycle): Control del ciclo de vida del autoplay
+  // Reinicia el timer al cambiar de slide y asegura limpiar el intervalo al desmontar el componente.
+  useEffect(() => {
+    if (activeMovies.length > 0) {
+      startTimer();
+    }
+    return () => stopTimer();
+  }, [index, activeMovies.length]);
 
   if (activeMovies.length === 0) return null;
 
