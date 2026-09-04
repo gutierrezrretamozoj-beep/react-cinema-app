@@ -4,6 +4,8 @@ import { LoginPage } from "@/features/auth/pages/login/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/register/RegisterPage";
 import { HomePage } from "@/features/auth/pages/Home/HomePage";
 import { MovieDescriptionPage } from "@/features/auth/pages/MoviewDescripcion/MovieDescriptionPage";
+import { SeatSelectionPage } from "@/features/seatSelection/SeatSelectionPage";
+import { MyTicketsPage } from "@/features/tickets/MyTicketsPage";
 import { Navbar } from "@/shared/components";
 
 const PageShell = () => {
@@ -44,6 +46,8 @@ export const appRouter = createBrowserRouter([
       },
       { path: "home", element: <HomePage /> },
       { path: "movies/:movieId", element: <MovieDescriptionPage /> },
+      { path: "movies/:movieId/seats", element: <SeatSelectionPage /> },
+      { path: "tickets", element: <MyTicketsPage /> },
       {
         path: "auth",
         children: [

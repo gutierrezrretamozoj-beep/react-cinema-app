@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "./Badge";
 import type { Movie } from "../data/movieData";
@@ -13,10 +13,12 @@ interface MovieCardProps {
 
 export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: MovieCardProps) => {
   const { id, title, genre, rating, posterUrl, duration, synopsis, showtimes, trailerUrl } = movie;
+  const navigate = useNavigate();
 
   const [selectedTime, setSelectedTime] = useState<string | null>(showtimes[0] ?? null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const [isPeeling, setIsPeeling] = useState(false);
+  const [isTearing, setIsTearing] = useState(false); // Controla el SVG de rasgado
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const PREVIEW_DELAY = 1000;
 
@@ -52,11 +54,20 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
   const handleBuy = () => {
     if (!selectedTime || isPeeling) return;
 
-    setIsPeeling(true);
+    // 1. Inicia el dibujo de la línea de rasgado SVG
+    setIsTearing(true);
 
+    // 2. Inicia el enrollado hacia la derecha (50ms de delay)
+    // para sincronizarse con el avance de la línea de rasgado
+    setTimeout(() => {
+      setIsPeeling(true);
+    }, 50);
+
+    // 3. Espera a que termine la animación de enrollado antes de navegar
     setTimeout(() => {
       onBuy?.(movie, selectedTime);
-    }, 1200);
+      navigate(`/movies/${id}/seats?time=${encodeURIComponent(selectedTime)}`);
+    }, 1400);
   };
 
   return (
@@ -168,34 +179,82 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
         </div>
       </div>
 
-      {/* Divider and ticket heel */}
-      <div className="relative w-full h-6 bg-neutral-900 flex items-center justify-between z-10">
+      {/* Divisor con línea de rasgado SVG animada */}
+      <div className="relative w-full h-6 bg-neutral-900 flex items-center justify-between z-10 overflow-visible">
         <div className="absolute -left-3 h-6 w-6 rounded-full bg-neutral-950 z-20" />
-        <div className="flex-1 border-b-2 border-dashed border-neutral-800/80 mx-3" />
+
+        {/* Línea base punteada */}
+        {!isTearing && (
+          <div className="flex-1 border-b-2 border-dashed border-neutral-800/80 mx-3" />
+        )}
+
+        {/* SVG de rasgado: se dibuja de izquierda a derecha al hacer clic */}
+        {isTearing && (
+          <svg
+            className="absolute inset-x-3 top-1/2 -translate-y-1/2 overflow-visible"
+            height="10"
+            style={{ width: 'calc(100% - 1.5rem)' }}
+            preserveAspectRatio="none"
+          >
+            <motion.path
+              d="M0,5 L14,2 L28,8 L42,1 L56,7 L70,2 L84,9 L98,3 L112,7 L126,1 L140,8 L154,3 L168,7 L182,2 L196,8 L210,3 L224,7 L238,2 L252,6 L266,1 L280,5"
+              fill="none"
+              stroke="rgba(234,179,8,0.55)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{ duration: 0.32, ease: "easeInOut" }}
+              style={{ vectorEffect: 'non-scaling-stroke' }}
+            />
+            {/* Sombra de desgarro */}
+            <motion.path
+              d="M0,5 L14,2 L28,8 L42,1 L56,7 L70,2 L84,9 L98,3 L112,7 L126,1 L140,8 L154,3 L168,7 L182,2 L196,8 L210,3 L224,7 L238,2 L252,6 L266,1 L280,5"
+              fill="none"
+              stroke="rgba(0,0,0,0.4)"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 0.6 }}
+              transition={{ duration: 0.32, ease: "easeInOut", delay: 0.02 }}
+              style={{ vectorEffect: 'non-scaling-stroke' }}
+            />
+          </svg>
+        )}
+
         <div className="absolute -right-3 h-6 w-6 rounded-full bg-neutral-950 z-20" />
       </div>
 
-      <div className="w-full h-20 relative perspective-distant z-0">
+      {/* Stub del boleto con perspectiva CSS correcta para el 3D */}
+      <div className="w-full h-20 relative z-0" style={{ perspective: '600px', perspectiveOrigin: '50% 0%' }}>
         <AnimatePresence>
           {!isPeeling ? (
             <motion.div
               key="stub-button"
-              initial={{ rotateX: 0, rotateY: 0, rotateZ: 0, skewX: 0, x: 0, y: 0, opacity: 1 }}
+              initial={{ rotateX: 0, rotateY: 0, rotateZ: 0, scaleX: 1, x: 0, y: 0, opacity: 1 }}
               exit={{
-                rotateX: [0, 15, -30, -65],
-                rotateY: [0, -10, 25, 45],
-                rotateZ: [0, 12, 35, 60],
-                skewX: [0, 15, -10, 0],
-                x: [0, -10, -25, -45],
-                y: [0, 15, 65, 180],
-                opacity: [1, 1, 0.7, 0],
+                // Simulación de enrollado lateral (Left-to-Right Roll Up):
+                // 1. scaleX se encoge hacia la derecha (transformOrigin: right center)
+                // 2. rotateY gira 360 grados simulando un enrollado sobre sí mismo
+                // 3. rotateZ y y/x emulan el tirón diagonal del desgarro
+                scaleX:  [1, 0.75, 0.45, 0.15, 0],
+                rotateY: [0, -90, -180, -270, -360],
+                rotateZ: [0, 8, 15, 8, 0],
+                x:       [0, 12, 32, 55, 75],
+                y:       [0, -4, -8, -2, 10],
+                opacity: [1, 1, 0.95, 0.8, 0],
               }}
               transition={{
                 duration: 1.1,
-                times: [0, 0.25, 0.6, 1],
-                ease: "easeInOut",
+                times: [0, 0.25, 0.5, 0.75, 1],
+                ease: "easeInOut"
               }}
-              style={{ transformOrigin: 'top right' }}
+              style={{ 
+                transformOrigin: 'right center', 
+                transformStyle: 'preserve-3d'
+              }}
               className="absolute inset-0 w-full bg-neutral-900 border-x border-b border-neutral-800 rounded-b-2xl p-4 flex items-center justify-center shadow-md overflow-hidden"
             >
               <motion.div
