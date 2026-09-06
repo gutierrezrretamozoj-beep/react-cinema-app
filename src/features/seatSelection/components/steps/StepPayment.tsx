@@ -3,8 +3,9 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CreditCard, Banknote, Shield, Check, Lock, Compass } from 'lucide-react';
+import { CreditCard, Banknote, Shield, Check, Lock, Compass, Sparkles } from 'lucide-react';
 import type { Movie } from '@/features/auth/pages/Home/data/movieData';
+import { sfx } from '../../utils/soundEffects';
 
 interface StepPaymentProps {
   movie: Movie;
@@ -42,6 +43,11 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
   const [expiry, setExpiry] = useState('');
   const [cvv, setCvv] = useState('');
   const [cardholder, setCardholder] = useState(defaultCardholderName);
+  const [redeemCredits, setRedeemCredits] = useState(false);
+
+  // Descuento por canje de Nova Credits ($5.00)
+  const creditsDiscount = redeemCredits ? Math.min(5.0, grandTotal) : 0;
+  const finalAmount = Math.max(0, grandTotal - creditsDiscount);
 
   // Estados para simular el rasgado del boleto como en MovieCard
   const [isTearing, setIsTearing] = useState(false);
@@ -49,6 +55,8 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
 
   const handlePayClick = () => {
     if (!isFormValid()) return;
+
+    sfx.playStepTransition();
 
     // 1. Inicia el dibujo de la línea de rasgado SVG
     setIsTearing(true);
@@ -258,11 +266,38 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                   <span className="text-neutral-200">${snacksTotal.toFixed(2)}</span>
                 </div>
               )}
+              {redeemCredits && (
+                <div className="flex justify-between text-emerald-400 font-medium">
+                  <span className="flex items-center gap-1">
+                    <Sparkles className="h-3 w-3" /> Nova Credits (100 pts)
+                  </span>
+                  <span>-${creditsDiscount.toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Canje interactivo de Nova Credits */}
+            <div className="my-2.5 rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-2.5">
+              <label className="flex items-center justify-between cursor-pointer select-none">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-3.5 w-3.5 text-yellow-400 shrink-0" />
+                  <span className="text-[11px] font-semibold text-neutral-200">Canjear 100 Nova Credits</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={redeemCredits}
+                  onChange={(e) => setRedeemCredits(e.target.checked)}
+                  className="h-3.5 w-3.5 rounded border-neutral-700 accent-yellow-500 cursor-pointer"
+                />
+              </label>
+              {redeemCredits && (
+                <p className="text-[10px] text-emerald-400 mt-1">✓ Descuento de -$5.00 aplicado a tu compra</p>
+              )}
             </div>
 
             <div className="mt-3 flex items-center justify-between text-xs font-bold text-yellow-500">
               <span>TOTAL NETO</span>
-              <span>${grandTotal.toFixed(2)}</span>
+              <span>${finalAmount.toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -358,7 +393,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                         : 'cursor-not-allowed border border-neutral-800 bg-neutral-950/40 text-neutral-600'
                     }`}
                   >
-                    <Lock className="h-3.5 w-3.5" /> Pagar ${grandTotal.toFixed(2)}
+                    <Lock className="h-3.5 w-3.5" /> Pagar ${finalAmount.toFixed(2)}
                   </button>
                   <button
                     onClick={onBack}

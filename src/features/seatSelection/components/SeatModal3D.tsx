@@ -5,7 +5,6 @@ import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CinemaRoom3D } from './cinema3d/CinemaRoom3D';
 import type { SeatData } from '../data/seatData';
-import { ROWS_ORDER } from '../data/seatData';
 
 interface SeatModal3DProps {
   isOpen: boolean;
@@ -21,6 +20,7 @@ interface SeatModal3DProps {
 const LEGEND = [
   { label: 'Estándar ($9.50)', color: 'bg-red-500' },
   { label: 'VIP ($14.50)', color: 'bg-yellow-500' },
+  { label: 'Accesible ($8.50)', color: 'bg-cyan-500' },
   { label: 'Seleccionado', color: 'bg-emerald-500' },
   { label: 'Ocupado', color: 'bg-neutral-600' },
 ];
@@ -203,31 +203,69 @@ export const SeatModal3D = ({
 
                 {/* Minimap 2D superpuesto en la esquina superior derecha del canvas */}
                 <div className="absolute right-3 top-3 rounded-xl border border-neutral-700/60 bg-neutral-900/80 p-3 backdrop-blur-md">
-                  <p className="mb-2 text-[8px] font-bold uppercase tracking-widest text-neutral-500">Plano de sala</p>
+                  <p className="mb-2 text-[8px] font-bold uppercase tracking-widest text-neutral-400">Plano de sala</p>
                   {/* Indicador de pantalla */}
-                  <div className="mb-1.5 h-1.5 w-full rounded-sm bg-neutral-600/60 text-center" />
-                  {/* Grid de mini asientos */}
-                  <div className="grid gap-0.5" style={{ gridTemplateColumns: 'repeat(8, minmax(0, 1fr))' }}>
-                    {ROWS_ORDER.flatMap((row) =>
-                      Array.from({ length: 8 }, (_, cIdx) => {
-                        const col = cIdx + 1;
-                        const seat = seats.find((s) => s.row === row && s.col === col);
-                        if (!seat) return null;
-                        let cls = seat.type === 'vip' ? 'bg-yellow-500/70' : 'bg-red-500/70';
-                        if (seat.status === 'occupied') cls = 'bg-neutral-600/70';
-                        if (selectedSeatIds.includes(seat.id)) cls = 'bg-emerald-500 ring-1 ring-emerald-400/60';
-                        return (
-                          <button
-                            key={seat.id}
-                            className={`h-2 w-2 rounded-[2px] transition-all ${cls} ${seat.status === 'occupied' ? 'cursor-not-allowed' : 'cursor-pointer hover:brightness-125'}`}
-                            onClick={() => handleSeatClick(seat)}
-                            disabled={seat.status === 'occupied'}
-                            title={`${seat.row}${seat.col} – ${seat.type === 'vip' ? 'VIP' : 'Estándar'} · $${seat.price}`}
-                          />
-                        );
-                      })
-                    )}
-                  </div>
+                  <div className="mb-2 h-1.5 w-full rounded-full bg-gradient-to-r from-transparent via-yellow-500/60 to-transparent" />
+                  
+                  {/* Grid de mini asientos con pasillo central */}
+                  {(() => {
+                    const uniqueRows = Array.from(new Set(seats.map((s) => s.row)));
+                    const colsCount = Math.max(...seats.map((s) => s.col), 8);
+                    const halfCols = Math.floor(colsCount / 2);
+
+                    return (
+                      <div className="flex flex-col gap-0.5">
+                        {uniqueRows.map((row) => (
+                          <div key={row} className="flex items-center gap-0.5">
+                            {/* Bloque izquierdo */}
+                            <div className="flex gap-0.5">
+                              {Array.from({ length: halfCols }, (_, cIdx) => {
+                                const col = cIdx + 1;
+                                const seat = seats.find((s) => s.row === row && s.col === col);
+                                if (!seat) return null;
+                                let cls = seat.type === 'vip' ? 'bg-yellow-500/80' : seat.type === 'accessible' ? 'bg-cyan-500/80' : 'bg-red-500/80';
+                                if (seat.status === 'occupied') cls = 'bg-neutral-700/60';
+                                if (selectedSeatIds.includes(seat.id)) cls = 'bg-emerald-500 ring-1 ring-emerald-300';
+                                return (
+                                  <button
+                                    key={seat.id}
+                                    className={`h-2.5 w-2.5 rounded-[2px] transition-all cursor-pointer ${cls} ${seat.status === 'occupied' ? '!cursor-not-allowed opacity-40' : 'hover:scale-110'}`}
+                                    onClick={() => handleSeatClick(seat)}
+                                    disabled={seat.status === 'occupied'}
+                                    title={`${seat.id} – ${seat.type === 'vip' ? 'VIP' : 'Estándar'} · $${seat.price}`}
+                                  />
+                                );
+                              })}
+                            </div>
+
+                            {/* Pasillo central dinámico */}
+                            <div className="w-1.5 shrink-0" />
+
+                            {/* Bloque derecho */}
+                            <div className="flex gap-0.5">
+                              {Array.from({ length: colsCount - halfCols }, (_, cIdx) => {
+                                const col = halfCols + cIdx + 1;
+                                const seat = seats.find((s) => s.row === row && s.col === col);
+                                if (!seat) return null;
+                                let cls = seat.type === 'vip' ? 'bg-yellow-500/80' : seat.type === 'accessible' ? 'bg-cyan-500/80' : 'bg-red-500/80';
+                                if (seat.status === 'occupied') cls = 'bg-neutral-700/60';
+                                if (selectedSeatIds.includes(seat.id)) cls = 'bg-emerald-500 ring-1 ring-emerald-300';
+                                return (
+                                  <button
+                                    key={seat.id}
+                                    className={`h-2.5 w-2.5 rounded-[2px] transition-all cursor-pointer ${cls} ${seat.status === 'occupied' ? '!cursor-not-allowed opacity-40' : 'hover:scale-110'}`}
+                                    onClick={() => handleSeatClick(seat)}
+                                    disabled={seat.status === 'occupied'}
+                                    title={`${seat.id} – ${seat.type === 'vip' ? 'VIP' : 'Estándar'} · $${seat.price}`}
+                                  />
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Leyenda en la esquina inferior izquierda */}

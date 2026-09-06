@@ -51,6 +51,16 @@ const vipHoverMaterial = new THREE.MeshStandardMaterial({
   emissive: '#713f12', emissiveIntensity: 0.2,
 });
 
+// Accessible → cyan/azul cielo
+const accessibleMaterial = new THREE.MeshStandardMaterial({
+  color: '#06b6d4', roughness: 0.6, metalness: 0.15,
+  emissive: '#0891b2', emissiveIntensity: 0.2,
+});
+const accessibleHoverMaterial = new THREE.MeshStandardMaterial({
+  color: '#22d3ee', roughness: 0.4, metalness: 0.15,
+  emissive: '#0891b2', emissiveIntensity: 0.25,
+});
+
 // Standard → rojo neutral
 const standardMaterial = new THREE.MeshStandardMaterial({
   color: '#ef4444', roughness: 0.6, metalness: 0.1,
@@ -89,6 +99,7 @@ const CinemaSeat3D = memo<{
   const getSeatMaterial = () => {
     if (seat.status === 'occupied') return occupiedMaterial;
     if (isSelected) return hovered ? selectedHoverMaterial : selectedMaterial;
+    if (seat.type === 'accessible') return hovered ? accessibleHoverMaterial : accessibleMaterial;
     if (seat.type === 'vip') return hovered ? vipHoverMaterial : vipMaterial;
     return hovered ? standardHoverMaterial : standardMaterial;
   };

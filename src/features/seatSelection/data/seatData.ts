@@ -1,58 +1,94 @@
-// seatData.ts — Generación de datos de asientos para la sala de cine
-// Soporta multi-selección y asientos pseudo-aleatorios basados en movieId.
+// seatData.ts — Generación paramétrica de datos de asientos para salas de cine
+// Soporta salas Estándar (6x8 = 48) e IMAX de alto rendimiento (8x10 = 80 asientos).
 
 export interface SeatData {
   id: string;
   row: string;
   col: number;
-  type: 'standard' | 'vip';
+  type: 'standard' | 'vip' | 'accessible';
   price: number;
   position: [number, number, number]; // Posición en espacio 3D
   status: 'available' | 'selected' | 'occupied';
 }
 
-// ROWS: Filas de la sala. A–B son VIP (cerca de la pantalla), C–F son estándar.
-const ROWS = ['A', 'B', 'C', 'D', 'E', 'F'];
-const COLS = 8;
+export interface RoomConfig {
+  rows?: string[];
+  cols?: number;
+  roomType?: 'standard' | 'imax' | '4dx' | 'kids';
+  occupiedSeats?: string[];
+  movieId?: string;
+}
+
+export const DEFAULT_ROWS = ['A', 'B', 'C', 'D', 'E', 'F'];
+export const DEFAULT_COLS = 8;
+
+export const IMAX_ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+export const IMAX_COLS = 10;
 
 const VIP_PRICE = 14.5;
 const STANDARD_PRICE = 9.5;
+const ACCESSIBLE_PRICE = 8.5;
 
-// Listas de asientos pre-ocupados por película (basadas en movieId para consistencia)
-const OCCUPIED_BY_MOVIE: Record<string, string[]> = {
-  "1": ['A-3', 'A-4', 'B-1', 'B-6', 'C-4', 'C-5', 'D-2', 'D-8', 'E-4', 'E-5', 'F-7'],
-  "2": ['A-1', 'A-8', 'B-3', 'B-5', 'C-2', 'C-6', 'D-1', 'D-7', 'E-3', 'F-4', 'F-6'],
-  "3": ['A-2', 'A-5', 'B-2', 'B-7', 'C-1', 'C-8', 'D-3', 'D-6', 'E-1', 'E-8', 'F-5'],
-  "4": ['A-4', 'A-6', 'B-4', 'B-8', 'C-3', 'C-7', 'D-4', 'D-5', 'E-2', 'E-7', 'F-3'],
-  "5": ['A-3', 'A-7', 'B-2', 'B-6', 'C-5', 'C-8', 'D-1', 'D-8', 'E-3', 'E-6', 'F-2'],
-  "6": ['A-1', 'A-5', 'B-3', 'B-7', 'C-2', 'C-6', 'D-3', 'D-7', 'E-4', 'E-7', 'F-1'],
-  "7": ['A-2', 'A-6', 'B-4', 'B-8', 'C-1', 'C-7', 'D-2', 'D-6', 'E-5', 'E-8', 'F-4'],
-  "8": ['A-3', 'A-5', 'B-1', 'B-7', 'C-4', 'C-8', 'D-3', 'D-5', 'E-2', 'E-6', 'F-3'],
-};
+// generateSeats — Genera la grilla de asientos 2D y 3D según la sala
+export const generateSeats = (config?: RoomConfig | string): SeatData[] => {
+  let rows = DEFAULT_ROWS;
+  let cols = DEFAULT_COLS;
+  let occupied: string[] = [];
+  let isImax = false;
 
-// generateSeats — Genera la grilla completa de asientos en 2D y 3D
-export const generateSeats = (movieId: string): SeatData[] => {
-  const occupied = OCCUPIED_BY_MOVIE[movieId] ?? OCCUPIED_BY_MOVIE["1"];
+  if (typeof config === 'string') {
+    // Modo retrocompatible si sólo pasan movieId
+    rows = DEFAULT_ROWS;
+    cols = DEFAULT_COLS;
+  } else if (config) {
+    if (config.rows && config.rows.length > 0) rows = config.rows;
+    if (config.cols) cols = config.cols;
+    if (config.roomType === 'imax') isImax = true;
+    if (config.occupiedSeats) occupied = config.occupiedSeats;
+  }
+
   const seats: SeatData[] = [];
+  const midCol = (cols + 1) / 2;
+  const midRow = (rows.length - 1) / 2;
+  const aisleThreshold = cols / 2; // Columna donde se divide el pasillo central
 
-  ROWS.forEach((row, rIndex) => {
-    // A y B son VIP (filas de lujo, más cerca de la pantalla)
-    const isVIP = row === 'A' || row === 'B';
-    const price = isVIP ? VIP_PRICE : STANDARD_PRICE;
+  // En IMAX las filas B y C son VIP
+  const vipRows = isImax ? ['B', 'C'] : ['A', 'B'];
 
-    for (let col = 1; col <= COLS; col++) {
+  rows.forEach((row, rIndex) => {
+    const isVIP = vipRows.includes(row);
+
+    for (let col = 1; col <= cols; col++) {
       const id = `${row}-${col}`;
 
-      // Coordenadas 3D del asiento
-      const x = (col - 4.5) * 1.35;
+      // Asientos accesibles: ubicados en la fila A (extremos de fácil acceso por rampa)
+      const isAccessible = row === 'A' && (col === 1 || col === cols);
+
+      let type: 'standard' | 'vip' | 'accessible' = 'standard';
+      let price = STANDARD_PRICE;
+
+      if (isAccessible) {
+        type = 'accessible';
+        price = ACCESSIBLE_PRICE;
+      } else if (isVIP) {
+        type = 'vip';
+        price = VIP_PRICE;
+      }
+
+      // Pasillo central en 3D: desplazamos el bloque izquierdo hacia la izquierda y el derecho a la derecha
+      const aisleOffset = col <= aisleThreshold ? -0.45 : 0.45;
+      const x = (col - midCol) * 1.35 + aisleOffset;
       const y = rIndex * 0.38;
-      const z = (rIndex - 2.5) * 2.2 + 2;
+
+      // Z: calibración de campo visual óptima (3.2 en IMAX para vista envolvente y cercana)
+      const baseDistanceZ = isImax ? 3.2 : 2.0;
+      const z = (rIndex - midRow) * 2.2 + baseDistanceZ;
 
       seats.push({
         id,
         row,
         col,
-        type: isVIP ? 'vip' : 'standard',
+        type,
         price,
         position: [x, y, z],
         status: occupied.includes(id) ? 'occupied' : 'available',
@@ -63,5 +99,50 @@ export const generateSeats = (movieId: string): SeatData[] => {
   return seats;
 };
 
-export const ROWS_ORDER = ROWS;
-export const COLS_COUNT = COLS;
+// Detección de asientos huérfanos (Single Orphan Seat Gap Rule)
+// Retorna si una configuración hipotética de asientos seleccionados dejaría un asiento solo aislado
+export const checkOrphanSeats = (
+  tentativeSelectedIds: string[],
+  allSeats: SeatData[],
+  rows: string[],
+  cols: number
+): { hasOrphan: boolean; orphanSeatId?: string } => {
+  for (const row of rows) {
+    const rowSeats = allSeats.filter((s) => s.row === row).sort((a, b) => a.col - b.col);
+    const aisleMid = Math.floor(cols / 2);
+
+    // Dividimos en dos bloques (izquierdo y derecho) si hay pasillo central
+    const blocks = [
+      rowSeats.filter((s) => s.col <= aisleMid),
+      rowSeats.filter((s) => s.col > aisleMid),
+    ];
+
+    for (const block of blocks) {
+      // Mapeamos el estado de cada asiento: 1 si ocupado o seleccionado, 0 si libre
+      const states = block.map((s) => ({
+        id: s.id,
+        taken: s.status === 'occupied' || tentativeSelectedIds.includes(s.id),
+      }));
+
+      for (let i = 0; i < states.length; i++) {
+        if (!states[i].taken) {
+          // El asiento está libre. ¿Está aislado por los dos lados?
+          const leftBoundary = i === 0 || states[i - 1].taken;
+          const rightBoundary = i === states.length - 1 || states[i + 1].taken;
+
+          if (leftBoundary && rightBoundary) {
+            return {
+              hasOrphan: true,
+              orphanSeatId: states[i].id,
+            };
+          }
+        }
+      }
+    }
+  }
+
+  return { hasOrphan: false };
+};
+
+export const ROWS_ORDER = DEFAULT_ROWS;
+export const COLS_COUNT = DEFAULT_COLS;

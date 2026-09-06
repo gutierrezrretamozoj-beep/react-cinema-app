@@ -17,15 +17,26 @@ interface CinemaScreenProps {
   videoUrl: string;
   isPlaying: boolean;
   isMuted: boolean;
+  isImax?: boolean;
 }
 
-export const CinemaScreen3D: React.FC<CinemaScreenProps> = ({ videoUrl, isPlaying, isMuted }) => {
+export const CinemaScreen3D: React.FC<CinemaScreenProps> = ({ videoUrl, isPlaying, isMuted, isImax = false }) => {
   const lightRef = useRef<THREE.PointLight>(null);
   const materialRef = useRef<THREE.MeshBasicMaterial>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoTexture, setVideoTexture] = useState<THREE.VideoTexture | null>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
+
+  // Dimensiones proporcionales: pantalla un 20% más grande en todas las salas
+  // Estándar pasa de 15.6 x 8.76 a 18.7 x 10.5
+  // IMAX pasa de 22.8 x 13.2 a 27.4 x 15.8
+  const screenWidth = isImax ? 27.4 : 18.72;
+  const screenHeight = isImax ? 15.84 : 10.51;
+  const frameWidth = screenWidth + 0.45;
+  const frameHeight = screenHeight + 0.45;
+  const screenY = isImax ? 7.6 : 5.8;
+  const screenZ = isImax ? -18.2 : -16.2;
 
   // Setup del elemento de video HTML para el VideoTexture
   useEffect(() => {
@@ -134,10 +145,10 @@ export const CinemaScreen3D: React.FC<CinemaScreenProps> = ({ videoUrl, isPlayin
   });
 
   return (
-    <group position={[0, 5.16, -15.5]}>
-      {/* Pantalla principal */}
+    <group position={[0, screenY, screenZ]}>
+      {/* Pantalla principal proporcional */}
       <mesh castShadow receiveShadow>
-        <planeGeometry args={[15.6, 8.76]} />
+        <planeGeometry args={[screenWidth, screenHeight]} />
         <meshBasicMaterial
           ref={materialRef}
           map={(videoTexture && videoLoaded && !videoError) ? videoTexture : undefined}
@@ -148,7 +159,7 @@ export const CinemaScreen3D: React.FC<CinemaScreenProps> = ({ videoUrl, isPlayin
 
       {/* Marco de la pantalla */}
       <mesh position={[0, 0, -0.05]}>
-        <planeGeometry args={[15.96, 9.12]} />
+        <planeGeometry args={[frameWidth, frameHeight]} />
         <meshStandardMaterial
           color="#0d0d12"
           roughness={0.95}
@@ -158,21 +169,21 @@ export const CinemaScreen3D: React.FC<CinemaScreenProps> = ({ videoUrl, isPlayin
       </mesh>
 
       {/* Soporte inferior */}
-      <mesh position={[0, -4.86, -0.2]} castShadow>
-        <boxGeometry args={[6.6, 0.6, 0.6]} />
+      <mesh position={[0, -screenHeight / 2 - 0.4, -0.2]} castShadow>
+        <boxGeometry args={[screenWidth * 0.45, 0.6, 0.6]} />
         <meshStandardMaterial color="#1a202c" roughness={0.8} />
       </mesh>
-      <mesh position={[0, -2.88, -0.2]} castShadow>
-        <boxGeometry args={[0.36, 4.56, 0.36]} />
+      <mesh position={[0, -screenHeight / 4 - 0.5, -0.2]} castShadow>
+        <boxGeometry args={[0.36, screenHeight * 0.55, 0.36]} />
         <meshStandardMaterial color="#0f172a" roughness={0.8} />
       </mesh>
 
       {/* Luz ambiental de la pantalla */}
       <pointLight
         ref={lightRef}
-        position={[0, 0, 1.8]}
-        distance={28.8}
-        intensity={1.3}
+        position={[0, 0, 2.2]}
+        distance={isImax ? 38 : 28.8}
+        intensity={isImax ? 1.7 : 1.3}
         decay={1.2}
       />
     </group>

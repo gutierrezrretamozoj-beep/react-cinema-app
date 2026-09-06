@@ -44,12 +44,12 @@ export const SeatSelectionPage = () => {
   // ── Estados unificados del Stepper ──
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState('Hoy');
-  const [selectedTheater, setSelectedTheater] = useState('Multiplex Portal');
-  const [selectedFormat, setSelectedFormat] = useState('IMAX');
-  const [selectedLanguage, setSelectedLanguage] = useState('Subtitulada');
+  const [selectedTheater, setSelectedTheater] = useState('Multicine Viva Barranquilla');
+  const [selectedFormat, setSelectedFormat] = useState('4DX 2D');
+  const [selectedLanguage, setSelectedLanguage] = useState<'Subtitulada' | 'Doblada'>('Doblada');
   const [selectedTime, setSelectedTime] = useState(queryTime);
 
-  const [seats, setSeats] = useState<SeatData[]>(() => generateSeats(movieId ?? '1'));
+  const [seats, setSeats] = useState<SeatData[]>(() => generateSeats({ movieId: movieId ?? '1' }));
   const [selectedSeatIds, setSelectedSeatIds] = useState<string[]>([]);
   const [snacks, setSnacks] = useState<Record<string, number>>({});
   const [payMethod, setPayMethod] = useState('card');
@@ -65,37 +65,48 @@ export const SeatSelectionPage = () => {
     cinemaApi.getFunctions(movieId ?? '1').then((list) => {
       if (active) {
         setFunctionsList(list);
-        // Selecciona la primera disponible por defecto si no hay coincidencia
+        // Empareja con queryTime si viene en la URL, o toma la primera
         const matched = list.find((f) => f.time === queryTime) ?? list[0] ?? null;
-        setActiveFunction(matched);
+        if (matched) {
+          setActiveFunction(matched);
+          setSelectedTheater(matched.theater);
+          setSelectedDate(matched.date);
+          setSelectedTime(matched.time);
+          setSelectedFormat(matched.format);
+          setSelectedLanguage(matched.language);
+        }
       }
     });
     return () => {
-      active = true;
+      active = false;
     };
   }, [movieId, queryTime]);
 
-  // Sincroniza filtros con la función activa
-  useEffect(() => {
-    if (functionsList.length === 0) return;
-    const matched = functionsList.find(
-      (f) =>
-        f.time === selectedTime &&
-        f.theater === selectedTheater &&
-        f.date === selectedDate &&
-        f.format === selectedFormat &&
-        f.language === selectedLanguage
-    );
-    if (matched) {
-      setActiveFunction(matched);
-    }
-  }, [selectedTime, selectedTheater, selectedDate, selectedFormat, selectedLanguage, functionsList]);
+  // Manejador al seleccionar directamente una función (horario/sala) en StepShowtime
+  const handleSelectFunction = (fn: CinemaFunction) => {
+    setActiveFunction(fn);
+    setSelectedTheater(fn.theater);
+    setSelectedDate(fn.date);
+    setSelectedTime(fn.time);
+    setSelectedFormat(fn.format);
+    setSelectedLanguage(fn.language);
+    setSelectedSeatIds([]); // Limpia selección al cambiar de sala
+  };
 
-  // Sincroniza la ocupación de asientos desde el backend/cache local
+  // Regenera la grilla de asientos dinámicamente cuando cambia la función/sala activa
   useEffect(() => {
     if (!activeFunction) return;
-    setSeats((prevSeats) =>
-      prevSeats.map((seat) => ({
+
+    const newSeats = generateSeats({
+      rows: activeFunction.rows,
+      cols: activeFunction.cols,
+      roomType: activeFunction.roomType,
+      occupiedSeats: activeFunction.occupiedSeats,
+      movieId: movieId ?? '1',
+    });
+
+    setSeats(
+      newSeats.map((seat) => ({
         ...seat,
         status: activeFunction.occupiedSeats.includes(seat.id)
           ? 'occupied'
@@ -104,11 +115,10 @@ export const SeatSelectionPage = () => {
           : 'available',
       }))
     );
-  }, [activeFunction, selectedSeatIds]);
+  }, [activeFunction, selectedSeatIds, movieId]);
 
   // Resetear si cambia de película
   useEffect(() => {
-    setSeats(generateSeats(movieId ?? '1'));
     setSelectedSeatIds([]);
     setSnacks({});
     setTimeLeft(600);
@@ -313,16 +323,13 @@ export const SeatSelectionPage = () => {
             {step === 1 && (
               <StepShowtime
                 movie={movie}
+                functionsList={functionsList}
+                activeFunction={activeFunction}
+                onSelectFunction={handleSelectFunction}
                 selectedDate={selectedDate}
                 setSelectedDate={setSelectedDate}
                 selectedTheater={selectedTheater}
                 setSelectedTheater={setSelectedTheater}
-                selectedFormat={selectedFormat}
-                setSelectedFormat={setSelectedFormat}
-                selectedLanguage={selectedLanguage}
-                setSelectedLanguage={setSelectedLanguage}
-                selectedTime={selectedTime}
-                setSelectedTime={setSelectedTime}
                 onNext={() => setStep(2)}
               />
             )}
@@ -330,6 +337,7 @@ export const SeatSelectionPage = () => {
               <StepSeats
                 movie={movie}
                 seats={seats}
+                activeFunction={activeFunction}
                 selectedSeatIds={selectedSeatIds}
                 onSeatToggle={handleSeatToggle}
                 selectedDate={selectedDate}
@@ -378,7 +386,12 @@ export const SeatSelectionPage = () => {
                 selectedSeatsLabel={selectedSeatIds.join(', ')}
                 selectedDate={selectedDate}
                 selectedTime={selectedTime}
+                theater={selectedTheater}
+                roomName={activeFunction?.roomName}
+                language={selectedLanguage}
                 ticketCode={ticketCode}
+                totalPrice={grandTotal}
+                creditsEarned={Math.round(ticketsTotal * 10)}
                 onGoHome={() => navigate('/home')}
                 onGoToTickets={() => navigate('/tickets')}
               />

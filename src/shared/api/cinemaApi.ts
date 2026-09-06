@@ -11,10 +11,15 @@ export interface CinemaFunction {
   id: string;
   movieId: string;
   theater: string;
-  date: string;
+  roomName: string;
+  roomType: 'standard' | 'imax' | '4dx' | 'kids';
   format: string;
-  language: string;
+  experienceLabel: string;
+  language: 'Subtitulada' | 'Doblada';
+  date: string;
   time: string;
+  rows: string[];
+  cols: number;
   occupiedSeats: string[];
 }
 
@@ -32,42 +37,185 @@ export interface Reservation {
 // Bandera y almacenamiento interno para simular base de datos local en fallback
 let localFunctionsCache: CinemaFunction[] = [];
 
+const DEFAULT_STANDARD_ROWS = ['A', 'B', 'C', 'D', 'E', 'F'];
+const DEFAULT_IMAX_ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
 const initializeLocalCache = () => {
   if (localFunctionsCache.length > 0) return;
   
-  // Generamos funciones por defecto basadas en la data estática
   const defaultFunctions: CinemaFunction[] = [];
+  
   MOVIES.forEach((movie) => {
-    // Generar funciones para hoy
-    movie.showtimes.forEach((time, index) => {
-      defaultFunctions.push({
-        id: `f-${movie.id}-${index}`,
+    // 1. Experiencia 4DX 2D - DOB (Sala 4DX, 48 asientos)
+    defaultFunctions.push(
+      {
+        id: `fn-${movie.id}-4dx-1`,
         movieId: movie.id,
-        theater: 'Multiplex Portal',
+        theater: 'Multicine Viva Barranquilla',
+        roomName: 'Sala 4 4DX',
+        roomType: '4dx',
+        format: '4DX 2D',
+        experienceLabel: '4DX 2D - DOB',
+        language: 'Doblada',
         date: 'Hoy',
-        format: movie.formats?.[0] || 'IMAX',
+        time: '06:30 p. m.',
+        rows: DEFAULT_STANDARD_ROWS,
+        cols: 8,
+        occupiedSeats: ['A-3', 'A-4', 'B-1', 'C-4'],
+      },
+      {
+        id: `fn-${movie.id}-4dx-2`,
+        movieId: movie.id,
+        theater: 'Multicine Viva Barranquilla',
+        roomName: 'Sala 4 4DX',
+        roomType: '4dx',
+        format: '4DX 2D',
+        experienceLabel: '4DX 2D - DOB',
+        language: 'Doblada',
+        date: 'Hoy',
+        time: '09:30 p. m.',
+        rows: DEFAULT_STANDARD_ROWS,
+        cols: 8,
+        occupiedSeats: ['B-2', 'B-3', 'E-4', 'E-5'],
+      }
+    );
+
+    // 2. Experiencia Kids 2D - DOB (Sala Kids, 48 asientos)
+    defaultFunctions.push({
+      id: `fn-${movie.id}-kids-1`,
+      movieId: movie.id,
+      theater: 'Multicine Viva Barranquilla',
+      roomName: 'Sala 2 Kids',
+      roomType: 'kids',
+      format: 'Kids 2D',
+      experienceLabel: 'Kids 2D - DOB',
+      language: 'Doblada',
+      date: 'Hoy',
+      time: '08:20 p. m.',
+      rows: DEFAULT_STANDARD_ROWS,
+      cols: 8,
+      occupiedSeats: ['C-3', 'C-4', 'D-5'],
+    });
+
+    // 3. Experiencia IMAX 3D - SUB (Sala 1 IMAX, 80 asientos: 8x10)
+    defaultFunctions.push(
+      {
+        id: `fn-${movie.id}-imax-1`,
+        movieId: movie.id,
+        theater: 'Multicine Viva Barranquilla',
+        roomName: 'Sala 1 IMAX',
+        roomType: 'imax',
+        format: 'IMAX 3D',
+        experienceLabel: 'IMAX 3D - SUB',
         language: 'Subtitulada',
-        time: time,
-        occupiedSeats: getStaticOccupiedSeats(movie.id),
-      });
+        date: 'Hoy',
+        time: '04:00 p. m.',
+        rows: DEFAULT_IMAX_ROWS,
+        cols: 10,
+        occupiedSeats: ['D-4', 'D-5', 'E-5', 'E-6', 'G-1', 'H-10'],
+      },
+      {
+        id: `fn-${movie.id}-imax-2`,
+        movieId: movie.id,
+        theater: 'Multicine Viva Barranquilla',
+        roomName: 'Sala 1 IMAX',
+        roomType: 'imax',
+        format: 'IMAX 3D',
+        experienceLabel: 'IMAX 3D - SUB',
+        language: 'Subtitulada',
+        date: 'Hoy',
+        time: '07:45 p. m.',
+        rows: DEFAULT_IMAX_ROWS,
+        cols: 10,
+        occupiedSeats: ['A-1', 'A-2', 'C-4', 'C-5', 'D-6', 'F-7'],
+      }
+    );
+
+    // 4. Experiencia 2D General - DOB en otros teatros
+    defaultFunctions.push({
+      id: `fn-${movie.id}-std-1`,
+      movieId: movie.id,
+      theater: 'Multiplex Buenavista',
+      roomName: 'Sala 3 Dinámica',
+      roomType: 'standard',
+      format: '2D',
+      experienceLabel: '2D General - DOB',
+      language: 'Doblada',
+      date: 'Hoy',
+      time: '05:15 p. m.',
+      rows: DEFAULT_STANDARD_ROWS,
+      cols: 8,
+      occupiedSeats: ['B-4', 'B-5', 'F-1'],
+    });
+
+    // 5. Funciones para Mañana (Multicine Viva Barranquilla)
+    defaultFunctions.push(
+      {
+        id: `fn-${movie.id}-manana-imax-1`,
+        movieId: movie.id,
+        theater: 'Multicine Viva Barranquilla',
+        roomName: 'Sala 1 IMAX',
+        roomType: 'imax',
+        format: 'IMAX 3D',
+        experienceLabel: 'IMAX 3D - SUB',
+        language: 'Subtitulada',
+        date: 'Mañana',
+        time: '03:30 p. m.',
+        rows: DEFAULT_IMAX_ROWS,
+        cols: 10,
+        occupiedSeats: ['B-4', 'B-5', 'C-6', 'D-7'],
+      },
+      {
+        id: `fn-${movie.id}-manana-imax-2`,
+        movieId: movie.id,
+        theater: 'Multicine Viva Barranquilla',
+        roomName: 'Sala 1 IMAX',
+        roomType: 'imax',
+        format: 'IMAX 3D',
+        experienceLabel: 'IMAX 3D - SUB',
+        language: 'Subtitulada',
+        date: 'Mañana',
+        time: '07:15 p. m.',
+        rows: DEFAULT_IMAX_ROWS,
+        cols: 10,
+        occupiedSeats: ['B-1', 'B-2', 'C-5', 'C-6', 'E-4', 'E-5'],
+      },
+      {
+        id: `fn-${movie.id}-manana-4dx-1`,
+        movieId: movie.id,
+        theater: 'Multicine Viva Barranquilla',
+        roomName: 'Sala 4 4DX',
+        roomType: '4dx',
+        format: '4DX 2D',
+        experienceLabel: '4DX 2D - DOB',
+        language: 'Doblada',
+        date: 'Mañana',
+        time: '05:45 p. m.',
+        rows: DEFAULT_STANDARD_ROWS,
+        cols: 8,
+        occupiedSeats: ['A-2', 'A-7', 'C-3'],
+      }
+    );
+
+    // 6. Funciones para Fin de Semana (Sábado 22)
+    defaultFunctions.push({
+      id: `fn-${movie.id}-sab-imax-1`,
+      movieId: movie.id,
+      theater: 'Multicine Viva Barranquilla',
+      roomName: 'Sala 1 IMAX',
+      roomType: 'imax',
+      format: 'IMAX 3D',
+      experienceLabel: 'IMAX 3D - SUB',
+      language: 'Subtitulada',
+      date: 'Sábado 22',
+      time: '06:00 p. m.',
+      rows: DEFAULT_IMAX_ROWS,
+      cols: 10,
+      occupiedSeats: ['B-1', 'B-2', 'B-3', 'C-4', 'C-5', 'D-5', 'D-6', 'E-5', 'E-6'],
     });
   });
-  localFunctionsCache = defaultFunctions;
-};
 
-// Asientos ocupados por defecto (para fallback offline)
-const getStaticOccupiedSeats = (movieId: string): string[] => {
-  const staticOccupations: Record<string, string[]> = {
-    "1": ['A-3', 'A-4', 'B-1', 'B-6', 'C-4', 'C-5', 'D-2', 'D-8', 'E-4', 'E-5', 'F-7'],
-    "2": ['A-1', 'A-8', 'B-3', 'B-5', 'C-2', 'C-6', 'D-1', 'D-7', 'E-3', 'F-4', 'F-6'],
-    "3": ['A-2', 'A-5', 'B-2', 'B-7', 'C-1', 'C-8', 'D-3', 'D-6', 'E-1', 'E-8', 'F-5'],
-    "4": ['A-4', 'A-6', 'B-4', 'B-8', 'C-3', 'C-7', 'D-4', 'D-5', 'E-2', 'E-7', 'F-3'],
-    "5": ['A-3', 'A-7', 'B-2', 'B-6', 'C-5', 'C-8', 'D-1', 'D-8', 'E-3', 'E-6', 'F-2'],
-    "6": ['A-1', 'A-5', 'B-3', 'B-7', 'C-2', 'C-6', 'D-3', 'D-7', 'E-4', 'E-7', 'F-1'],
-    "7": ['A-2', 'A-6', 'B-4', 'B-8', 'C-1', 'C-7', 'D-2', 'D-6', 'E-5', 'E-8', 'F-4'],
-    "8": ['A-3', 'A-5', 'B-1', 'B-7', 'C-4', 'C-8', 'D-3', 'D-5', 'E-2', 'E-6', 'F-3'],
-  };
-  return staticOccupations[movieId] ?? staticOccupations["1"];
+  localFunctionsCache = defaultFunctions;
 };
 
 export const cinemaApi = {

@@ -1,17 +1,24 @@
 // StepConfirmation.tsx — Paso 5 del Stepper: Boleto de Compra Exitoso y Código QR Dinámico
-// Emplea un diseño físico de ticket premium con detalles dorados y código QR dinámico.
+// Emplea un diseño físico de ticket premium con detalles dorados, descarga en PNG y créditos de fidelidad.
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, CheckCircle2, Ticket } from 'lucide-react';
+import { Sparkles, CheckCircle2, Ticket, Download } from 'lucide-react';
 import type { Movie } from '@/features/auth/pages/Home/data/movieData';
+import { downloadTicketPNG } from '../../utils/ticketGenerator';
+import { sfx } from '../../utils/soundEffects';
 
 interface StepConfirmationProps {
   movie: Movie;
   selectedSeatsLabel: string;
   selectedDate: string;
   selectedTime: string;
+  theater?: string;
+  roomName?: string;
+  language?: string;
   ticketCode: string;
+  totalPrice?: number;
+  creditsEarned?: number;
   onGoHome: () => void;
   onGoToTickets: () => void;
 }
@@ -21,10 +28,41 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
   selectedSeatsLabel,
   selectedDate,
   selectedTime,
+  theater = 'Cinema Nova',
+  roomName = 'Sala 1',
+  language,
   ticketCode,
+  totalPrice,
+  creditsEarned = 150,
   onGoHome,
   onGoToTickets,
 }) => {
+  const [downloading, setDownloading] = useState(false);
+
+  // Reproduce la fanfarria de compra exitosa al montar
+  useEffect(() => {
+    sfx.playFanfare();
+  }, []);
+
+  const handleDownloadPNG = async () => {
+    setDownloading(true);
+    try {
+      await downloadTicketPNG({
+        movieTitle: movie.title,
+        theater,
+        date: selectedDate,
+        time: selectedTime,
+        roomName: `${roomName} ${language ? `(${language.slice(0, 3)})` : ''}`,
+        seatsLabel: selectedSeatsLabel,
+        ticketCode,
+        backdropUrl: movie.backdropUrl || movie.posterUrl,
+        totalPrice,
+      });
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-md text-center py-4">
       {/* Animación del ícono de éxito */}
@@ -43,7 +81,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
         <Sparkles className="h-5 w-5 text-yellow-500 animate-pulse" /> ¡Reserva Exitosa!
       </h1>
       <p className="mt-2 text-xs text-neutral-400 max-w-xs mx-auto leading-relaxed">
-        Tu compra ha sido procesada correctamente. Presenta el código QR en la entrada de la sala.
+        Tu compra ha sido procesada correctamente. Presenta el código QR o descarga tu boleto en imagen.
       </p>
 
       {/* Ticket Físico de Cine */}
@@ -80,7 +118,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
           </div>
           <div>
             <span className="text-[9px] text-neutral-500 font-bold uppercase">Sala</span>
-            <p className="font-semibold text-neutral-200 mt-0.5">IMAX Sala 3</p>
+            <p className="font-semibold text-neutral-200 mt-0.5 truncate">{roomName} {language ? `(${language.slice(0, 3)})` : ''}</p>
           </div>
           <div>
             <span className="text-[9px] text-neutral-500 font-bold uppercase">Asientos</span>
@@ -118,21 +156,55 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
         </div>
       </motion.div>
 
-      {/* Botones */}
-      <div className="mt-8 flex gap-3 justify-center">
+      {/* Tarjeta de Recompensa Nova Credits */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35, duration: 0.4 }}
+        className="mt-6 mx-auto max-w-[19rem] rounded-2xl border border-yellow-500/20 bg-yellow-500/5 p-3.5 text-center flex items-center justify-between"
+      >
+        <div className="flex items-center gap-2.5 text-left">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+            <Sparkles className="h-5 w-5 animate-pulse" />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-yellow-400">Recompensa Nova Club</p>
+            <p className="text-xs text-neutral-200 font-semibold mt-0.5">+{creditsEarned} Nova Credits</p>
+          </div>
+        </div>
+        <span className="rounded-lg bg-yellow-500/10 border border-yellow-500/30 px-2 py-1 text-[9px] font-mono font-bold text-yellow-400">
+          ACUMULADOS
+        </span>
+      </motion.div>
+
+      {/* Botones de acción */}
+      <div className="mt-6 flex flex-col gap-2.5 max-w-[19rem] mx-auto">
         <button
-          onClick={onGoHome}
-          className="rounded-xl border border-neutral-800 bg-neutral-900/60 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-neutral-300 hover:border-neutral-700 hover:text-neutral-100"
+          onClick={handleDownloadPNG}
+          disabled={downloading}
+          className="w-full rounded-xl border border-yellow-500/40 bg-yellow-500/10 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-yellow-400 hover:bg-yellow-500/20 active:scale-95 shadow-lg shadow-yellow-500/10 flex items-center justify-center gap-2 transition-all cursor-pointer"
         >
-          Ir al Inicio
+          <Download className="h-4 w-4" />
+          {downloading ? 'Generando Imagen...' : 'Descargar Boleto (PNG)'}
         </button>
-        <button
-          onClick={onGoToTickets}
-          className="rounded-xl bg-yellow-500 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-neutral-950 hover:bg-yellow-400 active:scale-95 shadow-lg shadow-yellow-500/10 flex items-center gap-1.5"
-        >
-          <Ticket className="h-4 w-4" /> Mis Boletas
-        </button>
+
+        <div className="flex gap-2 w-full">
+          <button
+            onClick={onGoHome}
+            className="flex-1 rounded-xl border border-neutral-800 bg-neutral-900/60 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-neutral-300 hover:border-neutral-700 hover:text-neutral-100 transition-colors"
+          >
+            Ir al Inicio
+          </button>
+          <button
+            onClick={onGoToTickets}
+            className="flex-1 rounded-xl bg-yellow-500 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-neutral-950 hover:bg-yellow-400 active:scale-95 shadow-lg shadow-yellow-500/10 flex items-center justify-center gap-1.5 transition-all"
+          >
+            <Ticket className="h-4 w-4" /> Mis Boletas
+          </button>
+        </div>
       </div>
     </div>
   );
 };
+export default StepConfirmation;
+

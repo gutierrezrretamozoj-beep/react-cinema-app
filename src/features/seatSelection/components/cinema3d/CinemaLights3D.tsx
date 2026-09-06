@@ -7,37 +7,44 @@ import { useFrame } from '@react-three/fiber';
 
 interface CinemaLightsProps {
   isPlaying: boolean;
+  dimLights?: boolean;
 }
 
 export const CinemaLights3D: React.FC<CinemaLightsProps> = ({ isPlaying }) => {
   const ambientRef = useRef<THREE.AmbientLight>(null);
+  const directionalRef = useRef<THREE.DirectionalLight>(null);
   const screenGlowRef = useRef<THREE.PointLight>(null);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
 
-    // Luz ambiental: más oscura cuando la película corre, más brillante cuando está pausada
+    // Luz ambiental permanente en 0.005 (sala a oscuras real como en proyección de cine)
     if (ambientRef.current) {
-      const targetIntensity = isPlaying ? 0.08 : 0.25;
-      ambientRef.current.intensity = THREE.MathUtils.lerp(ambientRef.current.intensity, targetIntensity, 0.05);
+      ambientRef.current.intensity = THREE.MathUtils.lerp(ambientRef.current.intensity, 0.005, 0.05);
     }
 
-    // Glow lateral sutil de la pantalla (parpadeo lento)
+    // Luz cenital sutil para siluetas de butacas
+    if (directionalRef.current) {
+      ambientRef.current && (directionalRef.current.intensity = THREE.MathUtils.lerp(directionalRef.current.intensity, 0.04, 0.05));
+    }
+
+    // Glow dinámico de la pantalla proyectada iluminando la sala
     if (screenGlowRef.current && isPlaying) {
-      const flicker = Math.sin(time * 1.8) * 0.08 + 0.38;
+      const flicker = Math.sin(time * 1.8) * 0.08 + 0.55;
       screenGlowRef.current.intensity = flicker;
     }
   });
 
   return (
     <>
-      {/* Luz ambiental general (oscurece la sala cuando reproduce) */}
-      <ambientLight ref={ambientRef} intensity={0.12} color="#e8e0ff" />
+      {/* Luz ambiental cinemática en penumbra (0.005) */}
+      <ambientLight ref={ambientRef} intensity={0.005} color="#e8e0ff" />
 
-      {/* Luz cenital principal (ilumina asientos desde arriba) */}
+      {/* Luz cenital tenue para definición de volumen */}
       <directionalLight
+        ref={directionalRef}
         position={[0, 10, 4]}
-        intensity={0.55}
+        intensity={0.04}
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
