@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router";
+import { Link, useParams } from "react-router";
 import { MOVIES } from "../Home/data/movieData";
+import { useCart } from "@/features/cart/CartContext";
 
 
 export const MovieDescriptionPage = () => {
   // Read the movie identifier from the route parameters.
   const { movieId } = useParams();
-  const navigate = useNavigate();
+  const { addMovieToCart } = useCart();
   // Find the selected movie from the static catalog data.
   const movie = MOVIES.find((item) => item.id === movieId);
   // Track the currently selected showtime for the reservation flow.
@@ -35,9 +36,9 @@ export const MovieDescriptionPage = () => {
   }
 
   // Navega a la página de selección de asientos con el horario elegido.
-  const handleBuyTickets = () => {
+  const handleBuyTickets = async () => {
     if (!selectedTime) return;
-    navigate(`/movies/${movieId}/seats?time=${encodeURIComponent(selectedTime)}`);
+    await addMovieToCart(movie, selectedTime);
   };
 
   // Create a short list of related movie suggestions excluding the current one.
