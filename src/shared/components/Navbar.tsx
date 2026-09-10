@@ -5,6 +5,7 @@ const LINKS = [
   { path: "/home", label: "Cartelera" },
   { path: "/auth/login", label: "Login" },
   { path: "/auth/register", label: "Registro" },
+  { path: "/cart", label: "Carrito" },
 ];
 
 export const Navbar = () => {

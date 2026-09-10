@@ -34,8 +34,45 @@ export interface Reservation {
   total: number;
 }
 
+export interface CartItem {
+  id: string;
+  type: 'ticket' | 'concession';
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  seatId?: string;
+  movieId?: string;
+  showtime?: string;
+}
+
+export interface Cart {
+  id: string;
+  userEmail: string;
+  movieId: string;
+  functionId: string;
+  movieTitle: string;
+  theater: string;
+  date: string;
+  time: string;
+  items: CartItem[];
+  membershipDiscount: number;
+  giftCardDiscount: number;
+  expiresAt: string;
+}
+
 // Bandera y almacenamiento interno para simular base de datos local en fallback
 let localFunctionsCache: CinemaFunction[] = [];
+
+// El fallback identifica el carrito por usuario para conservar una sola sesión activa local.
+const readLocalCart = (userEmail: string): Cart | null => {
+  const saved = localStorage.getItem(`cinema_cart_${userEmail}`);
+  return saved ? JSON.parse(saved) : null;
+};
+
+const writeLocalCart = (cart: Cart | null, userEmail: string) => {
+  if (cart) localStorage.setItem(`cinema_cart_${userEmail}`, JSON.stringify(cart));
+  else localStorage.removeItem(`cinema_cart_${userEmail}`);
+};
 
 const DEFAULT_STANDARD_ROWS = ['A', 'B', 'C', 'D', 'E', 'F'];
 const DEFAULT_IMAX_ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
@@ -322,5 +359,98 @@ export const cinemaApi = {
       localStorage.setItem('cinema_tickets', JSON.stringify([newReservation, ...list]));
       return newReservation;
     }
+  },
+
+  async createCart(cartData: Omit<Cart, 'id'>): Promise<Cart> {
+    const newCart: Cart = { id: `cart-${Date.now()}`, ...cartData };
+    try {
+      const res = await fetch(`${API_BASE_URL}/cart`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newCart),
+        signal: AbortSignal.timeout(1500),
+      });
+      if (!res.ok) throw new Error();
+      return await res.json();
+    } catch {
+      writeLocalCart(newCart, cartData.userEmail);
+      return newCart;
+    }
+  },
+
+  async getCart(userEmail: string): Promise<Cart | null> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/cart?userEmail=${encodeURIComponent(userEmail)}`, {
+        signal: AbortSignal.timeout(1500),
+      });
+      if (!res.ok) throw new Error();
+      const carts: Cart[] = await res.json();
+      return carts[0] ?? readLocalCart(userEmail);
+    } catch {
+      return readLocalCart(userEmail);
+    }
+  },
+
+  async updateCart(cart: Cart): Promise<Cart> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/cart/${cart.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cart),
+        signal: AbortSignal.timeout(1500),
+      });
+      if (!res.ok) throw new Error();
+      return await res.json();
+    } catch {
+      writeLocalCart(cart, cart.userEmail);
+      return cart;
+    }
+  },
+
+  async deleteCart(cart: Cart): Promise<void> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/cart/${cart.id}`, {
+        method: 'DELETE',
+        signal: AbortSignal.timeout(1500),
+      });
+      if (!res.ok) throw new Error();
+    } catch {
+      writeLocalCart(null, cart.userEmail);
+    }
+    writeLocalCart(null, cart.userEmail);
+  },
+
+  async applyMembership(cart: Cart, code: string): Promise<Cart> {
+    const discount = code.trim().toUpperCase() === 'NOVA10' ? cart.items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0) * 0.1 : 0;
+    const updated = { ...cart, membershipDiscount: Math.round(discount * 100) / 100 };
+    try {
+      const res = await fetch(`${API_BASE_URL}/cart/apply-membership`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cartId: cart.id, code }),
+        signal: AbortSignal.timeout(1500),
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Usa el mismo fallback local del resto de operaciones del carrito.
+    }
+    return this.updateCart(updated);
+  },
+
+  async applyGiftcard(cart: Cart, code: string): Promise<Cart> {
+    const discount = code.trim().toUpperCase() === 'REGALO25' ? 25 : 0;
+    const updated = { ...cart, giftCardDiscount: Math.min(discount, cart.items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)) };
+    try {
+      const res = await fetch(`${API_BASE_URL}/cart/apply-giftcard`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cartId: cart.id, code }),
+        signal: AbortSignal.timeout(1500),
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Usa el mismo fallback local del resto de operaciones del carrito.
+    }
+    return this.updateCart(updated);
   }
 };

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FeaturedCarousel } from "./components/FeaturedCarousel";
 import type { Movie } from "./data/movieData.ts";
 import { MovieCard } from "./components/MovieCard";
@@ -9,9 +9,11 @@ import {
   LocationModal,
 } from "@/features/location/components";
 import { useLocation } from "@/features/location/hooks/useLocation";
+import { useCart } from "@/features/cart/CartContext";
 
 // HomePage: Componente de la página principal de la Cartelera de Cine
 export const HomePage = () => {
+  const { addMovieToCart } = useCart();
   // FILTROS DE CARTELERA
  
 
@@ -49,61 +51,18 @@ export const HomePage = () => {
   } = useLocation();
 
   // --------------------------------------------------
-  // TOAST
-  // --------------------------------------------------
-
-  const [toast, setToast] = useState<{
-    message: string;
-    subMessage?: string;
-  } | null>(null);
-
-  // --------------------------------------------------
   // COMPRA DE BOLETOS
   // --------------------------------------------------
 
   const handleBuyConfirm = (movie: Movie, time: string) => {
-    setToast({
-      message:
-        movie.status === "coming-soon"
-          ? "¡Preventa Confirmada!"
-          : "¡Boleto Adquirido!",
-
-      subMessage:
-        movie.status === "coming-soon"
-          ? `Precompra de ${movie.title} realizada para la función de las ${time}. ¡Te avisaremos el día del estreno!`
-          : `${movie.title} • Función de hoy a las ${time} • ¡Disfruta la función!`,
-    });
+    void addMovieToCart(movie, time);
   };
-
-  // --------------------------------------------------
-  // CIERRE AUTOMÁTICO DEL TOAST
-  // --------------------------------------------------
-
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => {
-        setToast(null);
-      }, 4000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
 
   // --------------------------------------------------
   // CARRUSEL
   // --------------------------------------------------
 
   const handleCarouselBuyClick = (movie: Movie) => {
-    setToast({
-      message:
-        movie.status === "coming-soon"
-          ? `Precomprar boletos para: ${movie.title}`
-          : `Comprar boletos para: ${movie.title}`,
-
-      subMessage:
-        "Selecciona un horario disponible en el boleto de abajo para confirmar tu compra.",
-    });
-
     if (movie.status !== activeTab) {
       setActiveTab(movie.status);
     }
@@ -455,72 +414,6 @@ export const HomePage = () => {
         )}
 
       </section>
-
-      {/* ==========================================
-          TOAST
-      ========================================== */}
-
-      {toast && (
-        <div className="fixed bottom-6 right-6 z-50 flex max-w-sm animate-slide-in rounded-xl border border-yellow-500/20 bg-neutral-900 p-4 shadow-2xl shadow-yellow-500/5 backdrop-blur-md">
-
-          <div className="flex gap-3">
-
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-yellow-500/10 text-yellow-400">
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="h-5 w-5"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm11.378-3.917c-.89-.777-2.384-.179-2.384 1.009v1.231H10a.75.75 0 1 0 0 1.5h1.25V15a.75.75 0 1 0 1.5 0v-3.178c0-.687.525-1.25 1.182-1.25a.75.75 0 1 0 0-1.5c-.22 0-.424.08-.58.211Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-
-            </div>
-
-            <div className="flex flex-col gap-0.5">
-
-              <h5 className="text-xs font-bold text-neutral-100">
-                {toast.message}
-              </h5>
-
-              {toast.subMessage && (
-                <p className="text-[11px] leading-relaxed text-neutral-400">
-                  {toast.subMessage}
-                </p>
-              )}
-
-            </div>
-
-            <button
-              onClick={() => setToast(null)}
-              className="ml-auto shrink-0 text-neutral-500 hover:text-neutral-300"
-              aria-label="Cerrar notificación"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="h-3.5 w-3.5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-
-          </div>
-
-        </div>
-      )}
 
       {/* ==========================================
           MODAL DE UBICACIÓN
