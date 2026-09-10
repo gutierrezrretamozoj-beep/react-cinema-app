@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams, useNavigate } from "react-router";
 import { MOVIES } from "../Home/data/movieData";
 
 
 export const MovieDescriptionPage = () => {
   // Read the movie identifier from the route parameters.
   const { movieId } = useParams();
+  const navigate = useNavigate();
   // Find the selected movie from the static catalog data.
   const movie = MOVIES.find((item) => item.id === movieId);
   // Track the currently selected showtime for the reservation flow.
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  // Store the confirmation message shown after a purchase action.
-  const [toast, setToast] = useState<{ message: string; subMessage?: string } | null>(null);
 
   // Default to the first available showtime whenever the movie changes.
   useEffect(() => {
@@ -20,13 +19,7 @@ export const MovieDescriptionPage = () => {
     }
   }, [movie]);
 
-  // Hide the toast automatically after a few seconds.
-  useEffect(() => {
-    if (!toast) return;
 
-    const timer = window.setTimeout(() => setToast(null), 4000);
-    return () => window.clearTimeout(timer);
-  }, [toast]);
 
   // Render a fallback state when the requested movie is not found.
   if (!movie) {
@@ -41,15 +34,10 @@ export const MovieDescriptionPage = () => {
     );
   }
 
-  // Confirm the ticket purchase only when a showtime has been selected.
+  // Navega a la página de selección de asientos con el horario elegido.
   const handleBuyTickets = () => {
     if (!selectedTime) return;
-
-    // Show a confirmation toast with the chosen movie and time.
-    setToast({
-      message: `Entradas confirmadas para: ${movie.title}`,
-      subMessage: `Horario seleccionado ${selectedTime}. Tu compra ha sido registrada correctamente.`
-    });
+    navigate(`/movies/${movieId}/seats?time=${encodeURIComponent(selectedTime)}`);
   };
 
   // Create a short list of related movie suggestions excluding the current one.
@@ -169,27 +157,7 @@ export const MovieDescriptionPage = () => {
         </div>
       </section>
 
-      {/* Confirmation toast shown after successful ticket purchase. */}
-      {toast && (
-        <div className="fixed bottom-3 right-3 z-50 flex max-w-[calc(100vw-1.5rem)] animate-slide-in rounded-xl border border-emerald-500/20 bg-neutral-900 p-3 shadow-2xl shadow-emerald-500/5 backdrop-blur-md sm:bottom-6 sm:right-6 sm:max-w-sm sm:p-4">
-          <div className="flex gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm11.378-3.917c-.89-.777-2.384-.179-2.384 1.009v1.231H10a.75.75 0 1 0 0 1.5h1.25V15a.75.75 0 1 0 1.5 0v-3.178c0-.687.525-1.25 1.182-1.25a.75.75 0 1 0 0-1.5c-.22 0-.424.08-.58.211Z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <h5 className="text-xs font-bold text-neutral-100">{toast.message}</h5>
-              {toast.subMessage && <p className="text-[11px] leading-relaxed text-neutral-400">{toast.subMessage}</p>}
-            </div>
-            <button onClick={() => setToast(null)} className="ml-auto shrink-0 text-neutral-500 hover:text-neutral-300">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3.5 w-3.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 };
