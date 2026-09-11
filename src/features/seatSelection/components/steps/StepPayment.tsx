@@ -3,8 +3,10 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CreditCard, Banknote, Shield, Check, Lock, Compass, Sparkles } from 'lucide-react';
+import { CreditCard, Shield, Check, Lock, Smartphone, Sparkles, Landmark, RotateCcw } from 'lucide-react';
 import type { Movie } from '@/features/auth/pages/Home/data/movieData';
+import { cinemaApi } from '@/shared/api/cinemaApi';
+import type { PaymentMethod, PaymentStatus } from '@/shared/api/cinemaApi';
 import { sfx } from '../../utils/soundEffects';
 
 interface StepPaymentProps {
@@ -16,9 +18,9 @@ interface StepPaymentProps {
   ticketsTotal: number;
   snacksTotal: number;
   grandTotal: number;
-  payMethod: string;
-  setPayMethod: (method: string) => void;
-  onConfirm: () => void;
+  payMethod: PaymentMethod;
+  setPayMethod: (method: PaymentMethod) => void;
+  onConfirm: (paymentId: string) => void | Promise<void>;
   onBack: () => void;
   defaultCardholderName?: string;
   // NUEVO: Lista de snacks seleccionados en la tienda de confitería para desglosarlos individualmente en el recibo
@@ -49,6 +51,9 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
   concessionsItems = [],
 }) => {
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(null);
+  const [paymentMessage, setPaymentMessage] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [expiry, setExpiry] = useState('');
   const [cvv, setCvv] = useState('');
@@ -63,33 +68,45 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
   const [isTearing, setIsTearing] = useState(false);
   const [isPeeling, setIsPeeling] = useState(false);
 
-  const handlePayClick = () => {
+  const handlePayClick = async () => {
     if (!isFormValid()) return;
+    setSubmitted(true);
+    setLoading(true);
+    setPaymentStatus('processing');
+    setPaymentMessage('Validando la compra y conectando con la pasarela segura...');
 
     sfx.playStepTransition();
-
-    // 1. Inicia el dibujo de la línea de rasgado SVG
     setIsTearing(true);
+    setIsPeeling(true);
 
-    // 2. Inicia el enrollado hacia la derecha con un leve retraso para coincidir
-    setTimeout(() => {
-      setIsPeeling(true);
-    }, 50);
-
-    // 3. Espera a que termine la animación de rasgado antes de simular el pago
-    setTimeout(() => {
-      setLoading(true);
-      // Simula procesamiento del banco
-      setTimeout(() => {
-        setLoading(false);
-        onConfirm();
-      }, 2000);
-    }, 1400);
+    const payment = await cinemaApi.createPayment({
+      cartId: `checkout-${movie.id}-${selectedTime}`,
+      method: payMethod,
+      amount: finalAmount,
+    });
+    let result = payment;
+    if (payment.status === 'pending') {
+      setPaymentMessage(payment.message ?? 'Esperando confirmación de tu banco...');
+      await new Promise((resolve) => window.setTimeout(resolve, 800));
+      result = await cinemaApi.getPaymentStatus(payment.id);
+    }
+    setLoading(false);
+    setPaymentStatus(result.status);
+    setPaymentMessage(result.message ?? (result.status === 'approved' ? 'Pago aprobado.' : 'No fue posible completar el pago.'));
+    if (result.status === 'approved') await onConfirm(result.id);
   };
 
   const isFormValid = () => {
-    if (payMethod !== 'card') return true;
+    if (payMethod !== 'credit_card' && payMethod !== 'debit_card') return true;
     return cardNumber.replace(/\s/g, '').length === 16 && expiry.length === 5 && cvv.length === 3 && cardholder.trim().length > 0;
+  };
+
+  const handleRetry = () => {
+    setSubmitted(false);
+    setPaymentStatus(null);
+    setPaymentMessage('');
+    setIsTearing(false);
+    setIsPeeling(false);
   };
 
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,17 +146,26 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
         <p className="text-xs text-neutral-400 mb-6 flex items-center gap-1">
           <Shield className="h-3.5 w-3.5 text-emerald-500" /> Transacción encriptada de extremo a extremo
         </p>
+        {paymentStatus && paymentStatus !== 'processing' && (
+          <div className={`mb-5 rounded-xl border p-3 text-xs ${paymentStatus === 'approved' ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : paymentStatus === 'pending' ? 'border-yellow-500/30 bg-yellow-500/10 text-yellow-300' : 'border-red-500/30 bg-red-500/10 text-red-300'}`}>
+            <p className="font-bold">{paymentStatus === 'approved' ? 'Pago aprobado' : paymentStatus === 'pending' ? 'Pago pendiente' : 'Pago rechazado'}</p>
+            <p className="mt-1">{paymentMessage}</p>
+            {paymentStatus === 'rejected' && <button onClick={handleRetry} className="mt-3 inline-flex items-center gap-2 font-bold text-red-200 hover:text-white"><RotateCcw className="h-3.5 w-3.5" /> Reintentar pago</button>}
+          </div>
+        )}
 
         {/* Métodos de Pago */}
         <div className="space-y-3">
           {[
-            { id: 'card', label: 'Tarjeta de Crédito / Débito', sub: 'Visa, MasterCard, Amex', icon: <CreditCard className="h-5 w-5 text-yellow-500" /> },
-            { id: 'nequi', label: 'Banca Móvil (Nequi / Daviplata)', sub: 'Pago inmediato mediante QR', icon: <Compass className="h-5 w-5 text-yellow-500" /> },
-            { id: 'cash', label: 'Efectivo en Taquilla', sub: 'Reserva tu boleto y paga antes de ingresar', icon: <Banknote className="h-5 w-5 text-yellow-500" /> },
+            { id: 'credit_card' as const, label: 'Tarjeta de crédito', sub: 'Visa, MasterCard, Amex', icon: <CreditCard className="h-5 w-5 text-yellow-500" /> },
+            { id: 'debit_card' as const, label: 'Tarjeta débito', sub: 'Paga con tu tarjeta débito', icon: <CreditCard className="h-5 w-5 text-yellow-500" /> },
+            { id: 'pse' as const, label: 'PSE', sub: 'Serás dirigido a tu banco', icon: <Landmark className="h-5 w-5 text-yellow-500" /> },
+            { id: 'nequi' as const, label: 'Nequi', sub: 'Aprueba desde tu aplicación', icon: <Smartphone className="h-5 w-5 text-yellow-500" /> },
+            { id: 'daviplata' as const, label: 'Daviplata', sub: 'Aprueba desde tu aplicación', icon: <Smartphone className="h-5 w-5 text-yellow-500" /> },
           ].map((m) => (
             <div
               key={m.id}
-              onClick={() => !isPeeling && setPayMethod(m.id)}
+              onClick={() => !submitted && setPayMethod(m.id)}
               className={`flex items-center justify-between rounded-xl border p-4 cursor-pointer transition-all duration-200 ${
                 payMethod === m.id
                   ? 'border-yellow-500 bg-yellow-500/5 shadow-md shadow-yellow-500/5'
@@ -166,7 +192,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
         </div>
 
         {/* Formulario de tarjeta */}
-        {payMethod === 'card' && (
+        {(payMethod === 'credit_card' || payMethod === 'debit_card') && (
           <div className="mt-6 border-t border-neutral-800/80 pt-6 space-y-4">
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-widest text-neutral-500 mb-1.5">Número de Tarjeta</label>
@@ -175,7 +201,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                 placeholder="4000 1234 5678 9010"
                 value={cardNumber}
                 onChange={handleCardNumberChange}
-                disabled={isPeeling}
+                disabled={submitted}
                 className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-2.5 text-xs text-neutral-200 placeholder-neutral-600 focus:border-yellow-500/50 focus:outline-hidden"
               />
             </div>
@@ -188,7 +214,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                   placeholder="MM/AA"
                   value={expiry}
                   onChange={handleExpiryChange}
-                  disabled={isPeeling}
+                  disabled={submitted}
                   className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-2.5 text-xs text-neutral-200 placeholder-neutral-600 focus:border-yellow-500/50 focus:outline-hidden text-center"
                 />
               </div>
@@ -199,7 +225,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                   placeholder="•••"
                   value={cvv}
                   onChange={handleCvvChange}
-                  disabled={isPeeling}
+                  disabled={submitted}
                   className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-2.5 text-xs text-neutral-200 placeholder-neutral-600 focus:border-yellow-500/50 focus:outline-hidden text-center"
                 />
               </div>
@@ -212,7 +238,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                 placeholder="Como figura en la tarjeta"
                 value={cardholder}
                 onChange={(e) => setCardholder(e.target.value)}
-                disabled={isPeeling}
+                disabled={submitted}
                 className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-2.5 text-xs text-neutral-200 placeholder-neutral-600 focus:border-yellow-500/50 focus:outline-hidden"
               />
             </div>
@@ -232,7 +258,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                 alt=""
                 className="h-full w-full object-cover brightness-[0.55]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/90 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-neutral-900/90 to-transparent" />
               <div className="absolute inset-x-3 bottom-2">
                 <span className="font-mono text-[8px] text-yellow-500 font-bold uppercase tracking-widest">Resumen</span>
                 <h3 className="text-xs font-bold text-neutral-100 mt-0.5 line-clamp-1">{movie.title}</h3>
@@ -281,7 +307,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                   {/* Iteración de cada producto de dulcería adquirido */}
                   {concessionsItems.map((item) => (
                     <div key={item.id} className="flex justify-between text-[11px] text-neutral-400 pl-2">
-                      <span className="truncate max-w-[190px]">• {item.name} × {item.quantity}</span>
+                      <span className="truncate max-w-47.5">• {item.name} × {item.quantity}</span>
                       <span className="font-mono text-neutral-300">${(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
@@ -379,7 +405,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
         {/* Stub del boleto con perspectiva CSS para el efecto 3D */}
         <div className="w-full h-32 relative z-0" style={{ perspective: '800px', perspectiveOrigin: '50% 0%' }}>
           <AnimatePresence>
-            {!isPeeling ? (
+            {!isPeeling || paymentStatus === 'rejected' ? (
               <motion.div
                 key="stub-payment"
                 initial={{ rotateX: 0, rotateY: 0, rotateZ: 0, scaleX: 1, x: 0, y: 0, opacity: 1 }}
@@ -406,16 +432,16 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                   initial={{ opacity: 0 }}
                   exit={{ opacity: 0.8 }}
                   transition={{ duration: 0.3 }}
-                  className="absolute inset-0 bg-gradient-to-tr from-black/90 via-black/45 to-transparent pointer-events-none"
+                  className="absolute inset-0 bg-linear-to-tr from-black/90 via-black/45 to-transparent pointer-events-none"
                 />
 
                 {/* CTAs */}
                 <div className="relative z-10 flex flex-col gap-2 w-full">
                   <button
                     onClick={handlePayClick}
-                    disabled={!isFormValid()}
+                    disabled={!isFormValid() || submitted}
                     className={`w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold uppercase tracking-wider text-neutral-950 transition-all duration-200 cursor-pointer ${
-                      isFormValid()
+                      isFormValid() && !submitted
                         ? 'bg-yellow-500 hover:bg-yellow-400 active:scale-95 shadow-lg shadow-yellow-500/10'
                         : 'cursor-not-allowed border border-neutral-800 bg-neutral-950/40 text-neutral-600'
                     }`}

@@ -4,26 +4,58 @@
       "id": "cart-1789149906800",
       "userEmail": "milton@cine.com",
       "movieId": "2",
-      "functionId": "fn-2-4dx-1",
+      "functionId": "pending-2-15:00",
       "movieTitle": "El Susurro del Viento",
       "theater": "Multicine Viva Barranquilla",
       "date": "Hoy",
-      "time": "06:30 p. m.",
+      "time": "15:00",
       "items": [
         {
-          "id": "ticket-F-7",
+          "id": "ticket-1-14:30",
           "type": "ticket",
-          "name": "General · F-7",
+          "name": "Entrada · Interestelar II: Más allá del Horizonte",
           "quantity": 1,
           "unitPrice": 9.5,
-          "seatId": "F-7",
+          "movieId": "1",
+          "showtime": "14:30"
+        },
+        {
+          "id": "ticket-2-15:00",
+          "type": "ticket",
+          "name": "Entrada · El Susurro del Viento",
+          "quantity": 1,
+          "unitPrice": 8,
           "movieId": "2",
-          "showtime": "06:30 p. m."
+          "showtime": "15:00"
         }
       ],
       "membershipDiscount": 0,
       "giftCardDiscount": 0,
-      "expiresAt": "2026-09-11T18:17:01.729Z"
+      "expiresAt": "2026-09-11T22:56:56.539Z"
+    },
+    {
+      "id": "cart-1789165600251",
+      "userEmail": "isac@gmail.com",
+      "movieId": "5",
+      "functionId": "pending-5-15:30",
+      "movieTitle": "Retorno a la Inocencia",
+      "theater": "Multicine Viva Barranquilla",
+      "date": "Hoy",
+      "time": "15:30",
+      "items": [
+        {
+          "id": "ticket-5-15:30",
+          "type": "ticket",
+          "name": "Entrada · Retorno a la Inocencia",
+          "quantity": 1,
+          "unitPrice": 7,
+          "movieId": "5",
+          "showtime": "15:30"
+        }
+      ],
+      "membershipDiscount": 0,
+      "giftCardDiscount": 0,
+      "expiresAt": "2026-09-11T22:59:02.975Z"
     }
   ],
   "movies": [
