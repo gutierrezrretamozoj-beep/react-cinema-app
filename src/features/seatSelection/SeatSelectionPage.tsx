@@ -11,7 +11,7 @@ import { generateSeats } from './data/seatData';
 import type { SeatData } from './data/seatData';
 import { useAuth } from '@/shared/context/AuthContext';
 import { cinemaApi } from '@/shared/api/cinemaApi';
-import type { CinemaFunction } from '@/shared/api/cinemaApi';
+import type { Cart, CinemaFunction } from '@/shared/api/cinemaApi';
 
 // Importación de componentes de pasos
 import { StepShowtime } from './components/steps/StepShowtime';
@@ -33,6 +33,7 @@ export const SeatSelectionPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const cartOwner = user?.email ?? 'guest';
 
   const queryTime = searchParams.get('time') ?? '';
   const movie = MOVIES.find((m) => m.id === movieId);
@@ -42,7 +43,8 @@ export const SeatSelectionPage = () => {
   const [activeFunction, setActiveFunction] = useState<CinemaFunction | null>(null);
 
   // ── Estados unificados del Stepper ──
-  const [step, setStep] = useState(1);
+  const requestedStep = Number(searchParams.get('step'));
+  const [step, setStep] = useState(requestedStep >= 1 && requestedStep <= 5 ? requestedStep : 1);
   const [selectedDate, setSelectedDate] = useState('Hoy');
   const [selectedTheater, setSelectedTheater] = useState('Multicine Viva Barranquilla');
   const [selectedFormat, setSelectedFormat] = useState('4DX 2D');
@@ -203,6 +205,69 @@ export const SeatSelectionPage = () => {
 
   const grandTotal = ticketsTotal + snacksTotal;
 
+  const getSnackPrice = (id: string) => id.startsWith('pop') ? (id.endsWith('m') ? 6.50 : 8.00) :
+    id.startsWith('soda') ? (id.endsWith('m') ? 3.50 : 4.80) :
+    id === 'nachos' ? 5.50 : id === 'hotdog' ? 6.00 : id === 'candy' ? 3.00 : 2.20;
+
+  // Convierte la selección del stepper al contrato del carrito antes de ir a snacks o pago.
+  const createOrUpdateCart = async () => {
+    if (!activeFunction || selectedSeatIds.length === 0 || !movie) return;
+
+    const ticketItems = seats
+      .filter((seat) => selectedSeatIds.includes(seat.id))
+      .map((seat) => ({
+        id: `ticket-${seat.id}`,
+        type: 'ticket' as const,
+        name: `${seat.type === 'vip' ? 'VIP' : seat.type === 'accessible' ? 'Accesible' : 'General'} · ${seat.id}`,
+        quantity: 1,
+        unitPrice: seat.price,
+        seatId: seat.id,
+        movieId: movie.id,
+        showtime: selectedTime,
+      }));
+    const concessionItems = Object.entries(snacks)
+      .filter(([, quantity]) => quantity > 0)
+      .map(([id, quantity]) => ({
+        id,
+        type: 'concession' as const,
+        name: id,
+        quantity,
+        unitPrice: getSnackPrice(id),
+      }));
+    // Conserva descuentos previamente aplicados si el usuario vuelve a editar su selección.
+    const currentCart = await cinemaApi.getCart(cartOwner);
+    // Conserva tickets de otras películas; sólo reemplaza la selección pendiente de esta película.
+    const otherMovieItems = (currentCart?.items ?? []).filter(
+      (item) => item.type !== 'ticket' || item.movieId !== movie.id
+    );
+    const cart: Cart = {
+      id: currentCart?.id ?? `cart-${Date.now()}`,
+      userEmail: cartOwner,
+      movieId: movie.id,
+      functionId: activeFunction.id,
+      movieTitle: movie.title,
+      theater: selectedTheater,
+      date: selectedDate,
+      time: selectedTime,
+      items: [...otherMovieItems, ...ticketItems, ...concessionItems],
+      membershipDiscount: currentCart?.membershipDiscount ?? 0,
+      giftCardDiscount: currentCart?.giftCardDiscount ?? 0,
+      expiresAt: new Date(Date.now() + timeLeft * 1000).toISOString(),
+    };
+    if (currentCart) await cinemaApi.updateCart(cart);
+    else await cinemaApi.createCart(cart);
+  };
+
+  // Rehidrata la selección cuando el usuario vuelve del resumen del carrito.
+  useEffect(() => {
+    if (requestedStep !== 4) return;
+    cinemaApi.getCart(cartOwner).then((cart) => {
+      if (!cart) return;
+      setSelectedSeatIds(cart.items.filter((item) => item.type === 'ticket' && item.seatId).map((item) => item.seatId as string));
+      setSnacks(Object.fromEntries(cart.items.filter((item) => item.type === 'concession').map((item) => [item.id, item.quantity])));
+    });
+  }, [requestedStep, cartOwner]);
+
   // Confirmar compra e integrar persistencia mediante cinemaApi
   const handlePaymentConfirm = async () => {
     if (!activeFunction) return;
@@ -221,6 +286,9 @@ export const SeatSelectionPage = () => {
         code: ticketCode,
         total: grandTotal,
       });
+
+      const cart = await cinemaApi.getCart(cartOwner);
+      if (cart) await cinemaApi.deleteCart(cart);
 
       // 3. Avanzar al paso de confirmación
       setStep(5);
@@ -345,8 +413,8 @@ export const SeatSelectionPage = () => {
                 selectedTime={selectedTime}
                 timeLeft={timeLeft}
                 timerExpired={timerExpired}
-                onNextSnacks={() => setStep(3)}
-                onNextPayment={() => setStep(4)}
+                onNextSnacks={() => { void createOrUpdateCart(); setStep(3); }}
+                onNextPayment={() => { void createOrUpdateCart(); setStep(4); }}
                 onBack={() => setStep(1)}
               />
             )}
@@ -359,7 +427,7 @@ export const SeatSelectionPage = () => {
                 onSnackQtyChange={handleSnackQtyChange}
                 selectedDate={selectedDate}
                 selectedTime={selectedTime}
-                onNext={() => setStep(4)}
+                onNext={() => { void createOrUpdateCart(); setStep(4); }}
                 onBack={() => setStep(2)}
               />
             )}
