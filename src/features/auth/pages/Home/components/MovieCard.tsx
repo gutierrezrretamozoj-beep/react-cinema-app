@@ -50,7 +50,9 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
     return !((Number(id) % 2 === 0 && index === 0) || (Number(id) % 3 === 0 && index === 2));
   };
 
-  const handleBuy = () => {
+  const handleBuy = (event?: React.MouseEvent<HTMLButtonElement>) => {
+    event?.preventDefault();
+    event?.stopPropagation();
     if (!selectedTime || isPeeling) return;
 
     // 1. Inicia el dibujo de la línea de rasgado SVG
@@ -263,6 +265,7 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
               />
 
               <button
+                type="button"
                 onClick={handleBuy}
                 disabled={!selectedTime}
                 className={`w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-md relative z-10 ${

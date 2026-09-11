@@ -11,8 +11,9 @@ import { MOVIES } from '../auth/pages/Home/data/movieData';
 import { generateSeats } from './data/seatData';
 import type { SeatData } from './data/seatData';
 import { useAuth } from '@/shared/context/AuthContext';
+import { useCart } from '@/features/cart/CartContext';
 import { cinemaApi } from '@/shared/api/cinemaApi';
-import type { Cart, CinemaFunction } from '@/shared/api/cinemaApi';
+import type { Cart, CinemaFunction, PaymentMethod } from '@/shared/api/cinemaApi';
 
 // Importación de componentes de pasos
 import { StepShowtime } from './components/steps/StepShowtime';
@@ -36,6 +37,7 @@ export const SeatSelectionPage = () => {
   // Hook de navegación para recibir estado transferido desde otras pantallas
   const location = useLocation();
   const { user } = useAuth();
+  const { clearCart } = useCart();
   const cartOwner = user?.email ?? 'guest';
 
   const queryTime = searchParams.get('time') ?? '';
@@ -89,8 +91,9 @@ export const SeatSelectionPage = () => {
   const [seats, setSeats] = useState<SeatData[]>(() => generateSeats({ movieId: movieId ?? '1' }));
   const [selectedSeatIds, setSelectedSeatIds] = useState<string[]>([]);
   const [snacks, setSnacks] = useState<Record<string, number>>({});
-  const [payMethod, setPayMethod] = useState('card');
+  const [payMethod, setPayMethod] = useState<PaymentMethod>('credit_card');
   const [ticketCode] = useState(() => 'CM-' + Math.random().toString(36).substring(2, 8).toUpperCase());
+  const [orderId, setOrderId] = useState<string | null>(null);
 
   // ── Temporizador Global de Reserva (10 minutos) ──
   const [timeLeft, setTimeLeft] = useState(600);
@@ -375,12 +378,25 @@ export const SeatSelectionPage = () => {
   }, [requestedStep, cartOwner]);
 
   // Confirmar compra e integrar persistencia mediante cinemaApi
-  const handlePaymentConfirm = async () => {
+  const handlePaymentConfirm = async (paymentId: string) => {
     if (!activeFunction) return;
 
     try {
+      const currentCart = await cinemaApi.getCart(cartOwner);
+      if (!currentCart || currentCart.items.length === 0 || new Date(currentCart.expiresAt).getTime() <= Date.now()) {
+        throw new Error('El carrito ya no está vigente.');
+      }
+
       // 1. Bloqueamos asientos de forma persistente en backend o cache local
       await cinemaApi.updateOccupiedSeats(activeFunction.id, selectedSeatIds, 'lock');
+
+      const order = await cinemaApi.createOrder({
+        cartId: currentCart.id,
+        userEmail: cartOwner,
+        total: grandTotal,
+        paymentId,
+      });
+      setOrderId(order.id);
 
       // 2. Registramos la reserva vinculando el correo del usuario activo para que sea privada
       await cinemaApi.createReservation({
@@ -394,8 +410,8 @@ export const SeatSelectionPage = () => {
         total: grandTotal,
       });
 
-      const cart = await cinemaApi.getCart(cartOwner);
-      if (cart) await cinemaApi.deleteCart(cart);
+      await cinemaApi.deleteCart(currentCart);
+      clearCart();
 
       // Limpiamos la reserva activa y los snacks de dulceria de sessionStorage al completar el pago exitoso
       sessionStorage.removeItem('cinema_active_booking');
@@ -408,8 +424,8 @@ export const SeatSelectionPage = () => {
       // Limpiamos igualmente en caso de error para no dejar datos huerfanos
       sessionStorage.removeItem('cinema_active_booking');
       sessionStorage.removeItem('cinema_active_snacks');
-      // Avanzar de todas formas si falla, ya que cinemaApi tiene fallback local integrado
-      setStep(5);
+      // Un error de orden no debe mostrar un boleto aprobado ni cerrar el carrito.
+      setStep(4);
     }
   };
 
@@ -467,7 +483,7 @@ export const SeatSelectionPage = () => {
                 </span>
               </div>
               {idx < STEPPER_LABELS.length - 1 && (
-                <div className={`h-0.5 flex-1 mx-4 min-w-[20px] transition-colors ${
+                <div className={`h-0.5 flex-1 mx-4 min-w-5 transition-colors ${
                   step > s.n ? 'bg-emerald-500/30' : 'bg-neutral-800'
                 }`} />
               )}
@@ -589,7 +605,7 @@ export const SeatSelectionPage = () => {
                 theater={selectedTheater}
                 roomName={activeFunction?.roomName}
                 language={selectedLanguage}
-                ticketCode={ticketCode}
+                ticketCode={orderId ?? ticketCode}
                 totalPrice={grandTotal}
                 creditsEarned={Math.round(ticketsTotal * 10)}
                 onGoHome={() => navigate('/home')}
@@ -603,7 +619,7 @@ export const SeatSelectionPage = () => {
       {/* ── Modal / Overlay de Tiempo Expirado ── */}
       <AnimatePresence>
         {timerExpired && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md">
+          <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/85 backdrop-blur-md">
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -629,7 +645,7 @@ export const SeatSelectionPage = () => {
       {/* ── Modal Estético Swal-like de Salida (framer-motion) ── */}
       <AnimatePresence>
         {blocker.state === 'blocked' && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 15 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
