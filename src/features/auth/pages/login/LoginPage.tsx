@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { signIn } from "../../store";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { MOVIES } from "../Home/data/movieData";
+import { useAuth } from "@/shared/context/AuthContext";
 
 // ─── Partícula flotante ───────────────────────────────────────────────────────
 interface Particle {
@@ -28,6 +29,8 @@ const generateParticles = (count: number): Particle[] =>
 // ─── Componente principal ─────────────────────────────────────────────────────
 export const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { authenticate } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -62,8 +65,12 @@ export const LoginPage = () => {
       return;
     }
 
+    if (response.user) {
+      authenticate(response.user);
+    }
     setSuccess(true);
-    setTimeout(() => navigate("/home"), 1200);
+    const from = (location.state as { from?: string } | null)?.from ?? "/home";
+    setTimeout(() => navigate(from, { replace: true }), 1200);
   }
 
   return (

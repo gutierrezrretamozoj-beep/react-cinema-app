@@ -100,8 +100,8 @@ export const FloatingCart = () => {
 
   return <>
     <AnimatePresence>
-      {noticeVisible && <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} className="fixed right-4 top-20 z-[80] flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-neutral-900 px-3 py-2 text-xs text-emerald-300 shadow-xl"><Check className="h-4 w-4" /> Ticket agregado al carrito <button onClick={() => setNoticeVisible(false)} aria-label="Cerrar alerta" className="ml-1 text-neutral-500 hover:text-neutral-200"><X className="h-3 w-3" /></button></motion.div>}
+      {noticeVisible && <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} className="fixed right-4 top-20 z-80 flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-neutral-900 px-3 py-2 text-xs text-emerald-300 shadow-xl"><Check className="h-4 w-4" /> Ticket agregado al carrito <button onClick={() => setNoticeVisible(false)} aria-label="Cerrar alerta" className="ml-1 text-neutral-500 hover:text-neutral-200"><X className="h-3 w-3" /></button></motion.div>}
     </AnimatePresence>
-    <Link to="/cart" className="fixed right-4 top-4 z-[79] flex items-center gap-2 rounded-xl border border-yellow-500/40 bg-neutral-900/95 px-3 py-2 text-xs font-bold text-yellow-400 shadow-xl backdrop-blur-md transition hover:bg-neutral-800"><ShoppingCart className="h-4 w-4" /><span>Carrito</span><span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-yellow-500 px-1 text-[10px] text-neutral-950">{ticketCount}</span></Link>
+    <Link to="/cart" className="fixed right-4 top-4 z-79 flex items-center gap-2 rounded-xl border border-yellow-500/40 bg-neutral-900/95 px-3 py-2 text-xs font-bold text-yellow-400 shadow-xl backdrop-blur-md transition hover:bg-neutral-800"><ShoppingCart className="h-4 w-4" /><span>Carrito</span><span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-yellow-500 px-1 text-[10px] text-neutral-950">{ticketCount}</span></Link>
   </>;
 };

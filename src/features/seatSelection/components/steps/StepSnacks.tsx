@@ -137,7 +137,7 @@ export const StepSnacks: React.FC<StepSnacksProps> = ({
               alt=""
               className="h-full w-full object-cover brightness-[0.55]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/90 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-neutral-900/90 to-transparent" />
             <div className="absolute inset-x-3 bottom-2">
               <span className="font-mono text-[8px] text-yellow-500 font-bold uppercase tracking-widest">Resumen</span>
               <h3 className="text-xs font-bold text-neutral-100 mt-0.5 line-clamp-1">{movie.title}</h3>
