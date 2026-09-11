@@ -1,11 +1,12 @@
-import { BrowserRouter } from 'react-router'
-import { LoginPage } from '@/features/auth/pages/login/LoginPage'
+import { RouterProvider } from 'react-router'
+import { appRouter } from '@router/index'
+import { AuthProvider } from '@/shared/context/AuthContext'
 
 function App() {
   return (
-    <BrowserRouter>
-      <LoginPage />
-    </BrowserRouter>
+    <AuthProvider>
+      <RouterProvider router={appRouter} />
+    </AuthProvider>
   )
 }
 

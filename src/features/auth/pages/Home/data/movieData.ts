@@ -12,14 +12,16 @@ export interface Movie {
   duration: string;
   synopsis: string;
   showtimes: string[];
-  trailerUrl: string;
-  director: string;
-  cast: string[];
-  releaseDate: string;
-  languages: string[];
-  formats: string[];
-  prices: string[];
-  averageRating: string;
+
+  // Optional metadata (some branches added richer metadata)
+  trailerUrl?: string;
+  director?: string;
+  cast?: string[];
+  releaseDate?: string;
+  languages?: string[];
+  formats?: string[];
+  prices?: string[];
+  averageRating?: string;
 }
 
 // MOVIES: Base de datos estática de películas en cartelera y próximos estrenos
@@ -44,7 +46,7 @@ export const MOVIES: Movie[] = [
     languages: ["English", "Spanish"],
     formats: ["2D", "IMAX", "4DX"],
     prices: ["$9.50", "$13.00", "$16.50"],
-    averageRating: "4.8/5"
+    averageRating: "4.8/5",
   },
   {
     id: "2",
@@ -65,7 +67,7 @@ export const MOVIES: Movie[] = [
     languages: ["Spanish"],
     formats: ["2D", "3D"],
     prices: ["$8.00", "$11.50"],
-    averageRating: "4.2/5"
+    averageRating: "4.2/5",
   },
   {
     id: "3",
@@ -86,7 +88,7 @@ export const MOVIES: Movie[] = [
     languages: ["Spanish", "English"],
     formats: ["2D", "4DX"],
     prices: ["$7.50", "$12.00"],
-    averageRating: "4.0/5"
+    averageRating: "4.0/5",
   },
   {
     id: "4",
@@ -107,7 +109,7 @@ export const MOVIES: Movie[] = [
     languages: ["Spanish"],
     formats: ["2D", "IMAX"],
     prices: ["$8.50", "$12.50"],
-    averageRating: "4.4/5"
+    averageRating: "4.4/5",
   },
   {
     id: "5",
@@ -128,7 +130,7 @@ export const MOVIES: Movie[] = [
     languages: ["Spanish"],
     formats: ["2D"],
     prices: ["$7.00"],
-    averageRating: "4.1/5"
+    averageRating: "4.1/5",
   },
   {
     id: "6",
@@ -149,7 +151,7 @@ export const MOVIES: Movie[] = [
     languages: ["Spanish", "English"],
     formats: ["2D", "4DX"],
     prices: ["$8.00", "$13.50"],
-    averageRating: "3.9/5"
+    averageRating: "3.9/5",
   },
   {
     id: "7",
@@ -170,7 +172,7 @@ export const MOVIES: Movie[] = [
     languages: ["Spanish", "English"],
     formats: ["2D", "IMAX"],
     prices: ["$9.00", "$13.50"],
-    averageRating: "4.3/5"
+    averageRating: "4.3/5",
   },
   {
     id: "8",
@@ -191,6 +193,6 @@ export const MOVIES: Movie[] = [
     languages: ["English", "Spanish"],
     formats: ["2D", "3D", "IMAX"],
     prices: ["$10.00", "$14.00", "$18.00"],
-    averageRating: "4.6/5"
+    averageRating: "4.6/5",
   }
 ];

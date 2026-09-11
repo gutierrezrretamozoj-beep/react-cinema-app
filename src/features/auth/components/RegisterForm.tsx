@@ -1,26 +1,21 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { registerUser } from "../store";
-import { Link } from "react-router";
+import { useLocation } from "../../location/hooks/useLocation";
 
 interface RegisterFormProps {
   onRegisterSuccess?: () => void;
 }
 
-/**
- * Registration form that creates a new account through the mock store.
- *
- * @param props - Component props.
- * @param props.onRegisterSuccess - Optional callback invoked after a successful registration.
- */
 export const RegisterForm = ({ onRegisterSuccess }: RegisterFormProps) => {
   const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [focusedField, setFocusedField] = useState<"name" | "email" | "password" | null>(null);
+  const [focusedField, setFocusedField] = useState<"name" | "email" | "password" | "country" | "department" | "city" | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [shake, setShake] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -30,17 +25,40 @@ export const RegisterForm = ({ onRegisterSuccess }: RegisterFormProps) => {
     nameRef.current?.focus();
   }, []);
 
-  /**
-   * Handles form submission and calls the registration action.
-   *
-   * @param event - The form submit event.
-   */
-  async function handleSubmit(event: React.SubmitEvent) {
+  const {
+    countries,
+    departments,
+    cities,
+    selectedCountry,
+    selectedDepartment,
+    selectedCity,
+    setSelectedCountry,
+    setSelectedDepartment,
+    setSelectedCity,
+  } = useLocation();
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (loading) return;
     setError(null);
+
+    if (!selectedCountry || !selectedDepartment || !selectedCity) {
+      setError("Debes seleccionar país, departamento y ciudad.");
+      setShake(true);
+      setTimeout(() => setShake(false), 600);
+      return;
+    }
+
     setLoading(true);
 
-    const response = await registerUser({ name, email, password });
+    const response = await registerUser({
+      name,
+      email,
+      password,
+      country: selectedCountry.name,
+      department: selectedDepartment.name,
+      city: selectedCity.name,
+    });
 
     setLoading(false);
 
@@ -116,8 +134,10 @@ export const RegisterForm = ({ onRegisterSuccess }: RegisterFormProps) => {
                 boxShadow: focusedField === "name" ? "0 0 0 3px rgba(234,179,8,0.06)" : "none",
               }}
             >
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-600 transition-colors duration-200"
-                style={{ color: focusedField === "name" ? "rgba(234,179,8,0.6)" : undefined }}>
+              <div
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-600 transition-colors duration-200"
+                style={{ color: focusedField === "name" ? "rgba(234,179,8,0.6)" : undefined }}
+              >
                 <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" stroke="currentColor" strokeWidth="1.8">
                   <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -152,8 +172,10 @@ export const RegisterForm = ({ onRegisterSuccess }: RegisterFormProps) => {
                 boxShadow: focusedField === "email" ? "0 0 0 3px rgba(234,179,8,0.06)" : "none",
               }}
             >
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-600 transition-colors duration-200"
-                style={{ color: focusedField === "email" ? "rgba(234,179,8,0.6)" : undefined }}>
+              <div
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-600 transition-colors duration-200"
+                style={{ color: focusedField === "email" ? "rgba(234,179,8,0.6)" : undefined }}
+              >
                 <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" stroke="currentColor" strokeWidth="1.8">
                   <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -187,8 +209,10 @@ export const RegisterForm = ({ onRegisterSuccess }: RegisterFormProps) => {
                 boxShadow: focusedField === "password" ? "0 0 0 3px rgba(234,179,8,0.06)" : "none",
               }}
             >
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-200"
-                style={{ color: focusedField === "password" ? "rgba(234,179,8,0.6)" : "rgba(100,100,100,1)" }}>
+              <div
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-200"
+                style={{ color: focusedField === "password" ? "rgba(234,179,8,0.6)" : "rgba(100,100,100,1)" }}
+              >
                 <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" stroke="currentColor" strokeWidth="1.8">
                   <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -221,6 +245,122 @@ export const RegisterForm = ({ onRegisterSuccess }: RegisterFormProps) => {
             </div>
           </div>
 
+          {/* País */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+              País
+            </label>
+            <div
+              className="relative overflow-hidden rounded-xl transition-all duration-300"
+              style={{
+                background: focusedField === "country" ? "rgba(234,179,8,0.04)" : "rgba(255,255,255,0.03)",
+                border: focusedField === "country"
+                  ? "1px solid rgba(234,179,8,0.35)"
+                  : "1px solid rgba(255,255,255,0.07)",
+                boxShadow: focusedField === "country" ? "0 0 0 3px rgba(234,179,8,0.06)" : "none",
+              }}
+            >
+              <select
+                value={selectedCountry?.id ?? ""}
+                onChange={(e) => {
+                  const country = countries.find((item) => item.id === Number(e.target.value));
+                  setSelectedCountry(country ?? null);
+                  setSelectedDepartment(null);
+                  setSelectedCity(null);
+                }}
+                onFocus={() => setFocusedField("country")}
+                onBlur={() => setFocusedField(null)}
+                required
+                className="w-full bg-[#0d1117] px-4 py-2.5 text-sm text-white outline-none cursor-pointer"
+              >
+                <option value="" className="bg-neutral-900 text-neutral-400">Selecciona un país</option>
+                {countries.map((country) => (
+                  <option key={country.id} value={country.id} className="bg-neutral-900 text-white">
+                    {country.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Departamento y Ciudad en cuadrícula */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Departamento */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                Departamento
+              </label>
+              <div
+                className="relative overflow-hidden rounded-xl transition-all duration-300"
+                style={{
+                  background: focusedField === "department" ? "rgba(234,179,8,0.04)" : "rgba(255,255,255,0.03)",
+                  border: focusedField === "department"
+                    ? "1px solid rgba(234,179,8,0.35)"
+                    : "1px solid rgba(255,255,255,0.07)",
+                  boxShadow: focusedField === "department" ? "0 0 0 3px rgba(234,179,8,0.06)" : "none",
+                }}
+              >
+                <select
+                  value={selectedDepartment?.id ?? ""}
+                  onChange={(e) => {
+                    const department = departments.find((item) => item.id === Number(e.target.value));
+                    setSelectedDepartment(department ?? null);
+                    setSelectedCity(null);
+                  }}
+                  onFocus={() => setFocusedField("department")}
+                  onBlur={() => setFocusedField(null)}
+                  disabled={!selectedCountry}
+                  required
+                  className="w-full bg-[#0d1117] px-4 py-2.5 text-sm text-white outline-none disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+                >
+                  <option value="" className="bg-neutral-900 text-neutral-400">Selecciona departamento</option>
+                  {departments.map((department) => (
+                    <option key={department.id} value={department.id} className="bg-neutral-900 text-white">
+                      {department.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Ciudad */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                Ciudad
+              </label>
+              <div
+                className="relative overflow-hidden rounded-xl transition-all duration-300"
+                style={{
+                  background: focusedField === "city" ? "rgba(234,179,8,0.04)" : "rgba(255,255,255,0.03)",
+                  border: focusedField === "city"
+                    ? "1px solid rgba(234,179,8,0.35)"
+                    : "1px solid rgba(255,255,255,0.07)",
+                  boxShadow: focusedField === "city" ? "0 0 0 3px rgba(234,179,8,0.06)" : "none",
+                }}
+              >
+                <select
+                  value={selectedCity?.id ?? ""}
+                  onChange={(e) => {
+                    const city = cities.find((item) => item.id === Number(e.target.value));
+                    setSelectedCity(city ?? null);
+                  }}
+                  onFocus={() => setFocusedField("city")}
+                  onBlur={() => setFocusedField(null)}
+                  disabled={!selectedDepartment}
+                  required
+                  className="w-full bg-[#0d1117] px-4 py-2.5 text-sm text-white outline-none disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+                >
+                  <option value="" className="bg-neutral-900 text-neutral-400">Selecciona ciudad</option>
+                  {cities.map((city) => (
+                    <option key={city.id} value={city.id} className="bg-neutral-900 text-white">
+                      {city.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
           {/* Error */}
           {error && (
             <div
@@ -238,14 +378,14 @@ export const RegisterForm = ({ onRegisterSuccess }: RegisterFormProps) => {
           {/* Botón de envío */}
           <button
             type="submit"
-            disabled={loading || !name || !email || !password}
+            disabled={loading || !name || !email || !password || !selectedCountry || !selectedDepartment || !selectedCity}
             className="relative mt-2 w-full overflow-hidden rounded-xl py-3 text-sm font-bold tracking-widest uppercase transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500/40 disabled:cursor-not-allowed"
             style={{
-              background: loading || !name || !email || !password
+              background: loading || !name || !email || !password || !selectedCountry || !selectedDepartment || !selectedCity
                 ? "rgba(255,255,255,0.05)"
                 : "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-              color: loading || !name || !email || !password ? "rgba(255,255,255,0.2)" : "#0a0a0a",
-              boxShadow: !loading && name && email && password
+              color: loading || !name || !email || !password || !selectedCountry || !selectedDepartment || !selectedCity ? "rgba(255,255,255,0.2)" : "#0a0a0a",
+              boxShadow: !loading && name && email && password && selectedCountry && selectedDepartment && selectedCity
                 ? "0 8px 30px rgba(234,179,8,0.25), 0 1px 0 rgba(255,255,255,0.1) inset"
                 : "none",
             }}
@@ -267,7 +407,7 @@ export const RegisterForm = ({ onRegisterSuccess }: RegisterFormProps) => {
 
       {/* Footer */}
       <div className="relative mt-4">
-        <div className="border-t border-dashed border-white/5 -mx-6 mb-4">
+        <div className="border-t border-dashed border-white/6 mb-6">
           <div className="absolute left-0 -top-2 w-4 h-4 rounded-full" style={{ background: "#050810" }} />
           <div className="absolute right-0 -top-2 w-4 h-4 rounded-full" style={{ background: "#050810" }} />
         </div>
@@ -279,17 +419,18 @@ export const RegisterForm = ({ onRegisterSuccess }: RegisterFormProps) => {
         </p>
       </div>
 
-      <style>{`\n@keyframes shake {
-      \n 0%, 100% { transform: translateX(0); }
-      \n 15% { transform: translateX(-8px); }
-      \n 30% { transform: translateX(8px); }
-      \n 45% { transform: translateX(-6px); }
-      \n 60% { transform: translateX(6px); }
-      \n 75% { transform: translateX(-3px); }
-      \n 90% { transform: translateX(3px); }
-      \n}
-      \n .animate-shake { animation: shake 0.6s ease; }
-      \n `}</style>
+      <style>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          15% { transform: translateX(-8px); }
+          30% { transform: translateX(8px); }
+          45% { transform: translateX(-6px); }
+          60% { transform: translateX(6px); }
+          75% { transform: translateX(-3px); }
+          90% { transform: translateX(3px); }
+        }
+        .animate-shake { animation: shake 0.6s ease; }
+      `}</style>
     </div>
   );
 };
