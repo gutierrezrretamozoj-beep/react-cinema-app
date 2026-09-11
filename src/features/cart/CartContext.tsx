@@ -27,6 +27,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let active = true;
 
+    // Actualiza el carrito al cambiar de usuario o montar el componente
     const refreshCart = () => {
       cinemaApi.getCart(owner).then((value) => {
         if (active) setCart(value);
@@ -34,14 +35,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     };
 
     refreshCart();
-    // Mantiene el contador sincronizado con los cambios hechos directamente en /cart.
-    const interval = window.setInterval(refreshCart, 5000);
+
+    // Sincroniza el carrito cuando hay eventos de almacenamiento en otra pestana
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === `cinema_cart_${owner}`) {
+        refreshCart();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
 
     return () => {
       active = false;
-      window.clearInterval(interval);
+      window.removeEventListener('storage', handleStorageChange);
     };
-  }, [owner]);
+  }, [owner, noticeVersion]);
 
   const addMovieToCart = async (movie: Movie, time: string) => {
     const currentCart = await cinemaApi.getCart(owner);

@@ -17,15 +17,18 @@ export const CartPage = () => {
   const [code, setCode] = useState('');
   const [expired, setExpired] = useState(false);
 
+  const [loading, setLoading] = useState(true);
+
   // Carga el carrito del usuario o de la sesión invitada al entrar a la pantalla.
   useEffect(() => {
     cinemaApi.getCart(cartOwner).then((value) => {
       setCart(value);
       setExpired(Boolean(value && new Date(value.expiresAt).getTime() <= Date.now()));
+      setLoading(false);
     });
   }, [cartOwner]);
 
-  // El resumen se calcula siempre desde los items actuales para evitar totales obsoletos.
+  // Calculo de totales desde los items actuales para evitar valores desactualizados
   const subtotal = cart?.items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0) ?? 0;
   const discount = (cart?.membershipDiscount ?? 0) + (cart?.giftCardDiscount ?? 0);
   const tax = Math.max(0, subtotal - discount) * 0.19;
@@ -51,8 +54,33 @@ export const CartPage = () => {
     setCode('');
   };
 
+  // Mientras carga el carrito mostramos un indicador para no confundir al usuario con pantalla negra
+  if (loading) {
+    return (
+      <div className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center gap-4 px-6 py-20 text-center text-neutral-100">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-yellow-500 border-t-transparent" />
+        <p className="text-sm text-neutral-400">Cargando tu carrito...</p>
+      </div>
+    );
+  }
+
+  // Si el carrito esta vacio o no existe, mostramos una pantalla amigable con colores explicitos
   if (!cart || cart.items.length === 0) {
-    return <div className="mx-auto max-w-xl px-6 py-20 text-center"><ShoppingCart className="mx-auto h-12 w-12 text-neutral-600" /><h1 className="mt-4 text-2xl font-bold">Tu carrito está vacío</h1><button onClick={() => navigate('/home')} className="mt-6 rounded-xl bg-yellow-500 px-5 py-3 text-sm font-bold text-neutral-950">Ver cartelera</button></div>;
+    return (
+      <div className="mx-auto max-w-xl px-6 py-20 text-center text-neutral-100">
+        <ShoppingCart className="mx-auto h-12 w-12 text-neutral-600" />
+        <h1 className="mt-4 text-2xl font-bold text-neutral-100">Tu carrito esta vacio</h1>
+        <p className="mt-2 text-sm text-neutral-400">
+          Aun no has agregado entradas ni productos. Visita la cartelera para elegir una funcion.
+        </p>
+        <button
+          onClick={() => navigate('/home')}
+          className="mt-6 rounded-xl bg-yellow-500 px-5 py-3 text-sm font-bold text-neutral-950 hover:bg-yellow-400 transition"
+        >
+          Ver cartelera
+        </button>
+      </div>
+    );
   }
 
   // La pantalla permite revisar, modificar y confirmar el pedido sin duplicar la lógica de precios.

@@ -3,7 +3,8 @@
 // Integrado con cinemaApi (json-server con fallback), temporizador global y alerta blocker Swal-like.
 
 import { useState, useCallback, useEffect } from 'react';
-import { useParams, useSearchParams, useNavigate, useBlocker } from 'react-router';
+// Importamos hooks de React Router incluyendo useLocation para detectar navegación desde confitería
+import { useParams, useSearchParams, useNavigate, useBlocker, useLocation } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Clock, AlertTriangle } from 'lucide-react';
 import { MOVIES } from '../auth/pages/Home/data/movieData';
@@ -32,6 +33,8 @@ export const SeatSelectionPage = () => {
   const { movieId } = useParams<{ movieId: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  // Hook de navegación para recibir estado transferido desde otras pantallas
+  const location = useLocation();
   const { user } = useAuth();
   const cartOwner = user?.email ?? 'guest';
 
@@ -42,9 +45,41 @@ export const SeatSelectionPage = () => {
   const [functionsList, setFunctionsList] = useState<CinemaFunction[]>([]);
   const [activeFunction, setActiveFunction] = useState<CinemaFunction | null>(null);
 
+  // ── Detección de navegación desde Confitería ──
+  // Verificamos si el usuario fue redirigido desde ConfectioneryPage tras elegir snacks
+  const isFromConcessions = Boolean((location.state as { fromConcessions?: boolean })?.fromConcessions);
+
+  // ── Carrito de Confitería consolidado ──
+  // Almacena los snacks seleccionados en el catálogo completo para la cuenta unificada
+  const [concessionsCart, setConcessionsCart] = useState<Array<{
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    image?: string;
+  }>>(() => {
+    // 1. Revisamos si los snacks vienen en el estado de la navegación
+    const stateCart = (location.state as { concessionsCart?: any })?.concessionsCart;
+    if (stateCart && Array.isArray(stateCart)) return stateCart;
+    // 2. Si no, recuperamos del sessionStorage persistido
+    try {
+      const saved = sessionStorage.getItem('cinema_active_snacks');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   // ── Estados unificados del Stepper ──
+  // Si se solicita por URL (?step=X) o viene de confitería, arrancamos directamente en el paso 4 (Pago)
   const requestedStep = Number(searchParams.get('step'));
-  const [step, setStep] = useState(requestedStep >= 1 && requestedStep <= 5 ? requestedStep : 1);
+  const initialStep = isFromConcessions
+    ? 4
+    : requestedStep >= 1 && requestedStep <= 5
+    ? requestedStep
+    : 1;
+  const [step, setStep] = useState(initialStep);
+
   const [selectedDate, setSelectedDate] = useState('Hoy');
   const [selectedTheater, setSelectedTheater] = useState('Multicine Viva Barranquilla');
   const [selectedFormat, setSelectedFormat] = useState('4DX 2D');
@@ -60,6 +95,39 @@ export const SeatSelectionPage = () => {
   // ── Temporizador Global de Reserva (10 minutos) ──
   const [timeLeft, setTimeLeft] = useState(600);
   const [timerExpired, setTimerExpired] = useState(false);
+
+  // Efecto para sincronizar el paso si cambia el query param o el estado de navegación
+  useEffect(() => {
+    if (requestedStep >= 1 && requestedStep <= 5) {
+      setStep(requestedStep);
+    } else if (isFromConcessions) {
+      setStep(4);
+    }
+  }, [requestedStep, isFromConcessions]);
+
+  // Rehidratación de la reserva activa guardada previamente al salir a la confitería
+  useEffect(() => {
+    try {
+      const savedStr = sessionStorage.getItem('cinema_active_booking');
+      if (savedStr) {
+        const saved = JSON.parse(savedStr);
+        // Validamos que pertenezca a la misma película seleccionada
+        if (saved.movieId === movieId) {
+          if (saved.selectedSeatIds && saved.selectedSeatIds.length > 0) {
+            setSelectedSeatIds(saved.selectedSeatIds);
+          }
+          if (saved.selectedDate) setSelectedDate(saved.selectedDate);
+          if (saved.selectedTheater) setSelectedTheater(saved.selectedTheater);
+          if (saved.selectedFormat) setSelectedFormat(saved.selectedFormat);
+          if (saved.selectedLanguage) setSelectedLanguage(saved.selectedLanguage);
+          if (saved.selectedTime) setSelectedTime(saved.selectedTime);
+          if (saved.timeLeft && saved.timeLeft > 0) setTimeLeft(saved.timeLeft);
+        }
+      }
+    } catch (err) {
+      console.error('Error restaurando reserva desde sessionStorage:', err);
+    }
+  }, [movieId]);
 
   // Carga de funciones desde API / Mock Fallback
   useEffect(() => {
@@ -150,11 +218,13 @@ export const SeatSelectionPage = () => {
   }, [step, timerExpired]);
 
   // ── Alerta de Salida Estética (useBlocker) ──
+  // Excluimos la ruta /concessions para que el usuario pueda ir a elegir confitería sin que el blocker interrumpa
   const blocker = useBlocker(({ currentLocation, nextLocation }) => {
     return (
       selectedSeatIds.length > 0 &&
       step < 5 &&
-      currentLocation.pathname !== nextLocation.pathname
+      currentLocation.pathname !== nextLocation.pathname &&
+      nextLocation.pathname !== '/concessions'
     );
   });
 
@@ -190,12 +260,13 @@ export const SeatSelectionPage = () => {
     setSnacks((prev) => ({ ...prev, [id]: qty }));
   };
 
-  // Cálculo de precios
+  // Cálculo de precios de entradas
   const ticketsTotal = seats
     .filter((s) => selectedSeatIds.includes(s.id))
     .reduce((acc, s) => acc + s.price, 0);
 
-  const snacksTotal = Object.entries(snacks).reduce((acc, [id, qty]) => {
+  // Total de confitería seleccionada en el paso interno del stepper (StepSnacks)
+  const stepperSnacksTotal = Object.entries(snacks).reduce((acc, [id, qty]) => {
     const snackPrice = id.startsWith('pop') ? (id.endsWith('m') ? 6.50 : 8.00) :
                        id.startsWith('soda') ? (id.endsWith('m') ? 3.50 : 4.80) :
                        id === 'nachos' ? 5.50 : id === 'hotdog' ? 6.00 :
@@ -203,7 +274,42 @@ export const SeatSelectionPage = () => {
     return acc + snackPrice * qty;
   }, 0);
 
+  // Total de confitería seleccionada en el catálogo completo (ConfectioneryPage)
+  const concessionsCartTotal = concessionsCart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+  // Si existen productos en concessionsCart, se toman esos prioritariamente; de lo contrario, los del stepper básico
+  const snacksTotal = concessionsCart.length > 0 ? concessionsCartTotal : stepperSnacksTotal;
+
+  // Cuenta consolidada unificada: Entradas de cine + Confitería seleccionada
   const grandTotal = ticketsTotal + snacksTotal;
+
+  // Navegación hacia la tienda de confitería guardando el estado completo de la reserva
+  const handleGoToConcessions = () => {
+    // 1. Empaquetamos los datos de la reserva actual
+    const activeBooking = {
+      movieId: movie?.id ?? movieId,
+      movieTitle: movie?.title,
+      selectedSeatIds,
+      selectedDate,
+      selectedTheater,
+      selectedFormat,
+      selectedLanguage,
+      selectedTime,
+      ticketCode,
+      timeLeft,
+    };
+    // 2. Almacenamos en sessionStorage para que la dulcería conozca la reserva activa
+    sessionStorage.setItem('cinema_active_booking', JSON.stringify(activeBooking));
+    // 3. Sincronizamos con el backend los asientos seleccionados
+    void createOrUpdateCart();
+    // 4. Redirigimos a la página de confitería pasando el estado
+    navigate('/concessions', {
+      state: {
+        fromSeatSelection: true,
+        booking: activeBooking,
+      },
+    });
+  };
 
   const getSnackPrice = (id: string) => id.startsWith('pop') ? (id.endsWith('m') ? 6.50 : 8.00) :
     id.startsWith('soda') ? (id.endsWith('m') ? 3.50 : 4.80) :
@@ -273,12 +379,13 @@ export const SeatSelectionPage = () => {
     if (!activeFunction) return;
 
     try {
-      // 1. Bloqueamos asientos de forma persistente en backend
+      // 1. Bloqueamos asientos de forma persistente en backend o cache local
       await cinemaApi.updateOccupiedSeats(activeFunction.id, selectedSeatIds, 'lock');
 
-      // 2. Registramos la reserva
+      // 2. Registramos la reserva vinculando el correo del usuario activo para que sea privada
       await cinemaApi.createReservation({
         movieId: movieId ?? '1',
+        userEmail: user?.email ?? cartOwner,
         date: selectedDate,
         time: selectedTime,
         seats: selectedSeatIds,
@@ -290,16 +397,27 @@ export const SeatSelectionPage = () => {
       const cart = await cinemaApi.getCart(cartOwner);
       if (cart) await cinemaApi.deleteCart(cart);
 
-      // 3. Avanzar al paso de confirmación
+      // Limpiamos la reserva activa y los snacks de dulceria de sessionStorage al completar el pago exitoso
+      sessionStorage.removeItem('cinema_active_booking');
+      sessionStorage.removeItem('cinema_active_snacks');
+
+      // 3. Avanzar al paso de confirmacion
       setStep(5);
     } catch (err) {
       console.error('Error al registrar pago en servidor:', err);
+      // Limpiamos igualmente en caso de error para no dejar datos huerfanos
+      sessionStorage.removeItem('cinema_active_booking');
+      sessionStorage.removeItem('cinema_active_snacks');
       // Avanzar de todas formas si falla, ya que cinemaApi tiene fallback local integrado
       setStep(5);
     }
   };
 
   const handleResetReserva = () => {
+    // Al reiniciar la reserva, limpiamos los asientos, la dulcería y el temporizador
+    sessionStorage.removeItem('cinema_active_booking');
+    sessionStorage.removeItem('cinema_active_snacks');
+    setConcessionsCart([]);
     setSelectedSeatIds([]);
     setSnacks({});
     setStep(1);
@@ -413,7 +531,10 @@ export const SeatSelectionPage = () => {
                 selectedTime={selectedTime}
                 timeLeft={timeLeft}
                 timerExpired={timerExpired}
-                onNextSnacks={() => { void createOrUpdateCart(); setStep(3); }}
+                onNextSnacks={
+                  // Conectamos el boton de agregar snacks directamente con el catalogo de confiteria
+                  handleGoToConcessions
+                }
                 onNextPayment={() => { void createOrUpdateCart(); setStep(4); }}
                 onBack={() => setStep(1)}
               />
@@ -444,8 +565,19 @@ export const SeatSelectionPage = () => {
                 payMethod={payMethod}
                 setPayMethod={setPayMethod}
                 onConfirm={handlePaymentConfirm}
-                onBack={() => setStep(selectedSeatIds.length > 0 ? 3 : 2)}
+                onBack={() => {
+                  // Si el usuario agregó snacks de dulcería, al volver regresa a la tienda de confitería
+                  if (concessionsCart.length > 0) {
+                    navigate('/concessions');
+                  } else {
+                    setStep(selectedSeatIds.length > 0 ? 3 : 2);
+                  }
+                }}
                 defaultCardholderName={user?.name || ''}
+                concessionsItems={
+                  // Pasamos los snacks del catálogo para desglosar la cuenta unificada en el ticket
+                  concessionsCart
+                }
               />
             )}
             {step === 5 && (

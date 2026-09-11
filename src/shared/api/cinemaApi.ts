@@ -26,6 +26,8 @@ export interface CinemaFunction {
 export interface Reservation {
   id: string;
   movieId: string;
+  // Correo del usuario para aislar las reservas por cuenta
+  userEmail?: string;
   date: string;
   time: string;
   seats: string[];
@@ -60,10 +62,34 @@ export interface Cart {
   expiresAt: string;
 }
 
-// Bandera y almacenamiento interno para simular base de datos local en fallback
+// Almacenamiento y banderas para controlar la conexion con el backend
 let localFunctionsCache: CinemaFunction[] = [];
+let isServerOnline: boolean | null = null;
+let lastServerAttempt = 0;
+const SERVER_RETRY_INTERVAL = 60000;
 
-// El fallback identifica el carrito por usuario para conservar una sola sesión activa local.
+// Determina si debemos intentar la peticion fetch o usar directamente el modo local
+const shouldAttemptFetch = (): boolean => {
+  if (isServerOnline === false) {
+    if (Date.now() - lastServerAttempt < SERVER_RETRY_INTERVAL) {
+      return false;
+    }
+  }
+  return true;
+};
+
+// Registra que el servidor respondio exitosamente
+const markServerSuccess = () => {
+  isServerOnline = true;
+};
+
+// Registra falla de conexion y activa el modo local para no saturar la consola
+const markServerFailure = () => {
+  isServerOnline = false;
+  lastServerAttempt = Date.now();
+};
+
+// El fallback identifica el carrito por usuario para conservar una sola sesion activa local
 const readLocalCart = (userEmail: string): Cart | null => {
   const saved = localStorage.getItem(`cinema_cart_${userEmail}`);
   return saved ? JSON.parse(saved) : null;
@@ -256,33 +282,42 @@ const initializeLocalCache = () => {
 };
 
 export const cinemaApi = {
-  // 1. Obtener Películas
+  // 1. Obtener Peliculas
   async getMovies(): Promise<Movie[]> {
+    if (!shouldAttemptFetch()) {
+      return MOVIES;
+    }
     try {
       const res = await fetch(`${API_BASE_URL}/movies`, { signal: AbortSignal.timeout(1500) });
       if (!res.ok) throw new Error();
       const data = await res.json();
+      markServerSuccess();
       return data;
     } catch {
-      console.warn('⚠️ cinemaApi: Conexión con json-server offline. Usando catálogo estático.');
+      markServerFailure();
       return MOVIES;
     }
   },
 
-  // 2. Obtener Funciones por Película
+  // 2. Obtener Funciones por Pelicula
   async getFunctions(movieId: string): Promise<CinemaFunction[]> {
+    if (!shouldAttemptFetch()) {
+      initializeLocalCache();
+      return localFunctionsCache.filter((f) => f.movieId === movieId);
+    }
     try {
       const res = await fetch(`${API_BASE_URL}/functions?movieId=${movieId}`, { signal: AbortSignal.timeout(1500) });
       if (!res.ok) throw new Error();
       const data = await res.json();
       
-      // Si la consulta del json-server no devolvió ninguna función, creamos una para este movieId y la subimos
+      // Si la consulta del json-server no devolvio ninguna funcion, generamos funciones por defecto
       if (data.length === 0) {
         throw new Error('No functions found, generating default');
       }
+      markServerSuccess();
       return data;
     } catch {
-      console.warn(`⚠️ cinemaApi: Conexión con json-server offline. Usando caché local para funciones.`);
+      markServerFailure();
       initializeLocalCache();
       return localFunctionsCache.filter((f) => f.movieId === movieId);
     }
@@ -290,6 +325,24 @@ export const cinemaApi = {
 
   // 3. Bloquear / Liberar Asientos
   async updateOccupiedSeats(functionId: string, seatIds: string[], action: 'lock' | 'release'): Promise<CinemaFunction> {
+    if (!shouldAttemptFetch()) {
+      initializeLocalCache();
+      const idx = localFunctionsCache.findIndex((f) => f.id === functionId);
+      if (idx !== -1) {
+        let newOccupied = [...localFunctionsCache[idx].occupiedSeats];
+        if (action === 'lock') {
+          seatIds.forEach(id => {
+            if (!newOccupied.includes(id)) newOccupied.push(id);
+          });
+        } else {
+          newOccupied = newOccupied.filter(id => !seatIds.includes(id));
+        }
+        localFunctionsCache[idx].occupiedSeats = newOccupied;
+        return localFunctionsCache[idx];
+      }
+      throw new Error('Function not found in local cache');
+    }
+
     try {
       // 1. Buscar estado actual
       const getRes = await fetch(`${API_BASE_URL}/functions/${functionId}`);
@@ -298,7 +351,6 @@ export const cinemaApi = {
 
       let newOccupied = [...currentFn.occupiedSeats];
       if (action === 'lock') {
-        // Evitar duplicados
         seatIds.forEach(id => {
           if (!newOccupied.includes(id)) newOccupied.push(id);
         });
@@ -313,10 +365,10 @@ export const cinemaApi = {
         body: JSON.stringify({ occupiedSeats: newOccupied })
       });
       if (!patchRes.ok) throw new Error();
-      
+      markServerSuccess();
       return await patchRes.json();
     } catch {
-      console.warn(`⚠️ cinemaApi: Error al conectar con el servidor. Realizando cambio en la caché local.`);
+      markServerFailure();
       initializeLocalCache();
       const idx = localFunctionsCache.findIndex((f) => f.id === functionId);
       if (idx !== -1) {
@@ -337,10 +389,26 @@ export const cinemaApi = {
 
   // 4. Crear Reserva / Ticket
   async createReservation(resData: Omit<Reservation, 'id'>): Promise<Reservation> {
-    const newReservation = {
+    const newReservation: Reservation = {
       id: Math.random().toString(36).substring(2, 9),
       ...resData
     };
+
+    // Guardado local aislado especificamente para el usuario actual
+    const userKey = (resData.userEmail || 'guest').toLowerCase();
+    const userStorageKey = `cinema_tickets_${userKey}`;
+    const savedUserTickets = localStorage.getItem(userStorageKey);
+    const listUser = savedUserTickets ? JSON.parse(savedUserTickets) : [];
+    localStorage.setItem(userStorageKey, JSON.stringify([newReservation, ...listUser]));
+
+    // Guardado general por compatibilidad
+    const saved = localStorage.getItem('cinema_tickets');
+    const list = saved ? JSON.parse(saved) : [];
+    localStorage.setItem('cinema_tickets', JSON.stringify([newReservation, ...list]));
+
+    if (!shouldAttemptFetch()) {
+      return newReservation;
+    }
 
     try {
       const res = await fetch(`${API_BASE_URL}/reservations`, {
@@ -350,74 +418,101 @@ export const cinemaApi = {
         signal: AbortSignal.timeout(1500)
       });
       if (!res.ok) throw new Error();
+      markServerSuccess();
       return await res.json();
     } catch {
-      console.warn('⚠️ cinemaApi: Conexión offline. Guardando tiquete en localStorage.');
-      // Guardado local tradicional
-      const saved = localStorage.getItem('cinema_tickets');
-      const list = saved ? JSON.parse(saved) : [];
-      localStorage.setItem('cinema_tickets', JSON.stringify([newReservation, ...list]));
+      markServerFailure();
       return newReservation;
     }
   },
 
   async createCart(cartData: Omit<Cart, 'id'>): Promise<Cart> {
     const newCart: Cart = { id: `cart-${Date.now()}`, ...cartData };
+    writeLocalCart(newCart, cartData.userEmail);
+
+    if (!shouldAttemptFetch()) {
+      return newCart;
+    }
+
     try {
-      const res = await fetch(`${API_BASE_URL}/cart`, {
+      // Usamos /carts (plural) porque json-server genera el endpoint segun la clave del db.json
+      const res = await fetch(`${API_BASE_URL}/carts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newCart),
         signal: AbortSignal.timeout(1500),
       });
       if (!res.ok) throw new Error();
+      markServerSuccess();
       return await res.json();
     } catch {
-      writeLocalCart(newCart, cartData.userEmail);
+      markServerFailure();
       return newCart;
     }
   },
 
   async getCart(userEmail: string): Promise<Cart | null> {
+    if (!shouldAttemptFetch()) {
+      return readLocalCart(userEmail);
+    }
+
     try {
-      const res = await fetch(`${API_BASE_URL}/cart?userEmail=${encodeURIComponent(userEmail)}`, {
+      // Usamos /carts (plural) — endpoint real de json-server segun la clave del db.json
+      const res = await fetch(`${API_BASE_URL}/carts?userEmail=${encodeURIComponent(userEmail)}`, {
         signal: AbortSignal.timeout(1500),
       });
       if (!res.ok) throw new Error();
+      markServerSuccess();
       const carts: Cart[] = await res.json();
       return carts[0] ?? readLocalCart(userEmail);
     } catch {
+      markServerFailure();
       return readLocalCart(userEmail);
     }
   },
 
   async updateCart(cart: Cart): Promise<Cart> {
+    writeLocalCart(cart, cart.userEmail);
+
+    if (!shouldAttemptFetch()) {
+      return cart;
+    }
+
     try {
-      const res = await fetch(`${API_BASE_URL}/cart/${cart.id}`, {
+      // Usamos /carts (plural) para que coincida con la clave en db.json
+      const res = await fetch(`${API_BASE_URL}/carts/${cart.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(cart),
         signal: AbortSignal.timeout(1500),
       });
       if (!res.ok) throw new Error();
+      markServerSuccess();
       return await res.json();
     } catch {
-      writeLocalCart(cart, cart.userEmail);
+      markServerFailure();
       return cart;
     }
   },
 
   async deleteCart(cart: Cart): Promise<void> {
+    writeLocalCart(null, cart.userEmail);
+
+    if (!shouldAttemptFetch()) {
+      return;
+    }
+
     try {
-      const res = await fetch(`${API_BASE_URL}/cart/${cart.id}`, {
+      // Usamos /carts (plural) para que coincida con la clave en db.json
+      const res = await fetch(`${API_BASE_URL}/carts/${cart.id}`, {
         method: 'DELETE',
         signal: AbortSignal.timeout(1500),
       });
       if (!res.ok) throw new Error();
+      markServerSuccess();
     } catch {
-      writeLocalCart(null, cart.userEmail);
+      markServerFailure();
     }
-    writeLocalCart(null, cart.userEmail);
   },
 
   async applyMembership(cart: Cart, code: string): Promise<Cart> {
