@@ -37,6 +37,10 @@ body {
   color: #fff;
 }
 
+main {
+  will-change: transform, opacity;
+}
+
 /* Estilo físico tridimensional para las butacas en 2D */
 .seat-physical {
   border-radius: 6px 6px 2px 2px;
@@ -61,4 +65,4 @@ body {
 .screen-bar-glow {
   background: linear-gradient(90deg, transparent, #eab308, #a78bfa, #eab308, transparent);
   box-shadow: 0 2px 18px rgba(234, 179, 8, 0.4);
-}
+}
