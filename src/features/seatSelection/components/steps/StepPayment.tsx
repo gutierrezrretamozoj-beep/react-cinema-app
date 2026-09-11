@@ -21,6 +21,14 @@ interface StepPaymentProps {
   onConfirm: () => void;
   onBack: () => void;
   defaultCardholderName?: string;
+  // NUEVO: Lista de snacks seleccionados en la tienda de confitería para desglosarlos individualmente en el recibo
+  concessionsItems?: Array<{
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    image?: string;
+  }>;
 }
 
 export const StepPayment: React.FC<StepPaymentProps> = ({
@@ -37,6 +45,8 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
   onConfirm,
   onBack,
   defaultCardholderName = '',
+  // NUEVO: Recibimos los items de confitería con valor por defecto array vacío
+  concessionsItems = [],
 }) => {
   const [loading, setLoading] = useState(false);
   const [cardNumber, setCardNumber] = useState('');
@@ -260,12 +270,29 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                 <span>Entradas ({selectedSeatsCount})</span>
                 <span className="text-neutral-200">${ticketsTotal.toFixed(2)}</span>
               </div>
-              {snacksTotal > 0 && (
+              {/* Desglose unificado de confitería: Si viene de la tienda con items seleccionados, se listan uno a uno con sus subtotales */}
+              {concessionsItems && concessionsItems.length > 0 ? (
+                <div className="space-y-1.5 pt-1">
+                  {/* Encabezado de confitería con cantidad total de productos e importe acumulado */}
+                  <div className="flex justify-between font-semibold text-neutral-300">
+                    <span>Confitería ({concessionsItems.reduce((acc, c) => acc + c.quantity, 0)} items)</span>
+                    <span className="text-neutral-200">${snacksTotal.toFixed(2)}</span>
+                  </div>
+                  {/* Iteración de cada producto de dulcería adquirido */}
+                  {concessionsItems.map((item) => (
+                    <div key={item.id} className="flex justify-between text-[11px] text-neutral-400 pl-2">
+                      <span className="truncate max-w-[190px]">• {item.name} × {item.quantity}</span>
+                      <span className="font-mono text-neutral-300">${(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : snacksTotal > 0 ? (
+                /* Fallback si los snacks vienen del stepper simple sin items desglosados */
                 <div className="flex justify-between">
                   <span>Confitería</span>
                   <span className="text-neutral-200">${snacksTotal.toFixed(2)}</span>
                 </div>
-              )}
+              ) : null}
               {redeemCredits && (
                 <div className="flex justify-between text-emerald-400 font-medium">
                   <span className="flex items-center gap-1">

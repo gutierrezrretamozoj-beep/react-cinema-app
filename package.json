@@ -4,9 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently --names \"VITE,API\" --prefix-colors \"cyan,yellow\" \"vite\" \"json-server --watch db.json --port 5000\"",
     "server": "json-server --watch db.json --port 5000",
-    "dev:all": "concurrently \"npm run dev\" \"npm run server\"",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
