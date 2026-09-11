@@ -269,7 +269,7 @@ export const LoginPage = () => {
 
             {/* Divisor de ticket */}
             <div className="relative -mx-6 mb-5">
-              <div className="border-t border-dashed border-white-[0.06]" />
+              <div className="border-t border-dashed border-white/6" />
               <div className="absolute left-0 -top-2 w-4 h-4 rounded-full" style={{ background: "#050810" }} />
               <div className="absolute right-0 -top-2 w-4 h-4 rounded-full" style={{ background: "#050810" }} />
             </div>
@@ -435,7 +435,7 @@ export const LoginPage = () => {
 
             {/* Footer */}
             <div className="relative mt-4">
-              <div className="border-t border-dashed border-white-[0.05] -mx-6 mb-4">
+              <div className="border-t border-dashed border-white/6 mb-6">
                 <div className="absolute left-0 -top-2 w-4 h-4 rounded-full" style={{ background: "#050810" }} />
                 <div className="absolute right-0 -top-2 w-4 h-4 rounded-full" style={{ background: "#050810" }} />
               </div>

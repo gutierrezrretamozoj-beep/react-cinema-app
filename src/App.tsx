@@ -1,8 +1,12 @@
-import { RouterProvider } from 'react-router'
-import { appRouter } from '@router/index'
+import { BrowserRouter } from 'react-router'
+import { LoginPage } from '@/features/auth/pages/login/LoginPage'
 
 function App() {
-  return <RouterProvider router={appRouter} />
+  return (
+    <BrowserRouter>
+      <LoginPage />
+    </BrowserRouter>
+  )
 }
 
 export default App
