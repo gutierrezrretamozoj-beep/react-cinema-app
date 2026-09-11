@@ -23,6 +23,22 @@ export interface Movie {
   averageRating?: string;
 }
 
+// Función auxiliar para mostrar clasificaciones en lenguaje claro y amigable
+export const getFriendlyRating = (rating?: string): string => {
+  switch (rating) {
+    case 'A':
+      return 'Todo público';
+    case 'B':
+      return 'Mayores de 12';
+    case 'B15':
+      return 'Mayores de 15';
+    case 'C':
+      return 'Mayores de edad';
+    default:
+      return rating || 'General';
+  }
+};
+
 // MOVIES: Base de datos estática de películas en cartelera y próximos estrenos
 export const MOVIES: Movie[] = [
   {

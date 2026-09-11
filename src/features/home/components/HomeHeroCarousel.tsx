@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { MOVIES, type Movie } from "@/features/movies/data/movieData";
+import { MOVIES, getFriendlyRating, type Movie } from "@/features/movies/data/movieData";
 import { PROMOTIONS, type Promotion } from "../data/promotionsData";
 
 type HeroSlide =
@@ -25,11 +25,11 @@ type HeroSlide =
       type: "promo";
       id: string;
       title: string;
-      director: string;
-      duration: string;
-      rating: string;
+      subtitle: string;
+      validity: string;
+      benefit: string;
       averageRating: string;
-      genre: string;
+      categoryLabel: string;
       synopsis: string;
       backdropUrl: string;
       badgeText: string;
@@ -42,11 +42,12 @@ export const HomeHeroCarousel = () => {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const featuredMovies = MOVIES.filter((m) => m.featured);
 
-  // Lista de slides curada: películas de gran impacto + promociones
+  // Lista de slides curada: películas de gran impacto + promociones con textos contextuales
   const slides: HeroSlide[] = [
     ...(featuredMovies.slice(0, 2).map((m) => ({
       type: "movie" as const,
@@ -68,11 +69,11 @@ export const HomeHeroCarousel = () => {
       type: "promo" as const,
       id: `promo-${PROMOTIONS[0].id}`,
       title: PROMOTIONS[0].title,
-      director: "Promoción Especial CineApp",
-      duration: "Todos los martes",
-      rating: "Todos",
+      subtitle: PROMOTIONS[0].subtitle,
+      validity: "Todos los martes",
+      benefit: "2x1 Boletas",
       averageRating: "5.0",
-      genre: "Beneficio",
+      categoryLabel: "Promoción Semanal",
       synopsis: PROMOTIONS[0].description,
       backdropUrl: PROMOTIONS[0].backdropUrl,
       badgeText: PROMOTIONS[0].badge,
@@ -100,11 +101,11 @@ export const HomeHeroCarousel = () => {
       type: "promo" as const,
       id: `promo-${PROMOTIONS[1].id}`,
       title: PROMOTIONS[1].title,
-      director: "Confitería & Snacks Gourmet",
-      duration: "Combo Dúo",
-      rating: "Familiar",
+      subtitle: PROMOTIONS[1].subtitle,
+      validity: "Toda la temporada",
+      benefit: "Combo Dúo",
       averageRating: "4.9",
-      genre: "Confitería",
+      categoryLabel: "Confitería Gourmet",
       synopsis: PROMOTIONS[1].description,
       backdropUrl: PROMOTIONS[1].backdropUrl,
       badgeText: PROMOTIONS[1].badge,
@@ -120,6 +121,24 @@ export const HomeHeroCarousel = () => {
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  // Soporte de deslizamiento táctil en móviles y tablets (Swipe)
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchStartX - touchEndX;
+
+    if (diffX > 45) {
+      handleNext();
+    } else if (diffX < -45) {
+      handlePrev();
+    }
+    setTouchStartX(null);
   };
 
   // Autoplay cada 6 segundos (se pausa al pasar el cursor)
@@ -142,6 +161,8 @@ export const HomeHeroCarousel = () => {
       className="relative w-full h-[620px] sm:h-[680px] lg:h-[650px] overflow-hidden bg-neutral-950 select-none group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       {/* IMAGEN HORIZONTAL PANORÁMICA DE ANCHO COMPLETO */}
       <AnimatePresence mode="wait">
@@ -160,13 +181,13 @@ export const HomeHeroCarousel = () => {
             className="w-full h-full object-cover object-center"
           />
 
-          {/* Gradientes cinematográficos para viñeta y legibilidad superior */}
+          {/* Gradientes cinematográficos ajustados para máxima nitidez */}
           <div className="absolute inset-0 bg-linear-to-r from-neutral-950/90 via-neutral-950/20 to-transparent" />
           <div className="absolute inset-0 bg-linear-to-t from-neutral-950/90 via-neutral-950/20 to-transparent" />
         </motion.div>
       </AnimatePresence>
 
-      {/* CONTENIDO SUPERPUESTO (Estilo visual inspirado en la referencia de Doctor Strange) */}
+      {/* CONTENIDO SUPERPUESTO */}
       <div className="relative mx-auto max-w-7xl h-full px-4 sm:px-6 lg:px-8 flex items-center z-20 pointer-events-none">
         <div className="w-full max-w-xl text-left pointer-events-auto">
           
@@ -177,18 +198,13 @@ export const HomeHeroCarousel = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.45, ease: "easeOut" }}
-              className="flex flex-col gap-5 p-6 sm:p-8  bg-transparent "
+              className="flex flex-col gap-5 p-6 sm:p-8 bg-transparent"
             >
               
-              {/* Indicador de slide en fracción (ej: 01 / 05) y Badge */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1 font-mono text-xs font-bold text-yellow-500 tracking-widest">
-                  <span className="text-sm">{String(currentIndex + 1).padStart(2, "0")}</span>
-                  <span className="text-neutral-500">/</span>
-                  <span className="text-neutral-400">{String(slides.length).padStart(2, "0")}</span>
-                </div>
-                <span className="h-3 w-px bg-neutral-700" />
-                <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-neutral-300">
+              {/* Badge de Categoría (Sin contador numérico por pedido del usuario) */}
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold tracking-[0.25em] uppercase bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                  <span className="h-1.5 w-1.5 rounded-full bg-yellow-400 animate-pulse" />
                   {currentSlide.badgeText}
                 </span>
               </div>
@@ -198,11 +214,17 @@ export const HomeHeroCarousel = () => {
                 {currentSlide.title}
               </h1>
 
-              {/* DIRECTOR */}
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase text-neutral-300/90 flex items-center gap-2">
-                <span className="text-yellow-500">DIRIGIDA POR:</span>
-                <span>{currentSlide.director}</span>
-              </p>
+              {/* SUBTÍTULO CONTEXTUAL: Director si es película, o subtítulo descriptivo si es promoción */}
+              {currentSlide.type === "movie" ? (
+                <p className="text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase text-neutral-300/90 flex items-center gap-2">
+                  <span className="text-yellow-500">DIRIGIDA POR:</span>
+                  <span>{currentSlide.director}</span>
+                </p>
+              ) : (
+                <p className="text-xs sm:text-sm font-semibold tracking-[0.2em] uppercase text-yellow-400/90 flex items-center gap-2">
+                  <span>{currentSlide.subtitle}</span>
+                </p>
+              )}
 
               {/* MINI SINOPSIS */}
               <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed line-clamp-2 font-normal max-w-xl">
@@ -222,43 +244,85 @@ export const HomeHeroCarousel = () => {
                 </Link>
               </div>
 
-              {/* FILA DE MÉTRICAS CINEMATOGRÁFICAS (Como en la referencia de Doctor Strange) */}
+              {/* FILA DE MÉTRICAS CONTEXTUALES: Adaptadas a Película o a Promoción */}
               <div className="pt-4 mt-2 border-t border-white/10 grid grid-cols-3 sm:grid-cols-4 gap-4 text-left">
-                <div>
-                  <div className="text-lg sm:text-xl font-black text-white font-mono leading-none">
-                    {currentSlide.duration}
-                  </div>
-                  <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
-                    Duración
-                  </div>
-                </div>
+                {currentSlide.type === "movie" ? (
+                  <>
+                    <div>
+                      <div className="text-base sm:text-lg font-black text-white font-mono leading-none">
+                        {currentSlide.duration}
+                      </div>
+                      <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
+                        Duración
+                      </div>
+                    </div>
 
-                <div>
-                  <div className="text-lg sm:text-xl font-black text-yellow-400 font-mono leading-none">
-                    {currentSlide.averageRating} ★
-                  </div>
-                  <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
-                    Rating
-                  </div>
-                </div>
+                    <div>
+                      <div className="text-base sm:text-lg font-black text-yellow-400 font-mono leading-none">
+                        {currentSlide.averageRating} ★
+                      </div>
+                      <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
+                        Rating
+                      </div>
+                    </div>
 
-                <div>
-                  <div className="text-lg sm:text-xl font-black text-white font-mono leading-none">
-                    {currentSlide.rating}
-                  </div>
-                  <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
-                    Clasificación
-                  </div>
-                </div>
+                    <div>
+                      <div className="text-base sm:text-lg font-black text-white font-mono leading-none">
+                        {getFriendlyRating(currentSlide.rating)}
+                      </div>
+                      <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
+                        Clasificación
+                      </div>
+                    </div>
 
-                <div className="hidden sm:block">
-                  <div className="text-lg sm:text-xl font-black text-neutral-200 font-mono leading-none">
-                    {currentSlide.genre}
-                  </div>
-                  <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
-                    Género
-                  </div>
-                </div>
+                    <div className="hidden sm:block">
+                      <div className="text-base sm:text-lg font-black text-neutral-200 font-mono leading-none">
+                        {currentSlide.genre}
+                      </div>
+                      <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
+                        Género
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <div className="text-base sm:text-lg font-black text-white font-mono leading-none">
+                        {currentSlide.validity}
+                      </div>
+                      <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
+                        Vigencia
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="text-base sm:text-lg font-black text-yellow-400 font-mono leading-none">
+                        {currentSlide.benefit}
+                      </div>
+                      <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
+                        Beneficio
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="text-base sm:text-lg font-black text-white font-mono leading-none">
+                        {currentSlide.averageRating} ★
+                      </div>
+                      <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
+                        Aceptación
+                      </div>
+                    </div>
+
+                    <div className="hidden sm:block">
+                      <div className="text-base sm:text-lg font-black text-neutral-200 font-mono leading-none">
+                        {currentSlide.categoryLabel}
+                      </div>
+                      <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
+                        Categoría
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
             </motion.div>
@@ -267,11 +331,11 @@ export const HomeHeroCarousel = () => {
         </div>
       </div>
 
-      {/* FLECHAS DE NAVEGACIÓN `<` Y `>` CON ESTILO TRANSPARENTE */}
+      {/* FLECHAS DE NAVEGACIÓN: Visibles únicamente en Desktop (ocultas en móviles y tablets) */}
       <button
         onClick={handlePrev}
         aria-label="Anterior diapositiva"
-        className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-30 flex h-11 w-11 items-center justify-center rounded-full  bg-transparent backdrop-blur-sm text-white hover:border-yellow-500 hover:text-yellow-400 hover:bg-black/20 transition-all hover:scale-110 active:scale-95 cursor-pointer"
+        className="hidden lg:flex absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-30 h-11 w-11 items-center justify-center rounded-full bg-transparent backdrop-blur-sm text-white hover:border-yellow-500 hover:text-yellow-400 hover:bg-black/20 transition-all hover:scale-110 active:scale-95 cursor-pointer"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -281,7 +345,7 @@ export const HomeHeroCarousel = () => {
       <button
         onClick={handleNext}
         aria-label="Siguiente diapositiva"
-        className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-30 flex h-11 w-11 items-center justify-center rounded-full  bg-transparent backdrop-blur-sm text-white hover:border-yellow-500 hover:text-yellow-400 hover:bg-black/20 transition-all hover:scale-110 active:scale-95 cursor-pointer"
+        className="hidden lg:flex absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-30 h-11 w-11 items-center justify-center rounded-full bg-transparent backdrop-blur-sm text-white hover:border-yellow-500 hover:text-yellow-400 hover:bg-black/20 transition-all hover:scale-110 active:scale-95 cursor-pointer"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />

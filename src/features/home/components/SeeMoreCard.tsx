@@ -17,7 +17,7 @@ export const SeeMoreCard = ({
   return (
     <Link
       to={to}
-      className="flex-none w-[160px] sm:w-[180px] flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-neutral-800 bg-neutral-900/30 p-6 text-center transition-all duration-300 hover:border-yellow-500/80 hover:bg-yellow-500/5 hover:scale-[1.02] group select-none cursor-pointer"
+      className="flex-none w-[130px] sm:w-[160px] md:w-[180px] flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-neutral-800 bg-neutral-900/30 p-4 sm:p-6 text-center transition-all duration-300 hover:border-yellow-500/80 hover:bg-yellow-500/5 hover:scale-[1.02] group select-none cursor-pointer"
     >
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-neutral-800 border border-neutral-700 text-yellow-400 transition-all duration-300 group-hover:bg-yellow-500 group-hover:text-neutral-950 group-hover:scale-110 shadow-lg shadow-black/40">
         <svg
