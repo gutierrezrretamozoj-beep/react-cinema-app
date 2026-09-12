@@ -2,6 +2,9 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  firstName?: string;
+  lastName?: string;
+  role?: string;
 }
 
 export interface LoginCredentials {
@@ -16,12 +19,17 @@ export interface LoginResponse {
 }
 
 export interface RegistrationData {
-  name: string;
   email: string;
   password: string;
-  country: string;
-  department: string;
-  city: string;
+  documentTypeId: number;
+  documentNumber: string;
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  gender: string;
+  phone: string;
+  address: string;
+  cityId: number;
 }
 
 export interface RegistrationResponse {
