@@ -11,19 +11,53 @@
       "time": "06:30 p. m.",
       "items": [
         {
-          "id": "ticket-F-7",
+          "id": "ticket-F-6",
           "type": "ticket",
-          "name": "General · F-7",
+          "name": "General · F-6",
           "quantity": 1,
           "unitPrice": 9.5,
-          "seatId": "F-7",
+          "seatId": "F-6",
+          "movieId": "2",
+          "showtime": "06:30 p. m."
+        },
+        {
+          "id": "ticket-F-8",
+          "type": "ticket",
+          "name": "General · F-8",
+          "quantity": 1,
+          "unitPrice": 9.5,
+          "seatId": "F-8",
           "movieId": "2",
           "showtime": "06:30 p. m."
         }
       ],
       "membershipDiscount": 0,
       "giftCardDiscount": 0,
-      "expiresAt": "2026-09-11T18:17:01.729Z"
+      "expiresAt": "2026-09-11T23:34:48.588Z"
+    },
+    {
+      "id": "cart-1789165600251",
+      "userEmail": "isac@gmail.com",
+      "movieId": "5",
+      "functionId": "pending-5-15:30",
+      "movieTitle": "Retorno a la Inocencia",
+      "theater": "Multicine Viva Barranquilla",
+      "date": "Hoy",
+      "time": "15:30",
+      "items": [
+        {
+          "id": "ticket-5-15:30",
+          "type": "ticket",
+          "name": "Entrada · Retorno a la Inocencia",
+          "quantity": 1,
+          "unitPrice": 7,
+          "movieId": "5",
+          "showtime": "15:30"
+        }
+      ],
+      "membershipDiscount": 0,
+      "giftCardDiscount": 0,
+      "expiresAt": "2026-09-11T22:59:02.975Z"
     }
   ],
   "movies": [
