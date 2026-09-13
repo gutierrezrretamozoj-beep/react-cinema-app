@@ -1,4 +1,4 @@
-import type { Movie } from "../data/movieData";
+import { getRatingBadgeProps, type Movie } from "../data/movieData";
 
 interface BadgeProps {
   variant: 'genre' | 'rating' | 'featured' | 'pre-purchase';
@@ -10,6 +10,7 @@ interface BadgeProps {
 // Badge: Componente modular de etiquetas/insignias reutilizables
 export const Badge = ({ variant, text, ratingType, className = "" }: BadgeProps) => {
   let styleClasses = "";
+  let displayText = text;
 
   switch (variant) {
     case 'genre':
@@ -21,20 +22,17 @@ export const Badge = ({ variant, text, ratingType, className = "" }: BadgeProps)
     case 'pre-purchase':
       styleClasses = "bg-purple-500/20 text-purple-400 border border-purple-500/30 uppercase tracking-wider animate-pulse";
       break;
-    case 'rating':
-      if (ratingType === 'C') {
-        styleClasses = "bg-red-500/20 border-red-500/40 text-red-400";
-      } else if (ratingType === 'B15') {
-        styleClasses = "bg-yellow-500/20 border-yellow-500/40 text-yellow-400";
-      } else {
-        styleClasses = "bg-green-500/20 border-green-500/40 text-green-400";
-      }
+    case 'rating': {
+      const ratingConfig = getRatingBadgeProps(ratingType || text);
+      styleClasses = ratingConfig.badgeClass;
+      displayText = ratingConfig.label;
       break;
+    }
   }
 
   return (
     <span className={`text-[9px] font-bold px-2.5 py-1 rounded-lg border shadow-sm select-none ${styleClasses} ${className}`}>
-      {text}
+      {displayText}
     </span>
   );
 };

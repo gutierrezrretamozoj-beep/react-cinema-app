@@ -15,7 +15,7 @@ const PageShell = () => {
   const isHome = location.pathname === "/";
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
+    <div className="min-h-screen bg-transparent text-cinema-text">
       <Navbar />
       <AnimatePresence mode="wait">
         <motion.main

@@ -18,17 +18,19 @@ Para ofrecer una **Rich UI (Interfaz Enriquecida / Wow Factor)**, la aplicación
 
 ## 2. Sistema de Diseño Visual (Design System Tokens)
 
-### 2.1 Paleta Cromática y Tokens Semánticos
+### 2.1 Paleta Cromática y Tokens Semánticos (Eclipse Cinema)
 
-| Token / Rol | Valor Hex / Tailwind | Propósito & Aplicación en UI |
-|---|---|---|
-| **Background Base** | `#09090b` (`neutral-950`) | Lienzo de fondo que simula la oscuridad de una sala de cine. |
-| **Surface Elevada** | `neutral-900/80` con border `neutral-800` | Tarjetas, contenedores del checkout, Navbar flotante. |
-| **Primary Accent (Dorado)** | `#eab308` (`amber-500` / `yellow-500`) | Asientos VIP, resplandor de la pantalla, acciones primarias y temporizadores. |
-| **Secondary Accent (Carmesí)** | `#ef4444` (`red-500`) | Butacas estándar, distintivos de películas destacadas y cancelaciones. |
-| **Success / Selection** | `#10b981` (`emerald-500`) | Butacas seleccionadas por el usuario, confirmación de pago y tickets validados. |
-| **Occupied / Muted** | `#262626` (`neutral-800`) | Asientos ocupados/bloqueados por otros usuarios, bordes secundarios. |
-| **Glow & Lights** | `rgba(234, 179, 8, 0.4)` / `rgba(167, 139, 250, 0.3)` | Resplandor proyectado por la pantalla de cine en 2D y reflectores 3D. |
+| Token Semántico | Valor Hex / Variable | Tailwind v4 Token | Propósito & Aplicación en UI |
+|---|---|---|---|
+| **Background Base** | `#010A1A` | `bg-cinema-bg` / `cinema-midnight` | Lienzo principal que simula la atmósfera azul medianoche inmersiva de una sala de cine. |
+| **Surface Elevada** | `#0E1A2B` | `bg-cinema-surface` / `cinema-slate` | Tarjetas, contenedores del checkout, Navbar con glassmorphism. |
+| **Surface Card** | `#091322` | `bg-cinema-surface-card` | Fondo de tarjetas de películas y secciones secundarias. |
+| **Primary Accent** | `#003BFF` | `bg-cinema-primary` / `text-cinema-electric` | Azul eléctrico para acciones principales, llamadas a la acción y bordes activos. |
+| **Vibrant Accent** | `#FF6A00` | `text-cinema-orange` / `bg-cinema-orange` | Naranja épico para alertas de impacto, promociones y contraste complementario. |
+| **Prestige / VIP** | `#FFCA28` | `text-cinema-gold` / `bg-cinema-vip` | Asientos VIP, estrellas de calificación, estrenos destacados. |
+| **Success / Selection** | `#00D1C1` | `bg-cinema-turquoise` / `text-cinema-turquoise` | Butacas seleccionadas en 2D/3D, confirmación de tickets y éxito. |
+| **Glow & Atmospheric** | `#4B0082` | `cinema-purple` | Morado profundo para resplandores de sala 3D, halos y gradientes nocturnos. |
+| **Semantic Feedback** | `#00D26A` / `#FF2E63` / `#FFC107` | `cinema-success`, `cinema-error`, `cinema-warning` | Estados de validación, error y prevención. |
 
 ### 2.2 Tipografía y Jerarquía Visual
 

@@ -1,5 +1,4 @@
-import { useRef } from "react";
-import { Link } from "react-router";
+import { useRef, useState, useEffect } from "react";
 import type { Movie } from "@/features/movies/data/movieData";
 import { MovieRowCard } from "./MovieRowCard";
 import { SeeMoreCard } from "./SeeMoreCard";
@@ -10,26 +9,47 @@ interface MovieScrollRowProps {
   movies: Movie[];
   seeMoreUrl: string;
   seeMoreLabel?: string;
-  maxMovies?: number; // Máximo 4 películas + 1 Ver más = 5 tarjetas
+  maxMovies?: number; // Máximo de películas + 1 Ver más
 }
 
-// MovieScrollRow: Contenedor de fila horizontal con deslizamiento suave y flechas
+// MovieScrollRow: Contenedor de fila horizontal con flechas laterales estilo carrusel principal
 export const MovieScrollRow = ({
   title,
   subtitle,
   movies,
   seeMoreUrl,
   seeMoreLabel = "Ver más",
-  maxMovies = 4,
+  maxMovies = 5,
 }: MovieScrollRowProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   const displayedMovies = movies.slice(0, maxMovies);
   const remainingCount = Math.max(0, movies.length - maxMovies);
 
+  const checkScroll = () => {
+    if (!scrollContainerRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+    setCanScrollLeft(scrollLeft > 15);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 15);
+  };
+
+  useEffect(() => {
+    checkScroll();
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    window.addEventListener("resize", checkScroll);
+    return () => {
+      el.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, [movies]);
+
   const handleScroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 300;
+      const scrollAmount = Math.max(320, scrollContainerRef.current.clientWidth * 0.75);
       scrollContainerRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
@@ -38,67 +58,73 @@ export const MovieScrollRow = ({
   };
 
   return (
-    <section className="w-full flex flex-col gap-4">
-      {/* Encabezado de la Fila */}
+    <section className="w-full gap-4 flex flex-col">
+      {/* Encabezado de la Fila (Limpio y minimalista) */}
       <div className="flex items-end justify-between px-1">
         <div className="flex flex-col gap-1 text-left">
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-yellow-500" />
-            <h2 className="text-xl sm:text-2xl font-black text-neutral-100 tracking-tight font-serif">
+            <span className="h-2 w-2 rounded-full bg-cinema-turquoise animate-pulse" />
+            <h2 className="text-lg sm:text-xl text-cinema-text tracking-wider uppercase font-monument">
               {title}
             </h2>
           </div>
           {subtitle && (
-            <p className="text-xs text-neutral-400 pl-4">{subtitle}</p>
+            <p className="text-xs text-cinema-muted pl-4">{subtitle}</p>
           )}
-        </div>
-
-        {/* Controles de navegación y enlace directo */}
-        <div className="flex items-center gap-2">
-          <Link
-            to={seeMoreUrl}
-            className="text-xs font-bold text-yellow-500 hover:text-yellow-400 mr-2 transition-colors hidden sm:inline-block"
-          >
-            Ver catálogo completo →
-          </Link>
-
-          <button
-            onClick={() => handleScroll("left")}
-            aria-label="Desplazar a la izquierda"
-            className="h-8 w-8 rounded-full border border-neutral-800 bg-neutral-900/80 flex items-center justify-center text-neutral-400 hover:text-yellow-400 hover:border-neutral-700 transition cursor-pointer"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
-          </button>
-          <button
-            onClick={() => handleScroll("right")}
-            aria-label="Desplazar a la derecha"
-            className="h-8 w-8 rounded-full border border-neutral-800 bg-neutral-900/80 flex items-center justify-center text-neutral-400 hover:text-yellow-400 hover:border-neutral-700 transition cursor-pointer"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-            </svg>
-          </button>
         </div>
       </div>
 
-      {/* Contenedor con scroll horizontal de máximo 5 tarjetas */}
-      <div
-        ref={scrollContainerRef}
-        className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 pt-1 px-1 scrollbar-thin scrollbar-track-neutral-950 scrollbar-thumb-neutral-800 scroll-smooth"
-      >
-        {displayedMovies.map((movie) => (
-          <MovieRowCard key={movie.id} movie={movie} />
-        ))}
+      {/* Contenedor relativo para el carrusel y las flechas de navegación estilo carrusel principal */}
+      <div className="relative">
+        {/* FLECHA IZQUIERDA: Mismo estilo que carrusel principal */}
+        <button
+          onClick={() => handleScroll("left")}
+          aria-label="Desplazar a la izquierda"
+          disabled={!canScrollLeft}
+          className={`hidden md:flex absolute left-0 top-0 bottom-4 z-20 w-16 h-full items-center justify-center bg-transparent text-cinema-text hover:text-cinema-electric/80 hover:bg-linear-to-l from-transparent to-black/60 transition-all hover:scale-110 active:scale-95 cursor-pointer rounded-l-lg ${
+            canScrollLeft
+              ? "opacity-80 hover:opacity-100"
+              : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+          </svg>
+        </button>
 
-        {/* Tarjeta de cierre "Ver más" */}
-        <SeeMoreCard
-          to={seeMoreUrl}
-          label={seeMoreLabel}
-          count={remainingCount > 0 ? remainingCount : undefined}
-          subtitle={`Explora más películas en ${title.toLowerCase()}`}
-        />
+        {/* Contenedor con scroll horizontal de tarjetas */}
+        <div
+          ref={scrollContainerRef}
+          className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 pt-2 px-1 scrollbar-none [-ms-overflow-style:none] flex:hidden scroll-smooth"
+        >
+          {displayedMovies.map((movie) => (
+            <MovieRowCard key={movie.id} movie={movie} />
+          ))}
+
+          {/* Tarjeta de cierre "Ver más" que conduce al catálogo completo */}
+          <SeeMoreCard
+            to={seeMoreUrl}
+            label={seeMoreLabel}
+            count={remainingCount > 0 ? remainingCount : undefined}
+            subtitle={`Explora más películas en ${title.toLowerCase()}`}
+          />
+        </div>
+
+        {/* FLECHA DERECHA: Mismo estilo que carrusel principal */}
+        <button
+          onClick={() => handleScroll("right")}
+          aria-label="Desplazar a la derecha"
+          disabled={!canScrollRight}
+          className={`hidden md:flex absolute right-0 top-0 bottom-4 z-20 w-16 items-center justify-center bg-transparent text-cinema-text  hover:text-cinema-electric/80 hover:bg-linear-to-r from-transparent to-black/60 transition-all hover:scale-110 active:scale-95 cursor-pointer rounded-r-lg ${
+            canScrollRight
+              ? "opacity-80 hover:opacity-100"
+              : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </button>
       </div>
     </section>
   );

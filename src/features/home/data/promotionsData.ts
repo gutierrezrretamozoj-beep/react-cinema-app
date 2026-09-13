@@ -55,5 +55,19 @@ export const PROMOTIONS: Promotion[] = [
     targetUrl: "/auth/register",
     validUntil: "Inscripciones abiertas",
     terms: "Membresía anual con renovación automática y cancelación flexible.",
+  },
+  {
+    id: "promo-universitarios",
+    title: "Jueves Universitario: 30% de Descuento",
+    subtitle: "Presenta tu carnet estudiantil y vive los estrenos por menos",
+    description: "Todos los jueves disfruta de tarifa especial en boletos generales y combo personal de crispetas presentando tu carnet vigente en taquilla o validándolo en tu perfil.",
+    badge: "BENEFICIO ESTUDIANTIL",
+    category: "promo",
+    imageUrl: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&auto=format&fit=crop&q=80",
+    backdropUrl: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=1600&auto=format&fit=crop&q=80",
+    ctaText: "Conocer Más",
+    targetUrl: "/movies",
+    validUntil: "Válido durante todo el semestre académico",
+    terms: "Aplica para funciones de jueves excepto días festivos. Máximo 2 boletas por carnet.",
   }
 ];
