@@ -86,8 +86,8 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
       tabIndex={0}
       className="mx-auto flex h-full w-full max-w-17rem flex-col items-stretch select-none group relative"
     >
-      <div className={`flex h-full flex-col overflow-hidden rounded-[1.3rem] border border-neutral-800 bg-neutral-900 transition-all duration-300 ${isPreviewing ? "border-yellow-500/30 shadow-[0_0_0_1px_rgba(234,179,8,0.15)]" : isDimmed ? "border-neutral-800/70" : "border-neutral-800"}`}>
-        <div className={`relative h-56 w-full overflow-hidden bg-neutral-950 transition-all duration-500 ${isPreviewing ? "h-64" : "h-56"}`}>
+      <div className={`flex h-full flex-col overflow-hidden rounded-[1.3rem] border border-white/10 bg-cinema-surface/90 backdrop-blur-md transition-all duration-300 ${isPreviewing ? "border-cinema-electric/40 shadow-[0_0_20px_rgba(0,210,255,0.2)]" : isDimmed ? "border-white/5" : "border-white/10"}`}>
+        <div className={`relative h-56 w-full overflow-hidden bg-[#060c18] transition-all duration-500 ${isPreviewing ? "h-64" : "h-56"}`}>
           {isPreviewing && trailerUrl ? (
             <div className="absolute inset-0">
               <iframe
@@ -106,17 +106,17 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
             />
           )}
 
-          <div className={`absolute inset-0 transition-all duration-300 ${isPreviewing ? "bg-linear-to-t from-neutral-950 via-neutral-950/45 to-neutral-900/25" : "bg-linear-to-t from-neutral-900 via-transparent to-neutral-950/40"}`} />
+          <div className={`absolute inset-0 transition-all duration-300 ${isPreviewing ? "bg-linear-to-t from-cinema-surface-card via-cinema-surface-card/45 to-[#060c18]/25" : "bg-linear-to-t from-cinema-surface-card via-transparent to-[#060c18]/40"}`} />
 
           {isPreviewing && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="absolute inset-x-0 bottom-0 bg-linear-to-t from-neutral-950 via-neutral-950/80 to-transparent px-3 py-3"
+              className="absolute inset-x-0 bottom-0 bg-linear-to-t from-cinema-surface-card via-cinema-surface-card/80 to-transparent px-3 py-3"
             >
-              <p className="text-[10px] uppercase tracking-[0.3em] text-yellow-400">Preview en vivo</p>
-              <p className="mt-1 text-[11px] text-neutral-200">{title}</p>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-cinema-electric font-semibold">Preview en vivo</p>
+              <p className="mt-1 text-[11px] text-cinema-text">{title}</p>
             </motion.div>
           )}
 
@@ -127,17 +127,17 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
           <Badge variant="rating" text={rating} ratingType={rating} className="absolute right-3 top-3" />
         </div>
 
-        <div className="flex flex-1 flex-col gap-3 bg-neutral-900/95 p-4">
+        <div className="flex flex-1 flex-col gap-3 bg-cinema-surface/95 p-4">
           <div>
-            <h2 className="text-base font-semibold text-neutral-100 leading-snug line-clamp-1 group-hover:text-yellow-400 transition-colors">
+            <h2 className="text-base font-semibold text-cinema-text leading-snug line-clamp-1 group-hover:font-black transition-colors"> {/*cambiar esto por un h1*/}
               {title}
             </h2>
-            <p className="mt-0.5 text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+            <p className="mt-0.5 text-[10px] uppercase tracking-[0.2em] text-cinema-muted font-mono">
               {duration} • {genre}
             </p>
           </div>
 
-          <p className="text-[11px] leading-relaxed text-neutral-400 line-clamp-3">
+          <p className="text-[11px] leading-relaxed text-cinema-muted line-clamp-3">
             {synopsis}
           </p>
 
@@ -151,12 +151,12 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
                     key={index}
                     disabled={!available || isPeeling}
                     onClick={() => setSelectedTime(time)}
-                    className={`rounded-lg border px-2.5 py-1.5 text-[10px] font-mono font-bold transition-all duration-150 ${
+                    className={`rounded-lg border px-2.5 py-1.5 text-[10px] font-mono font-bold transition-all duration-150 cursor-pointer ${
                       !available
-                        ? "cursor-not-allowed border-neutral-900 bg-neutral-950 text-neutral-600 line-through"
+                        ? "cursor-not-allowed border-white/5 bg-black/20 text-cinema-muted/30 line-through"
                         : isSelected
-                        ? "border-yellow-500 bg-yellow-500 text-neutral-950 shadow-md shadow-yellow-500/10"
-                        : "border-neutral-800 bg-neutral-950 text-neutral-400 hover:border-yellow-500/30 hover:text-yellow-400"
+                        ? "border-cinema-electric bg-cinema-electric text-neutral-950 shadow-md shadow-cinema-electric/20"
+                        : "border-white/10 bg-white/5 text-cinema-muted hover:border-cinema-electric/40 hover:text-cinema-electric hover:bg-cinema-electric/5"
                     }`}
                   >
                     {time}
@@ -167,7 +167,7 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
 
             <Link
               to={`/movies/${movie.id}`}
-              className="flex w-full items-center justify-center rounded-xl border border-neutral-700 bg-neutral-800/80 px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-300 transition-all hover:border-yellow-500/40 hover:bg-neutral-800 hover:text-yellow-400"
+              className="flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-cinema-text transition-all hover:border-cinema-electric/40 hover:bg-cinema-electric/10 hover:text-cinema-electric"
             >
               Ver detalles
             </Link>
@@ -175,11 +175,11 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
         </div>
       </div>
 
-      <div className="relative w-full h-6 bg-neutral-900 flex items-center justify-between z-10 overflow-visible">
-        <div className="absolute -left-3 h-6 w-6 rounded-full bg-neutral-950 z-20" />
+      <div className="relative w-full h-6 bg-cinema-surface/90 flex items-center justify-between z-10 overflow-visible">
+        <div className="absolute -left-3 h-6 w-6 rounded-full bg-[#070d18] z-20" />
 
         {!isTearing && (
-          <div className="flex-1 border-b-2 border-dashed border-neutral-800/80 mx-3" />
+          <div className="flex-1 border-b-2 border-dashed border-white/20 mx-3" />
         )}
 
         {isTearing && (
@@ -192,7 +192,7 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
             <motion.path
               d="M0,5 L14,2 L28,8 L42,1 L56,7 L70,2 L84,9 L98,3 L112,7 L126,1 L140,8 L154,3 L168,7 L182,2 L196,8 L210,3 L224,7 L238,2 L252,6 L266,1 L280,5"
               fill="none"
-              stroke="rgba(234,179,8,0.55)"
+              stroke="rgba(0,210,255,0.7)"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -216,7 +216,7 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
           </svg>
         )}
 
-        <div className="absolute -right-3 h-6 w-6 rounded-full bg-neutral-950 z-20" />
+        <div className="absolute -right-3 h-6 w-6 rounded-full bg-[#070d18] z-20" />
       </div>
 
       <div className="w-full h-20 relative z-0" style={{ perspective: '600px', perspectiveOrigin: '50% 0%' }}>
@@ -242,7 +242,7 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
                 transformOrigin: 'right center', 
                 transformStyle: 'preserve-3d'
               }}
-              className="absolute inset-0 w-full bg-neutral-900 border-x border-b border-neutral-800 rounded-b-2xl p-4 flex items-center justify-center shadow-md overflow-hidden"
+              className="absolute inset-0 w-full bg-cinema-surface/90 border-x border-b border-white/10 rounded-b-2xl p-4 flex items-center justify-center shadow-md overflow-hidden"
             >
               <motion.div
                 initial={{ opacity: 0 }}
@@ -256,8 +256,8 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
                 disabled={!selectedTime}
                 className={`w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-md relative z-10 ${
                   !selectedTime
-                    ? 'bg-neutral-950 border border-neutral-900 text-neutral-600 cursor-not-allowed'
-                    : 'bg-yellow-500 hover:bg-yellow-400 text-neutral-950 active:scale-95 hover:shadow-lg hover:shadow-yellow-500/20'
+                    ? 'bg-cinema-surface-card border border-white/5 text-cinema-muted/40 cursor-not-allowed'
+                    : 'bg-cinema-primary/40 hover:bg-cinema-primary text-cinema-text active:scale-95 hover:shadow-lg hover:shadow-cinema-electric/25 cursor-pointer'
                 }`}
               >
                 {movie.status === 'coming-soon' ? 'Precomprar Ticket' : 'Comprar Ticket'}
@@ -269,16 +269,16 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5, duration: 0.4 }}
-              className="absolute inset-0 w-full bg-neutral-900/30 border-x border-b border-dashed border-neutral-800/80 rounded-b-2xl p-2.5 flex flex-col items-center justify-center gap-1.5"
+              className="absolute inset-0 w-full bg-cinema-surface/40 border-x border-b border-dashed border-white/20 rounded-b-2xl p-2.5 flex flex-col items-center justify-center gap-1.5"
             >
-              <svg className="w-10 h-10 text-yellow-500/80 opacity-80" viewBox="0 0 24 24" fill="currentColor">
+              <svg className="w-10 h-10 text-cinema-electric/80 opacity-90" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M2 2h6v6H2V2zm1 1v4h4V3H3zm1 1h2v2H4V4zM16 2h6v6h-6V2zm1 1v4h4V3h-3zm1 1h2v2h-2V4zM2 16h6v6H2v-6zm1 1v4h4V3H3zm1 1h2v2H4v-2z" />
                 <path d="M12 2h2v2h-2zm0 4h2v2h-2zm4 8h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 4h2v2h-2zm-8-4h2v2H8zm4-8h2v2h-2zm8 4h2v2h-2z" />
                 <path d="M10 10h2v2h-2zm2 2h2v2h-2zm-2 2h2v2h-2zm6-4h2v2h-2zm2 2h2v2h-2zm-4 4h2v2h-2z" />
               </svg>
               <div className="flex flex-col items-center text-center">
-                <span className="text-[8px] font-bold text-neutral-200 uppercase tracking-widest leading-none">TICKET COMPRADO • {selectedTime}</span>
-                <span className="text-[7.5px] text-neutral-400 mt-1 max-w-190px leading-tight">Escanea el código o revisa tu correo para ver tu boleto.</span>
+                <span className="text-[8px] font-bold text-cinema-text uppercase tracking-widest leading-none">TICKET COMPRADO • {selectedTime}</span>
+                <span className="text-[7.5px] text-cinema-muted mt-1 max-w-190px leading-tight">Escanea el código o revisa tu correo para ver tu boleto.</span>
               </div>
             </motion.div>
           )}

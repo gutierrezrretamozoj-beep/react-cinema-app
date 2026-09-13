@@ -14,13 +14,13 @@ export const Badge = ({ variant, text, ratingType, className = "" }: BadgeProps)
 
   switch (variant) {
     case 'genre':
-      styleClasses = "bg-neutral-900/80 backdrop-blur-md text-neutral-300 border border-neutral-700/50 uppercase tracking-wider";
+      styleClasses = "bg-black/40 backdrop-blur-md text-cinema-text/90 border border-white/10 uppercase tracking-wider";
       break;
     case 'featured':
-      styleClasses = "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 uppercase tracking-wider";
+      styleClasses = "bg-cinema-electric/15 text-cinema-electric border border-cinema-electric/30 uppercase tracking-wider";
       break;
     case 'pre-purchase':
-      styleClasses = "bg-purple-500/20 text-purple-400 border border-purple-500/30 uppercase tracking-wider animate-pulse";
+      styleClasses = "bg-cinema-primary/30 text-cinema-turquoise border border-cinema-primary/50 uppercase tracking-wider animate-pulse";
       break;
     case 'rating': {
       const ratingConfig = getRatingBadgeProps(ratingType || text);

@@ -53,7 +53,7 @@ export const FeaturedCarousel = ({ movies, onSelectMovie }: FeaturedCarouselProp
 
   return (
     <div 
-      className="relative w-full h-80 sm:h-95 md:h-105 overflow-hidden rounded-3xl border border-neutral-800/80 bg-neutral-950 shadow-2xl"
+      className="relative w-full h-80 sm:h-95 md:h-105 overflow-hidden rounded-3xl border border-white/10 bg-cinema-surface-card/85 shadow-2xl backdrop-blur-xl"
       onMouseEnter={stopTimer}
       onMouseLeave={startTimer}
     >
@@ -72,12 +72,12 @@ export const FeaturedCarousel = ({ movies, onSelectMovie }: FeaturedCarouselProp
             className="w-full h-full object-cover"
           />
 
-          <div className="absolute inset-0 bg-linear-to-r from-neutral-950 via-neutral-950/70 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-[#060c18] via-[#060c18]/75 to-transparent" />
           
-          <div className="absolute inset-0 bg-linear-to-t from-neutral-950/90 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-[#060c18]/90 via-transparent to-transparent" />
 
           <div className="absolute inset-y-0 left-0 p-8 sm:p-12 md:p-16 flex flex-col justify-center max-w-lg z-10 gap-3.5 text-left">
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-2 items-center flex-wrap">
               <Badge variant="featured" text="Destacada" />
               <Badge variant="genre" text={currentMovie.genre} />
               {currentMovie.status === 'coming-soon' && (
@@ -86,28 +86,28 @@ export const FeaturedCarousel = ({ movies, onSelectMovie }: FeaturedCarouselProp
               <Badge variant="rating" text={currentMovie.rating} ratingType={currentMovie.rating} />
             </div>
 
-            <h1 className="text-xl sm:text-2xl md:text-3.5xl font-extrabold text-neutral-100 font-serif leading-tight">
+            <h1 className="text-lg sm:text-2xl md:text-3xl font-extrabold text-cinema-text font-monument leading-tight tracking-wide">
               {currentMovie.title}
             </h1>
 
-            <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed line-clamp-3 font-normal max-w-md">
+            <p className="text-xs sm:text-sm text-cinema-muted leading-relaxed line-clamp-3 font-normal max-w-md">
               {currentMovie.synopsis}
             </p>
 
             <div className="mt-2.5">
               <button
                 onClick={() => onSelectMovie?.(currentMovie)}
-                className="group flex items-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-neutral-950 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all hover:shadow-lg hover:shadow-yellow-500/20 active:scale-95"
+                className="group inline-flex items-center gap-2 rounded-xl border border-white/40 bg-transparent px-5 py-2.5 font-semibold text-xs uppercase tracking-[0.2em] text-cinema-text transition-all duration-300 hover:border-cinema-electric hover:shadow-lg hover:shadow-cinema-electric/20 active:scale-95 cursor-pointer"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   fill="currentColor"
-                  className="h-3.5 w-3.5 transition-transform group-hover:scale-110"
+                  className="h-3.5 w-3.5 text-cinema-electric transition-transform group-hover:scale-110"
                 >
                   <path d="M4.5 3.75a.75.75 0 0 0-1.125.65v15.2a.75.75 0 0 0 1.125.65l13.5-7.6a.75.75 0 0 0 0-1.3l-13.5-7.6Z" />
                 </svg>
-                {currentMovie.status === 'coming-soon' ? 'Precomprar Boleto' : 'Comprar Boleto'}
+                <span>{currentMovie.status === 'coming-soon' ? 'Precomprar Boleto' : 'Comprar Boleto'}</span>
               </button>
             </div>
           </div>
@@ -116,7 +116,7 @@ export const FeaturedCarousel = ({ movies, onSelectMovie }: FeaturedCarouselProp
 
       <button
         onClick={handlePrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900/60 backdrop-blur border border-neutral-800/80 text-neutral-300 hover:text-yellow-400 hover:border-yellow-500/30 transition-all active:scale-95"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-cinema-surface/70 backdrop-blur-md border border-white/15 text-cinema-text hover:text-cinema-electric hover:border-cinema-electric/50 transition-all active:scale-95 cursor-pointer shadow-lg"
         aria-label="Anterior película"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
@@ -125,7 +125,7 @@ export const FeaturedCarousel = ({ movies, onSelectMovie }: FeaturedCarouselProp
       </button>
       <button
         onClick={handleNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900/60 backdrop-blur border border-neutral-800/80 text-neutral-300 hover:text-yellow-400 hover:border-yellow-500/30 transition-all active:scale-95"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-cinema-surface/70 backdrop-blur-md border border-white/15 text-cinema-text hover:text-cinema-electric hover:border-cinema-electric/50 transition-all active:scale-95 cursor-pointer shadow-lg"
         aria-label="Siguiente película"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
@@ -140,8 +140,10 @@ export const FeaturedCarousel = ({ movies, onSelectMovie }: FeaturedCarouselProp
             <button
               key={i}
               onClick={() => handleDotClick(i)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                isActive ? "w-6 bg-yellow-500" : "w-2 bg-neutral-700 hover:bg-neutral-500"
+              className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                isActive
+                  ? "w-10 border border-cinema-electric/65 bg-cinema-electric/45 shadow-sm shadow-cinema-primary/90"
+                  : "w-3 bg-white/40 hover:bg-white/60"
               }`}
               aria-label={`Ir al slide ${i + 1}`}
             />

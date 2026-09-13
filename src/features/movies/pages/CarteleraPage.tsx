@@ -63,9 +63,9 @@ export const CarteleraPage = () => {
       const element = document.getElementById(`movie-card-${movie.id}`);
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
-        element.classList.add("ring-2", "ring-yellow-500", "scale-105");
+        element.classList.add("ring-2", "ring-cinema-electric", "scale-105");
         setTimeout(() => {
-          element.classList.remove("ring-2", "ring-yellow-500", "scale-105");
+          element.classList.remove("ring-2", "ring-cinema-electric", "scale-105");
         }, 2000);
       }
     }, 150);
@@ -86,17 +86,17 @@ export const CarteleraPage = () => {
     <div className="mx-auto max-w-7xl px-4 pt-6 sm:pt-8 pb-16 flex flex-col gap-6 md:gap-8">
       {/* Banner de filtro por cine activo si viene por URL */}
       {theaterFilter && (
-        <div className="flex items-center justify-between bg-yellow-500/10 border border-yellow-500/30 px-5 py-3 rounded-2xl">
+        <div className="flex items-center justify-between bg-cinema-surface/70 border border-cinema-border px-5 py-3 rounded-2xl backdrop-blur-md">
           <div className="flex items-center gap-3">
             <span className="text-xl">📍</span>
             <div>
-              <p className="text-xs text-yellow-500/80 font-semibold uppercase tracking-wider">Filtrando por complejo:</p>
-              <h4 className="text-sm font-bold text-yellow-400">{theaterFilter}</h4>
+              <p className="text-xs text-cinema-muted font-semibold uppercase tracking-wider">Filtrando por complejo:</p>
+              <h4 className="text-sm font-bold text-cinema-electric">{theaterFilter}</h4>
             </div>
           </div>
           <button
             onClick={() => setSearchParams({})}
-            className="text-xs text-neutral-400 hover:text-neutral-200 underline cursor-pointer"
+            className="text-xs text-cinema-muted hover:text-cinema-text underline cursor-pointer"
           >
             Quitar filtro
           </button>
@@ -107,8 +107,8 @@ export const CarteleraPage = () => {
       <FeaturedCarousel movies={MOVIES} onSelectMovie={handleCarouselBuyClick} />
 
       {/* Sección 1: Filtros de Horarios Rápidos de Hoy */}
-      <section className="rounded-2xl border border-neutral-900 bg-neutral-900/60 p-6 shadow-sm backdrop-blur-sm">
-        <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400 mb-3.5">
+      <section className="rounded-2xl border border-white/10 bg-cinema-surface/50 p-6 shadow-sm backdrop-blur-md">
+        <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-cinema-muted mb-3.5 font-monument">
           Horarios de hoy (Filtro rápido)
         </h3>
         <div className="flex gap-3 flex-wrap">
@@ -120,8 +120,8 @@ export const CarteleraPage = () => {
                 onClick={() => setSelectedTimeSlot(isActive ? null : time)}
                 className={`rounded-lg px-5 py-2.5 font-mono text-sm font-semibold transition-all duration-200 border cursor-pointer ${
                   isActive
-                    ? "border-yellow-500 bg-yellow-500/10 text-yellow-400 shadow-md shadow-yellow-500/5"
-                    : "border-neutral-800 bg-neutral-900/40 text-neutral-400 hover:border-neutral-700 hover:text-neutral-200"
+                    ? "border-cinema-electric bg-cinema-electric/15 text-cinema-electric shadow-md shadow-cinema-electric/10"
+                    : "border-white/10 bg-cinema-surface/40 text-cinema-muted hover:border-white/25 hover:text-cinema-text"
                 }`}
               >
                 {time}
@@ -133,17 +133,17 @@ export const CarteleraPage = () => {
 
       {/* Sección 2: Tabuladores de Cartelera y Botones de Género */}
       <section className="flex flex-col gap-4">
-        <div className="flex border-b border-neutral-900">
+        <div className="flex border-b border-white/10">
           <button
             onClick={() => {
               setActiveTab("now-playing");
               setSelectedTimeSlot(null);
               setSearchParams({ tab: "now-playing" });
             }}
-            className={`pb-3 text-sm font-semibold uppercase tracking-wider transition-all border-b-2 px-4 cursor-pointer ${
+            className={`pb-3 text-sm font-normal uppercase tracking-wider transition-all border-b-2 px-4 cursor-pointer font-monument ${
               activeTab === "now-playing"
-                ? "border-yellow-500 text-yellow-400"
-                : "border-transparent text-neutral-500 hover:text-neutral-300"
+                ? "border-cinema-azure text-cinema-text"
+                : "border-transparent text-cinema-muted/70 hover:text-cinema-text"
             }`}
           >
             En Cartelera
@@ -154,10 +154,10 @@ export const CarteleraPage = () => {
               setSelectedTimeSlot(null);
               setSearchParams({ tab: "coming-soon" });
             }}
-            className={`pb-3 text-sm font-semibold uppercase tracking-wider transition-all border-b-2 px-4 cursor-pointer ${
+            className={`pb-3 text-sm font-normal uppercase tracking-wider transition-all border-b-2 px-4 cursor-pointer font-monument ${
               activeTab === "coming-soon"
-                ? "border-yellow-500 text-yellow-400"
-                : "border-transparent text-neutral-500 hover:text-neutral-300"
+                ? "border-cinema-azure text-cinema-text"
+                : "border-transparent text-cinema-muted/70 hover:text-cinema-text"
             }`}
           >
             Próximamente
@@ -173,8 +173,8 @@ export const CarteleraPage = () => {
                 onClick={() => setSelectedGenre(genre)}
                 className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 border cursor-pointer ${
                   isActive
-                    ? "border-yellow-500/80 bg-yellow-500/10 text-yellow-400"
-                    : "border-neutral-800 bg-transparent text-neutral-400 hover:border-neutral-700 hover:text-neutral-200"
+                    ? "border-cinema-electric bg-cinema-electric/15 text-cinema-electric shadow-sm shadow-cinema-electric/15"
+                    : "border-white/10 bg-cinema-surface/30 text-cinema-muted hover:border-white/20 hover:text-cinema-text"
                 }`}
               >
                 {genre}
@@ -187,7 +187,7 @@ export const CarteleraPage = () => {
       {/* Sección 3: Conteo y Lista del Grid de Películas */}
       <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-cinema-muted uppercase tracking-wider font-mono">
             {filteredMovies.length} {filteredMovies.length === 1 ? "película" : "películas"} encontradas
           </span>
         </div>
@@ -205,14 +205,14 @@ export const CarteleraPage = () => {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center border border-dashed border-neutral-850 rounded-2xl py-16 px-4 text-center bg-neutral-900/10">
+          <div className="flex flex-col items-center justify-center border border-dashed border-white/15 rounded-2xl py-16 px-4 text-center bg-cinema-surface/20">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-10 h-10 text-neutral-600 mb-3"
+              className="w-10 h-10 text-cinema-muted mb-3"
             >
               <path
                 strokeLinecap="round"
@@ -220,10 +220,10 @@ export const CarteleraPage = () => {
                 d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
               />
             </svg>
-            <h4 className="text-sm font-bold text-neutral-300">
+            <h4 className="text-sm font-bold text-cinema-text">
               No hay resultados para esta búsqueda
             </h4>
-            <p className="text-xs text-neutral-500 mt-1 max-w-sm">
+            <p className="text-xs text-cinema-muted mt-1 max-w-sm">
               Prueba cambiando la pestaña de estreno, quitando el filtro de horario rápido o seleccionando otro género.
             </p>
             <button
@@ -233,7 +233,7 @@ export const CarteleraPage = () => {
                 setActiveTab("now-playing");
                 setSearchParams({});
               }}
-              className="mt-4 rounded-lg bg-neutral-800 hover:bg-neutral-700 px-4 py-2 text-xs font-semibold text-neutral-200 transition cursor-pointer"
+              className="mt-4 rounded-lg bg-cinema-surface hover:bg-cinema-surface-elevated border border-white/15 px-4 py-2 text-xs font-semibold text-cinema-text transition cursor-pointer"
             >
               Restablecer filtros
             </button>
@@ -243,9 +243,9 @@ export const CarteleraPage = () => {
 
       {/* Notificación Toast */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 flex max-w-sm animate-slide-in rounded-xl border border-yellow-500/20 bg-neutral-900 p-4 shadow-2xl shadow-yellow-500/5 backdrop-blur-md">
+        <div className="fixed bottom-6 right-6 z-50 flex max-w-sm animate-slide-in rounded-xl border border-cinema-electric/30 bg-cinema-surface/95 p-4 shadow-2xl shadow-cinema-primary/20 backdrop-blur-xl">
           <div className="flex gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-yellow-500/10 text-yellow-400">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cinema-electric/15 text-cinema-electric">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -256,18 +256,16 @@ export const CarteleraPage = () => {
               </svg>
             </div>
             <div className="flex flex-col gap-0.5">
-              <h5 className="text-xs font-bold text-neutral-100">{toast.message}</h5>
+              <h5 className="text-xs font-bold text-cinema-text">{toast.message}</h5>
               {toast.subMessage && (
-                <p className="text-[11px] leading-relaxed text-neutral-400">{toast.subMessage}</p>
+                <p className="text-[11px] leading-relaxed text-cinema-muted">{toast.subMessage}</p>
               )}
             </div>
             <button
               onClick={() => setToast(null)}
-              className="text-neutral-500 hover:text-neutral-350 shrink-0 ml-auto cursor-pointer"
+              className="ml-auto text-cinema-muted hover:text-cinema-text text-sm cursor-pointer"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              ✕
             </button>
           </div>
         </div>
