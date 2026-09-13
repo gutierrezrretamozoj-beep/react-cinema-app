@@ -7,13 +7,17 @@ import { useState, useCallback, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate, useBlocker, useLocation } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Clock, AlertTriangle } from 'lucide-react';
-import { MOVIES } from '../auth/pages/Home/data/movieData';
+import { MOVIES as FALLBACK_MOVIES } from '../auth/pages/Home/data/movieData';
+import type { Movie } from '../auth/pages/Home/data/movieData';
 import { generateSeats } from './data/seatData';
 import type { SeatData } from './data/seatData';
 import { useAuth } from '@/shared/context/AuthContext';
 import { useCart } from '@/features/cart/CartContext';
 import { cinemaApi } from '@/shared/api/cinemaApi';
 import type { Cart, CinemaFunction, PaymentMethod } from '@/shared/api/cinemaApi';
+import { movieService } from '@/features/movies/services/movie.service';
+import { mapMovieDetailToMovie } from '@/features/movies/utils/mappers';
+import type { Showtime } from '@/shared/interfaces/showtime';
 
 // Importación de componentes de pasos
 import { StepShowtime } from './components/steps/StepShowtime';
@@ -30,6 +34,37 @@ const STEPPER_LABELS = [
   { n: 5, l: 'Boleto' }
 ];
 
+/**
+ * Maps a backend Showtime to the local CinemaFunction shape used by the seat grid.
+ * @param s - Backend showtime
+ * @returns CinemaFunction
+ */
+function mapShowtimeToFunction(s: Showtime): CinemaFunction {
+  const start = new Date(s.startTime);
+  const dateLabel = start.toLocaleDateString("es-CO", { weekday: "long", day: "numeric" });
+  const timeLabel = start.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit", hour12: true });
+  const isImax = s.room.format.toUpperCase().includes("IMAX");
+  const is4dx = s.room.format.toUpperCase().includes("4DX");
+  const roomType: CinemaFunction["roomType"] = isImax ? "imax" : is4dx ? "4dx" : "standard";
+  const rows = isImax ? ["A", "B", "C", "D", "E", "F", "G", "H"] : ["A", "B", "C", "D", "E", "F"];
+  const cols = isImax ? 10 : 8;
+  return {
+    id: s.id,
+    movieId: s.movieId,
+    theater: s.cinema.name,
+    roomName: s.room.name,
+    roomType,
+    format: s.room.format,
+    experienceLabel: `${s.room.format} - ${s.isSubtitled ? "SUB" : "DOB"}`,
+    language: s.isSubtitled ? "Subtitulada" : "Doblada",
+    date: dateLabel,
+    time: timeLabel,
+    rows,
+    cols,
+    occupiedSeats: [],
+  };
+}
+
 export const SeatSelectionPage = () => {
   const { movieId } = useParams<{ movieId: string }>();
   const [searchParams] = useSearchParams();
@@ -41,11 +76,31 @@ export const SeatSelectionPage = () => {
   const cartOwner = user?.email ?? 'guest';
 
   const queryTime = searchParams.get('time') ?? '';
-  const movie = MOVIES.find((m) => m.id === movieId);
+  const [movie, setMovie] = useState<Movie | null>(() => FALLBACK_MOVIES.find((m) => m.id === movieId) ?? null);
+  const [isMovieOffline, setIsMovieOffline] = useState(false);
 
   // ── Estados de Integración API Backend ──
   const [functionsList, setFunctionsList] = useState<CinemaFunction[]>([]);
   const [activeFunction, setActiveFunction] = useState<CinemaFunction | null>(null);
+  const [isFunctionsOffline, setIsFunctionsOffline] = useState(false);
+
+  useEffect(() => {
+    if (!movieId) return;
+    const fallback = FALLBACK_MOVIES.find((m) => m.id === movieId) ?? null;
+    movieService
+      .getById(movieId)
+      .then((detail) => {
+        const mapped = mapMovieDetailToMovie(detail, fallback ?? undefined);
+        setMovie(mapped);
+        setIsMovieOffline(false);
+      })
+      .catch(() => {
+        if (fallback) {
+          setMovie(fallback);
+          setIsMovieOffline(true);
+        }
+      });
+  }, [movieId]);
 
   // ── Detección de navegación desde Confitería ──
   // Verificamos si el usuario fue redirigido desde ConfectioneryPage tras elegir snacks
@@ -132,24 +187,41 @@ export const SeatSelectionPage = () => {
     }
   }, [movieId]);
 
-  // Carga de funciones desde API / Mock Fallback
+  // Carga de funciones: intenta backend real (GET /movies/:id/showtimes) y cae a cinemaApi/json-server
   useEffect(() => {
     let active = true;
-    cinemaApi.getFunctions(movieId ?? '1').then((list) => {
-      if (active) {
-        setFunctionsList(list);
-        // Empareja con queryTime si viene en la URL, o toma la primera
-        const matched = list.find((f) => f.time === queryTime) ?? list[0] ?? null;
-        if (matched) {
-          setActiveFunction(matched);
-          setSelectedTheater(matched.theater);
-          setSelectedDate(matched.date);
-          setSelectedTime(matched.time);
-          setSelectedFormat(matched.format);
-          setSelectedLanguage(matched.language);
-        }
+
+    const applyList = (list: CinemaFunction[]) => {
+      if (!active) return;
+      setFunctionsList(list);
+      const matched = list.find((f) => f.time === queryTime) ?? list[0] ?? null;
+      if (matched) {
+        setActiveFunction(matched);
+        setSelectedTheater(matched.theater);
+        setSelectedDate(matched.date);
+        setSelectedTime(matched.time);
+        setSelectedFormat(matched.format);
+        setSelectedLanguage(matched.language);
       }
-    });
+    };
+
+    movieService
+      .getShowtimes(movieId ?? "1")
+      .then((showtimes) => {
+        if (!active) return;
+        if (showtimes.length === 0) throw new Error("empty showtimes");
+        const mapped = showtimes.map(mapShowtimeToFunction);
+        setIsFunctionsOffline(false);
+        applyList(mapped);
+      })
+      .catch(() => {
+        cinemaApi.getFunctions(movieId ?? "1").then((list) => {
+          if (!active) return;
+          setIsFunctionsOffline(true);
+          applyList(list);
+        });
+      });
+
     return () => {
       active = false;
     };
@@ -460,7 +532,12 @@ export const SeatSelectionPage = () => {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 md:px-8">
-      
+      {(isMovieOffline || isFunctionsOffline) && (
+        <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-400">
+          Modo offline — funciones y/o película desde datos locales. Backend {String(import.meta.env.VITE_API_URL)} no disponible.
+        </div>
+      )}
+
       {/* ── stepper visual ── */}
       {step < 5 && (
         <div className="flex items-center justify-between overflow-x-auto rounded-2xl border border-neutral-800 bg-neutral-900/45 p-4 backdrop-blur-md">

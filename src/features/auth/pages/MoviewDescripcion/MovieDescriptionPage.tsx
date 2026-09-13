@@ -1,28 +1,90 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { MOVIES } from "../Home/data/movieData";
+import type { Movie } from "../Home/data/movieData";
 import { useCart } from "@/features/cart/CartContext";
+import { movieService } from "@/features/movies/services/movie.service";
+import { mapMovieDetailToMovie, extractShowtimeHours } from "@/features/movies/utils/mappers";
+import type { Showtime } from "@/shared/interfaces/showtime";
 
-
+/**
+ * Movie detail page with real backend integration and offline fallback.
+ * @returns JSX element
+ */
 export const MovieDescriptionPage = () => {
-  // Read the movie identifier from the route parameters.
   const { movieId } = useParams();
   const { addMovieToCart } = useCart();
-  // Find the selected movie from the static catalog data.
-  const movie = MOVIES.find((item) => item.id === movieId);
-  // Track the currently selected showtime for the reservation flow.
+
+  const [movie, setMovie] = useState<Movie | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
+  const [showtimes, setShowtimes] = useState<Showtime[]>([]);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
-  // Default to the first available showtime whenever the movie changes.
   useEffect(() => {
-    if (movie?.showtimes?.[0]) {
-      setSelectedTime(movie.showtimes[0]);
-    }
-  }, [movie]);
+    if (!movieId) return;
+    let mounted = true;
+    const fallback = MOVIES.find((item) => item.id === movieId) ?? null;
 
+    setLoading(true);
+    movieService
+      .getById(movieId)
+      .then((detail) => {
+        if (!mounted) return;
+        const mapped = mapMovieDetailToMovie(detail, fallback ?? undefined);
+        setMovie(mapped);
+        setIsOffline(false);
+        setSelectedTime(mapped.showtimes[0] ?? null);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        if (fallback) {
+          setMovie(fallback);
+          setSelectedTime(fallback.showtimes[0] ?? null);
+        } else {
+          setMovie(null);
+        }
+        setIsOffline(true);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
 
+    movieService
+      .getShowtimes(movieId)
+      .then((data) => {
+        if (!mounted) return;
+        setShowtimes(data);
+        const hours = extractShowtimeHours(data);
+        if (hours.length > 0) setSelectedTime(hours[0]);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setShowtimes([]);
+      });
 
-  // Render a fallback state when the requested movie is not found.
+    return () => {
+      mounted = false;
+    };
+  }, [movieId]);
+
+  /**
+   * Handles ticket purchase.
+   */
+  const handleBuyTickets = async () => {
+    if (!movie || !selectedTime) return;
+    await addMovieToCart(movie, selectedTime);
+  };
+
+  if (loading) {
+    return (
+      <div className="mx-auto flex min-h-[70vh] max-w-5xl flex-col items-center justify-center px-6 text-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-neutral-700 border-t-yellow-500" />
+        <p className="mt-4 text-sm text-neutral-400">Cargando película...</p>
+      </div>
+    );
+  }
+
   if (!movie) {
     return (
       <div className="mx-auto flex min-h-[70vh] max-w-5xl flex-col items-center justify-center px-6 text-center">
@@ -35,19 +97,17 @@ export const MovieDescriptionPage = () => {
     );
   }
 
-  // Navega a la página de selección de asientos con el horario elegido.
-  const handleBuyTickets = async () => {
-    if (!selectedTime) return;
-    await addMovieToCart(movie, selectedTime);
-  };
-
-  // Create a short list of related movie suggestions excluding the current one.
+  const displayShowtimes = showtimes.length > 0 ? extractShowtimeHours(showtimes) : movie.showtimes;
   const recommendations = MOVIES.filter((item) => item.id !== movie.id).slice(0, 3);
 
   return (
-    // Main container for the full movie detail experience.
     <div className="flex w-full flex-col gap-4 overflow-x-hidden px-3 py-4 sm:gap-6 sm:px-4 sm:py-6 md:gap-8 md:px-8 lg:px-10">
-      {/* Hero section with the movie banner, title, and summary. */}
+      {isOffline && (
+        <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-400">
+          Modo offline — detalles locales para esta película.
+        </div>
+      )}
+
       <div className="w-full overflow-hidden rounded-1.5rem border border-neutral-800 bg-neutral-900 shadow-2xl shadow-black/30 sm:rounded-2rem">
         <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="relative min-h-220px sm:min-h-280px lg:min-h-360px">
@@ -62,7 +122,6 @@ export const MovieDescriptionPage = () => {
             </div>
           </div>
 
-          {/* Movie metadata and primary actions. */}
           <div className="flex flex-col justify-between bg-neutral-900/90 p-4 sm:p-6 md:p-8">
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
@@ -74,9 +133,9 @@ export const MovieDescriptionPage = () => {
               <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-3">
                 <InfoBlock label="Director" value={movie.director ?? "—"} />
                 <InfoBlock label="Fecha de estreno" value={movie.releaseDate ?? "—"} />
-                <InfoBlock label="Idiomas" value={(movie.languages?.join(", ") ?? "—")} />
-                <InfoBlock label="Formatos" value={(movie.formats?.join(", ") ?? "—")} />
-                <InfoBlock label="Precios" value={(movie.prices?.join(" • ") ?? "—")} />
+                <InfoBlock label="Idiomas" value={movie.languages?.join(", ") ?? "—"} />
+                <InfoBlock label="Formatos" value={movie.formats?.join(", ") ?? "—"} />
+                <InfoBlock label="Precios" value={movie.prices?.join(" • ") ?? "—"} />
                 <InfoBlock label="Calificación promedio" value={movie.averageRating ?? "—"} />
                 <InfoBlock label="Clasificación" value={movie.rating} />
                 <InfoBlock label="Estado" value={movie.status === "coming-soon" ? "Próximamente" : "En cartelera"} />
@@ -96,7 +155,6 @@ export const MovieDescriptionPage = () => {
         </div>
       </div>
 
-      {/* Booking and cast information section. */}
       <div className="grid min-w-0 gap-4 sm:gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <section className="min-w-0 rounded-[1.25rem] border border-neutral-800 bg-neutral-900/80 p-4 sm:rounded-1.5rem sm:p-6">
           <div className="flex items-center justify-between">
@@ -104,20 +162,29 @@ export const MovieDescriptionPage = () => {
           </div>
 
           <div className="mt-3 flex flex-wrap gap-2 sm:mt-4">
-            {movie.showtimes.map((time) => (
+            {displayShowtimes.map((time) => (
               <button
                 key={time}
                 onClick={() => setSelectedTime(time)}
-                className={`rounded-full px-3 py-2 text-sm font-semibold transition ${
-                  selectedTime === time
-                    ? "bg-yellow-500 text-neutral-950"
-                    : "border border-neutral-700 bg-neutral-950/50 text-neutral-300 hover:border-yellow-500/40 hover:text-yellow-400"
-                }`}
+                className={`rounded-full px-3 py-2 text-sm font-semibold transition ${selectedTime === time ? "bg-yellow-500 text-neutral-950" : "border border-neutral-700 bg-neutral-950/50 text-neutral-300 hover:border-yellow-500/40 hover:text-yellow-400"}`}
               >
                 {time}
               </button>
             ))}
           </div>
+
+          {showtimes.length > 0 && (
+            <div className="mt-4 grid gap-2">
+              {showtimes.slice(0, 3).map((s) => (
+                <div key={s.id} className="flex items-center justify-between rounded-xl border border-neutral-800 bg-neutral-950/40 px-3 py-2 text-xs text-neutral-400">
+                  <span>
+                    {s.cinema.name} • {s.room.name} ({s.room.format})
+                  </span>
+                  <span className="font-mono text-yellow-400">${s.basePrice.toLocaleString("es-CO")}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="mt-4 rounded-2xl border border-neutral-800 bg-neutral-950/60 p-3 sm:mt-6 sm:p-4">
             <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-neutral-500">Sesión seleccionada</p>
@@ -145,7 +212,9 @@ export const MovieDescriptionPage = () => {
       <section className="min-w-0 rounded-[1.25rem] border border-neutral-800 bg-neutral-900/80 p-4 sm:rounded-1.5rem sm:p-6">
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-lg font-semibold text-white sm:text-xl">Películas recomendadas</h2>
-          <Link to="/home" className="text-xs text-neutral-400 transition hover:text-yellow-400 sm:text-sm">Ver todas</Link>
+          <Link to="/home" className="text-xs text-neutral-400 transition hover:text-yellow-400 sm:text-sm">
+            Ver todas
+          </Link>
         </div>
         <div className="mt-4 grid gap-3 sm:mt-5 sm:gap-4 md:grid-cols-3">
           {recommendations.map((item) => (
@@ -157,12 +226,17 @@ export const MovieDescriptionPage = () => {
           ))}
         </div>
       </section>
-
-
     </div>
   );
 };
 
+/**
+ * Simple block displaying a label/value pair.
+ * @param props - Component props
+ * @param props.label - Field label
+ * @param props.value - Field value
+ * @returns JSX element
+ */
 const InfoBlock = ({ label, value }: { label: string; value: string }) => (
   <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 p-3">
     <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-neutral-500">{label}</p>
