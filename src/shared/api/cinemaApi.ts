@@ -62,6 +62,28 @@ export interface Cart {
   expiresAt: string;
 }
 
+export type PaymentMethod = 'credit_card' | 'debit_card' | 'pse' | 'nequi' | 'daviplata';
+export type PaymentStatus = 'processing' | 'approved' | 'rejected' | 'pending';
+
+export interface PaymentResult {
+  id: string;
+  status: PaymentStatus;
+  orderId?: string;
+  message?: string;
+}
+
+export interface OrderData {
+  cartId: string;
+  userEmail: string;
+  total: number;
+  paymentId: string;
+}
+
+export interface OrderResult extends OrderData {
+  id: string;
+  createdAt: string;
+}
+
 // Almacenamiento y banderas para controlar la conexion con el backend
 let localFunctionsCache: CinemaFunction[] = [];
 let isServerOnline: boolean | null = null;
@@ -512,6 +534,64 @@ export const cinemaApi = {
       markServerSuccess();
     } catch {
       markServerFailure();
+    }
+  },
+
+  async createPayment(paymentData: { cartId: string; method: PaymentMethod; amount: number }): Promise<PaymentResult> {
+    const payment: PaymentResult = {
+      id: `pay-${Date.now()}`,
+      status: paymentData.method === 'pse' ? 'pending' : 'approved',
+      message: paymentData.method === 'pse' ? 'Confirma el pago desde tu banco.' : undefined,
+    };
+
+    if (!shouldAttemptFetch()) return payment;
+    try {
+      const res = await fetch(`${API_BASE_URL}/payments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(paymentData),
+        signal: AbortSignal.timeout(1500),
+      });
+      if (!res.ok) throw new Error();
+      markServerSuccess();
+      return await res.json();
+    } catch {
+      markServerFailure();
+      return payment;
+    }
+  },
+
+  async getPaymentStatus(paymentId: string): Promise<PaymentResult> {
+    if (!shouldAttemptFetch()) return { id: paymentId, status: 'approved' };
+    try {
+      const res = await fetch(`${API_BASE_URL}/payments/status?paymentId=${encodeURIComponent(paymentId)}`, {
+        signal: AbortSignal.timeout(1500),
+      });
+      if (!res.ok) throw new Error();
+      markServerSuccess();
+      return await res.json();
+    } catch {
+      markServerFailure();
+      return { id: paymentId, status: 'approved' };
+    }
+  },
+
+  async createOrder(orderData: OrderData): Promise<OrderResult> {
+    const order: OrderResult = { id: `ORD-${Date.now()}`, createdAt: new Date().toISOString(), ...orderData };
+    if (!shouldAttemptFetch()) return order;
+    try {
+      const res = await fetch(`${API_BASE_URL}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(order),
+        signal: AbortSignal.timeout(1500),
+      });
+      if (!res.ok) throw new Error();
+      markServerSuccess();
+      return await res.json();
+    } catch {
+      markServerFailure();
+      return order;
     }
   },
 

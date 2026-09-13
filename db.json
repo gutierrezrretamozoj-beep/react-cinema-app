@@ -4,36 +4,34 @@
       "id": "cart-1789149906800",
       "userEmail": "milton@cine.com",
       "movieId": "2",
-      "functionId": "fn-2-4dx-1",
+      "functionId": "pending-2-15:00",
       "movieTitle": "El Susurro del Viento",
       "theater": "Multicine Viva Barranquilla",
       "date": "Hoy",
-      "time": "06:30 p. m.",
+      "time": "15:00",
       "items": [
         {
-          "id": "ticket-F-6",
+          "id": "ticket-1-14:30",
           "type": "ticket",
-          "name": "General · F-6",
+          "name": "Entrada · Interestelar II: Más allá del Horizonte",
           "quantity": 1,
           "unitPrice": 9.5,
-          "seatId": "F-6",
-          "movieId": "2",
-          "showtime": "06:30 p. m."
+          "movieId": "1",
+          "showtime": "14:30"
         },
         {
-          "id": "ticket-F-8",
+          "id": "ticket-2-15:00",
           "type": "ticket",
-          "name": "General · F-8",
+          "name": "Entrada · El Susurro del Viento",
           "quantity": 1,
-          "unitPrice": 9.5,
-          "seatId": "F-8",
+          "unitPrice": 8,
           "movieId": "2",
-          "showtime": "06:30 p. m."
+          "showtime": "15:00"
         }
       ],
       "membershipDiscount": 0,
       "giftCardDiscount": 0,
-      "expiresAt": "2026-09-11T23:34:48.588Z"
+      "expiresAt": "2026-09-11T22:56:56.539Z"
     },
     {
       "id": "cart-1789165600251",

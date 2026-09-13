@@ -13,6 +13,7 @@ const GUEST_CART_OWNER = 'guest';
 interface CartContextValue {
   cart: Cart | null;
   addMovieToCart: (movie: Movie, time: string) => Promise<void>;
+  clearCart: () => void;
   noticeVersion: number;
 }
 
@@ -48,7 +49,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       active = false;
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, [owner, noticeVersion]);
+  }, [owner]);
 
   const addMovieToCart = async (movie: Movie, time: string) => {
     const currentCart = await cinemaApi.getCart(owner);
@@ -78,7 +79,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setNoticeVersion((version) => version + 1);
   };
 
-  return <CartContext.Provider value={{ cart, addMovieToCart, noticeVersion }}>{children}</CartContext.Provider>;
+  const clearCart = () => {
+    setCart(null);
+    setNoticeVersion((version) => version + 1);
+  };
+
+  return <CartContext.Provider value={{ cart, addMovieToCart, clearCart, noticeVersion }}>{children}</CartContext.Provider>;
 };
 
 export const useCart = () => {
