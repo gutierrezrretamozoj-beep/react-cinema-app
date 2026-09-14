@@ -1,6 +1,6 @@
 # 🎬 Cinema Nova — Aplicación Web de Reserva Cinematográfica 3D & 2D
 
-Cinema Nova es una aplicación web moderna de reserva y venta de entradas de cine construida con **React 19**, **TypeScript**, **Tailwind CSS v4** y una experiencia inmersiva en **3D con Three.js / React Three Fiber**.
+Dexus Films es una aplicación web moderna de reserva y venta de entradas de cine construida con **React 19**, **TypeScript**, **Tailwind CSS v4** y una experiencia inmersiva en **3D con Three.js / React Three Fiber**.
 
 Permite a los usuarios consultar cartelera, seleccionar funciones en múltiples teatros y días, elegir asientos en mapas 2D y visores 3D en primera persona, adquirir snacks en confitería, realizar el pago con animación de rasgado de boleto físico y descargar su entrada digital en alta resolución.
 
@@ -125,3 +125,8 @@ Para verificar todas las funcionalidades en tu navegador:
 7. **Descarga del Boleto PNG (Paso 5):**
    - Escucharás la fanfarria musical de confirmación y verás tu saldo de Nova Credits acumulados.
    - Haz clic en **"Descargar Boleto (PNG)"**: se generará y descargará en tu navegador la imagen en alta definición con tu código QR y datos de la función.
+
+
+
+Link del repo (main): https://github.com/gutierrezrretamozoj-beep/react-cinema-app/tree/main
+Link del repo (rama actual: feature/home-view): https://github.com/gutierrezrretamozoj-beep/react-cinema-app/tree/feature/home-view

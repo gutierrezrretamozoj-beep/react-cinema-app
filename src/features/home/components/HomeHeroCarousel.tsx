@@ -158,7 +158,7 @@ export const HomeHeroCarousel = () => {
 
   return (
     <div
-      className="relative w-full h-screen sm:h-[85vh] overflow-hidden bg-neutral-950 select-none group"
+      className="relative w-full h-[70dvh] sm:h-[75vh] overflow-hidden bg-neutral-950 select-none group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onTouchStart={handleTouchStart}

@@ -20,7 +20,25 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
   const [isPeeling, setIsPeeling] = useState(false);
   const [isTearing, setIsTearing] = useState(false); // Controla el SVG de rasgado
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const PREVIEW_DELAY = 1000;
+  const PREVIEW_DELAY = 400;
+
+  const formatAutoplayUrl = (url?: string) => {
+    if (!url) return "";
+    let finalUrl = url;
+    if (!finalUrl.includes("autoplay=1")) {
+      finalUrl += `${finalUrl.includes("?") ? "&" : "?"}autoplay=1`;
+    }
+    if (!finalUrl.includes("mute=1") && !finalUrl.includes("muted=1")) {
+      finalUrl += "&mute=1";
+    }
+    if (!finalUrl.includes("controls=")) {
+      finalUrl += "&controls=0";
+    }
+    if (!finalUrl.includes("playsinline=")) {
+      finalUrl += "&playsinline=1";
+    }
+    return finalUrl;
+  };
 
   const clearHoverTimer = () => {
     if (hoverTimerRef.current) {
@@ -88,17 +106,17 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
       onFocus={handlePreviewStart}
       onBlur={handlePreviewEnd}
       tabIndex={0}
-      className="mx-auto flex h-full w-full max-w-17rem flex-col items-stretch select-none group relative"
+      className="mx-auto flex h-full w-full max-w-17rem flex-col items-stretch select-none group relative cursor-pointer"
     >
       <div className={`flex h-full flex-col overflow-hidden rounded-[1.3rem] border border-neutral-800 bg-neutral-900 transition-all duration-300 ${isPreviewing ? "border-yellow-500/30 shadow-[0_0_0_1px_rgba(234,179,8,0.15)]" : isDimmed ? "border-neutral-800/70" : "border-neutral-800"}`}>
         <div className={`relative h-56 w-full overflow-hidden bg-neutral-950 transition-all duration-500 ${isPreviewing ? "h-64" : "h-56"}`}>
           {isPreviewing && trailerUrl ? (
-            <div className="absolute inset-0">
+            <div className="absolute inset-0 pointer-events-none">
               <iframe
-                src={trailerUrl}
+                src={formatAutoplayUrl(trailerUrl)}
                 title={`${title} trailer`}
-                className="h-full w-full"
-                allow="autoplay; fullscreen; encrypted-media"
+                className="h-full w-full border-0 object-cover scale-110"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
               />
             </div>
@@ -110,25 +128,25 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
             />
           )}
 
-          <div className={`absolute inset-0 transition-all duration-300 ${isPreviewing ? "bg-linear-to-t from-neutral-950 via-neutral-950/45 to-neutral-900/25" : "bg-linear-to-t from-neutral-900 via-transparent to-neutral-950/40"}`} />
+          <div className={`absolute inset-0 pointer-events-none transition-all duration-300 ${isPreviewing ? "bg-linear-to-t from-neutral-950/60 via-transparent to-transparent" : "bg-linear-to-t from-neutral-900 via-transparent to-neutral-950/40"}`} />
 
           {isPreviewing && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="absolute inset-x-0 bottom-0 bg-linear-to-t from-neutral-950 via-neutral-950/80 to-transparent px-3 py-3"
+              className="absolute inset-x-0 bottom-0 pointer-events-none bg-linear-to-t from-neutral-950 via-neutral-950/80 to-transparent px-3 py-3"
             >
               <p className="text-[10px] uppercase tracking-[0.3em] text-yellow-400">Preview en vivo</p>
-              <p className="mt-1 text-[11px] text-neutral-200">{title}</p>
+              <p className="mt-1 text-[11px] text-neutral-200 line-clamp-1">{title}</p>
             </motion.div>
           )}
 
-          <div className="absolute left-3 top-3 flex items-center gap-1.5">
+          <div className="absolute left-3 top-3 flex items-center gap-1.5 pointer-events-none">
             <Badge variant="genre" text={genre} />
             {movie.status === "coming-soon" && <Badge variant="pre-purchase" text="Precompra" />}
           </div>
-          <Badge variant="rating" text={rating} ratingType={rating} className="absolute right-3 top-3" />
+          <Badge variant="rating" text={rating} ratingType={rating} className="absolute right-3 top-3 pointer-events-none" />
         </div>
 
         <div className="flex flex-1 flex-col gap-3 bg-neutral-900/95 p-4">
