@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "./Badge";
 import type { Movie } from "../data/movieData";
@@ -13,7 +13,6 @@ interface MovieCardProps {
 
 export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: MovieCardProps) => {
   const { id, title, genre, rating, posterUrl, duration, synopsis, showtimes, trailerUrl } = movie;
-  const navigate = useNavigate();
 
   const [selectedTime, setSelectedTime] = useState<string | null>(showtimes[0] ?? null);
   const [isPreviewing, setIsPreviewing] = useState(false);
@@ -69,7 +68,9 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
     return !((Number(id) % 2 === 0 && index === 0) || (Number(id) % 3 === 0 && index === 2));
   };
 
-  const handleBuy = () => {
+  const handleBuy = (event?: React.MouseEvent<HTMLButtonElement>) => {
+    event?.preventDefault();
+    event?.stopPropagation();
     if (!selectedTime || isPeeling) return;
 
     // 1. Inicia el dibujo de la línea de rasgado SVG
@@ -81,10 +82,9 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
       setIsPeeling(true);
     }, 50);
 
-    // 3. Espera a que termine la animación de enrollado antes de navegar
+    // 3. Espera a que termine la animación y agrega el ticket sin navegar.
     setTimeout(() => {
       onBuy?.(movie, selectedTime);
-      navigate(`/movies/${id}/seats?time=${encodeURIComponent(selectedTime)}`);
     }, 1400);
   };
 
@@ -283,6 +283,7 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
               />
 
               <button
+                type="button"
                 onClick={handleBuy}
                 disabled={!selectedTime}
                 className={`w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-md relative z-10 ${

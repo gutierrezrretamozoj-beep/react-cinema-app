@@ -203,7 +203,7 @@ export const StepShowtime: React.FC<StepShowtimeProps> = ({
                               : 'border-neutral-800 bg-neutral-900/90 text-neutral-300 hover:border-yellow-500/40 hover:text-yellow-400'
                           }`}
                         >
-                          {isSelected && <Check className="h-3.5 w-3.5 stroke-[3]" />}
+                          {isSelected && <Check className="h-3.5 w-3.5 stroke-3" />}
                           <span>{fn.time}</span>
                         </button>
                       );
@@ -226,7 +226,7 @@ export const StepShowtime: React.FC<StepShowtimeProps> = ({
             <img
               src={movie.posterUrl}
               alt={movie.title}
-              className="w-16 rounded-xl object-cover aspect-[2/3] border border-neutral-800 shadow-md"
+              className="w-16 rounded-xl object-cover aspect-2/3 border border-neutral-800 shadow-md"
             />
             <div>
               <h4 className="text-sm font-bold text-neutral-100 line-clamp-1">{movie.title}</h4>

@@ -1,4 +1,63 @@
 {
+  "carts": [
+    {
+      "id": "cart-1789149906800",
+      "userEmail": "milton@cine.com",
+      "movieId": "2",
+      "functionId": "pending-2-15:00",
+      "movieTitle": "El Susurro del Viento",
+      "theater": "Multicine Viva Barranquilla",
+      "date": "Hoy",
+      "time": "15:00",
+      "items": [
+        {
+          "id": "ticket-1-14:30",
+          "type": "ticket",
+          "name": "Entrada · Interestelar II: Más allá del Horizonte",
+          "quantity": 1,
+          "unitPrice": 9.5,
+          "movieId": "1",
+          "showtime": "14:30"
+        },
+        {
+          "id": "ticket-2-15:00",
+          "type": "ticket",
+          "name": "Entrada · El Susurro del Viento",
+          "quantity": 1,
+          "unitPrice": 8,
+          "movieId": "2",
+          "showtime": "15:00"
+        }
+      ],
+      "membershipDiscount": 0,
+      "giftCardDiscount": 0,
+      "expiresAt": "2026-09-11T22:56:56.539Z"
+    },
+    {
+      "id": "cart-1789165600251",
+      "userEmail": "isac@gmail.com",
+      "movieId": "5",
+      "functionId": "pending-5-15:30",
+      "movieTitle": "Retorno a la Inocencia",
+      "theater": "Multicine Viva Barranquilla",
+      "date": "Hoy",
+      "time": "15:30",
+      "items": [
+        {
+          "id": "ticket-5-15:30",
+          "type": "ticket",
+          "name": "Entrada · Retorno a la Inocencia",
+          "quantity": 1,
+          "unitPrice": 7,
+          "movieId": "5",
+          "showtime": "15:30"
+        }
+      ],
+      "membershipDiscount": 0,
+      "giftCardDiscount": 0,
+      "expiresAt": "2026-09-11T22:59:02.975Z"
+    }
+  ],
   "movies": [
     {
       "id": "1",
@@ -11,14 +70,33 @@
       "featured": true,
       "duration": "169 min",
       "synopsis": "Al ver que la Tierra se está volviendo inhabitable, un grupo de científicos y pilotos viaja a través de un agujero de gusano en busca de un nuevo hogar para la humanidad.",
-      "showtimes": ["14:30", "17:45", "21:00"],
+      "showtimes": [
+        "14:30",
+        "17:45",
+        "21:00"
+      ],
       "trailerUrl": "https://www.youtube.com/embed/zSWdZVtXT7E?autoplay=1&mute=1&controls=0&loop=1&playlist=zSWdZVtXT7E",
       "director": "Christopher Nolan",
-      "cast": ["Matthew McConaughey", "Anne Hathaway", "Jessica Chastain", "Michael Caine"],
+      "cast": [
+        "Matthew McConaughey",
+        "Anne Hathaway",
+        "Jessica Chastain",
+        "Michael Caine"
+      ],
       "releaseDate": "2014-11-07",
-      "languages": ["Subtitulada", "Doblada"],
-      "formats": ["2D", "IMAX", "4DX"],
-      "prices": ["$9.50", "$14.50"],
+      "languages": [
+        "Subtitulada",
+        "Doblada"
+      ],
+      "formats": [
+        "2D",
+        "IMAX",
+        "4DX"
+      ],
+      "prices": [
+        "$9.50",
+        "$14.50"
+      ],
       "averageRating": "4.9/5"
     },
     {
@@ -32,14 +110,32 @@
       "featured": true,
       "duration": "180 min",
       "synopsis": "La historia del físico estadounidense J. Robert Oppenheimer, al frente del Proyecto Manhattan y los ensayos nucleares para construir la primera bomba atómica de la historia.",
-      "showtimes": ["15:00", "18:30", "21:30"],
+      "showtimes": [
+        "15:00",
+        "18:30",
+        "21:30"
+      ],
       "trailerUrl": "https://www.youtube.com/embed/uYPbbksJxIg?autoplay=1&mute=1&controls=0&loop=1&playlist=uYPbbksJxIg",
       "director": "Christopher Nolan",
-      "cast": ["Cillian Murphy", "Emily Blunt", "Matt Damon", "Robert Downey Jr."],
+      "cast": [
+        "Cillian Murphy",
+        "Emily Blunt",
+        "Matt Damon",
+        "Robert Downey Jr."
+      ],
       "releaseDate": "2023-07-21",
-      "languages": ["Subtitulada", "Doblada"],
-      "formats": ["2D", "IMAX"],
-      "prices": ["$9.50", "$14.50"],
+      "languages": [
+        "Subtitulada",
+        "Doblada"
+      ],
+      "formats": [
+        "2D",
+        "IMAX"
+      ],
+      "prices": [
+        "$9.50",
+        "$14.50"
+      ],
       "averageRating": "4.8/5"
     },
     {
@@ -53,14 +149,33 @@
       "featured": true,
       "duration": "166 min",
       "synopsis": "Paul Atreides se une a Chani y a los Fremen mientras busca venganza contra los conspiradores que destruyeron a su familia. Ante una encrucijada, debe evitar un destino catastrófico.",
-      "showtimes": ["16:15", "19:00", "22:00"],
+      "showtimes": [
+        "16:15",
+        "19:00",
+        "22:00"
+      ],
       "trailerUrl": "https://www.youtube.com/embed/Way9Dexny3w?autoplay=1&mute=1&controls=0&loop=1&playlist=Way9Dexny3w",
       "director": "Denis Villeneuve",
-      "cast": ["Timothée Chalamet", "Zendaya", "Rebecca Ferguson", "Javier Bardem"],
+      "cast": [
+        "Timothée Chalamet",
+        "Zendaya",
+        "Rebecca Ferguson",
+        "Javier Bardem"
+      ],
       "releaseDate": "2024-03-01",
-      "languages": ["Subtitulada", "Doblada"],
-      "formats": ["2D", "IMAX", "3D"],
-      "prices": ["$9.50", "$14.50"],
+      "languages": [
+        "Subtitulada",
+        "Doblada"
+      ],
+      "formats": [
+        "2D",
+        "IMAX",
+        "3D"
+      ],
+      "prices": [
+        "$9.50",
+        "$14.50"
+      ],
       "averageRating": "4.9/5"
     },
     {
@@ -74,14 +189,32 @@
       "featured": false,
       "duration": "112 min",
       "synopsis": "Los investigadores de fenómenos paranormales Ed y Lorraine Warren viajan a Rhode Island para ayudar a una familia que presencia fenómenos aterradores en su solitaria granja.",
-      "showtimes": ["14:00", "17:15", "20:30"],
+      "showtimes": [
+        "14:00",
+        "17:15",
+        "20:30"
+      ],
       "trailerUrl": "https://www.youtube.com/embed/k10ETZ41q5o?autoplay=1&mute=1&controls=0&loop=1&playlist=k10ETZ41q5o",
       "director": "James Wan",
-      "cast": ["Patrick Wilson", "Vera Farmiga", "Lili Taylor", "Ron Livingston"],
+      "cast": [
+        "Patrick Wilson",
+        "Vera Farmiga",
+        "Lili Taylor",
+        "Ron Livingston"
+      ],
       "releaseDate": "2013-07-19",
-      "languages": ["Subtitulada", "Doblada"],
-      "formats": ["2D", "4DX"],
-      "prices": ["$8.50", "$12.50"],
+      "languages": [
+        "Subtitulada",
+        "Doblada"
+      ],
+      "formats": [
+        "2D",
+        "4DX"
+      ],
+      "prices": [
+        "$8.50",
+        "$12.50"
+      ],
       "averageRating": "4.5/5"
     },
     {
@@ -95,14 +228,32 @@
       "featured": true,
       "duration": "176 min",
       "synopsis": "En su segundo año combatiendo el crimen, Batman desenmascara la corrupción en Gotham City que conecta con su propia familia mientras persigue al despiadado asesino serial el Acertijo.",
-      "showtimes": ["15:30", "18:00", "20:45"],
+      "showtimes": [
+        "15:30",
+        "18:00",
+        "20:45"
+      ],
       "trailerUrl": "https://www.youtube.com/embed/mqqft2x_Aa4?autoplay=1&mute=1&controls=0&loop=1&playlist=mqqft2x_Aa4",
       "director": "Matt Reeves",
-      "cast": ["Robert Pattinson", "Zoë Kravitz", "Paul Dano", "Colin Farrell"],
+      "cast": [
+        "Robert Pattinson",
+        "Zoë Kravitz",
+        "Paul Dano",
+        "Colin Farrell"
+      ],
       "releaseDate": "2022-03-04",
-      "languages": ["Subtitulada", "Doblada"],
-      "formats": ["2D", "IMAX"],
-      "prices": ["$9.50", "$14.50"],
+      "languages": [
+        "Subtitulada",
+        "Doblada"
+      ],
+      "formats": [
+        "2D",
+        "IMAX"
+      ],
+      "prices": [
+        "$9.50",
+        "$14.50"
+      ],
       "averageRating": "4.7/5"
     },
     {
@@ -116,14 +267,30 @@
       "featured": false,
       "duration": "132 min",
       "synopsis": "Una familia con ingenio se infiltra poco a poco en la adinerada residencia de los Park. Pero un inesperado giro en el sótano desencadenará una caótica confrontación.",
-      "showtimes": ["18:00", "20:30", "23:00"],
+      "showtimes": [
+        "18:00",
+        "20:30",
+        "23:00"
+      ],
       "trailerUrl": "https://www.youtube.com/embed/5xH0HfJhsaY?autoplay=1&mute=1&controls=0&loop=1&playlist=5xH0HfJhsaY",
       "director": "Bong Joon-ho",
-      "cast": ["Song Kang-ho", "Lee Sun-kyun", "Cho Yeo-jeong", "Choi Woo-shik"],
+      "cast": [
+        "Song Kang-ho",
+        "Lee Sun-kyun",
+        "Cho Yeo-jeong",
+        "Choi Woo-shik"
+      ],
       "releaseDate": "2019-11-08",
-      "languages": ["Subtitulada"],
-      "formats": ["2D"],
-      "prices": ["$8.50", "$12.00"],
+      "languages": [
+        "Subtitulada"
+      ],
+      "formats": [
+        "2D"
+      ],
+      "prices": [
+        "$8.50",
+        "$12.00"
+      ],
       "averageRating": "4.9/5"
     },
     {
@@ -137,14 +304,32 @@
       "featured": false,
       "duration": "148 min",
       "synopsis": "Años después de la muerte de Máximo, Lucio entra al Coliseo tras ver cómo los tiránicos emperadores de Roma conquistan su hogar. Con el honor en juego, luchará por devolver la gloria a Roma.",
-      "showtimes": ["13:00", "16:00", "19:00"],
+      "showtimes": [
+        "13:00",
+        "16:00",
+        "19:00"
+      ],
       "trailerUrl": "https://www.youtube.com/embed/4rgYUipGJNo?autoplay=1&mute=1&controls=0&loop=1&playlist=4rgYUipGJNo",
       "director": "Ridley Scott",
-      "cast": ["Paul Mescal", "Pedro Pascal", "Denzel Washington", "Connie Nielsen"],
+      "cast": [
+        "Paul Mescal",
+        "Pedro Pascal",
+        "Denzel Washington",
+        "Connie Nielsen"
+      ],
       "releaseDate": "2024-11-22",
-      "languages": ["Subtitulada", "Doblada"],
-      "formats": ["2D", "IMAX"],
-      "prices": ["$9.50", "$14.50"],
+      "languages": [
+        "Subtitulada",
+        "Doblada"
+      ],
+      "formats": [
+        "2D",
+        "IMAX"
+      ],
+      "prices": [
+        "$9.50",
+        "$14.50"
+      ],
       "averageRating": "4.6/5"
     },
     {
@@ -158,14 +343,34 @@
       "featured": true,
       "duration": "119 min",
       "synopsis": "En una estación espacial abandonada, un grupo de jóvenes colonizadores espaciales busca provisiones solo para encontrarse cara a cara con la forma de vida más aterradora del universo.",
-      "showtimes": ["14:30", "17:30", "20:30"],
+      "showtimes": [
+        "14:30",
+        "17:30",
+        "20:30"
+      ],
       "trailerUrl": "https://www.youtube.com/embed/x0XDEhP4MQs?autoplay=1&mute=1&controls=0&loop=1&playlist=x0XDEhP4MQs",
       "director": "Fede Álvarez",
-      "cast": ["Cailee Spaeny", "David Jonsson", "Archie Renaux", "Isabela Merced"],
+      "cast": [
+        "Cailee Spaeny",
+        "David Jonsson",
+        "Archie Renaux",
+        "Isabela Merced"
+      ],
       "releaseDate": "2024-08-16",
-      "languages": ["Subtitulada", "Doblada"],
-      "formats": ["2D", "3D", "IMAX", "4DX"],
-      "prices": ["$9.50", "$14.50"],
+      "languages": [
+        "Subtitulada",
+        "Doblada"
+      ],
+      "formats": [
+        "2D",
+        "3D",
+        "IMAX",
+        "4DX"
+      ],
+      "prices": [
+        "$9.50",
+        "$14.50"
+      ],
       "averageRating": "4.5/5"
     },
     {
@@ -179,14 +384,33 @@
       "featured": true,
       "duration": "140 min",
       "synopsis": "Miles Morales es catapultado a través del Multiverso, uniendo fuerzas con Gwen Stacy y un equipo de élite para proteger su existencia mientras redefine lo que significa ser un héroe.",
-      "showtimes": ["15:00", "18:45", "22:15"],
+      "showtimes": [
+        "15:00",
+        "18:45",
+        "22:15"
+      ],
       "trailerUrl": "https://www.youtube.com/embed/cqGjhVJWtEg?autoplay=1&mute=1&controls=0&loop=1&playlist=cqGjhVJWtEg",
       "director": "Joaquim Dos Santos, Kemp Powers",
-      "cast": ["Shameik Moore", "Hailee Steinfeld", "Oscar Isaac", "Daniel Kaluuya"],
+      "cast": [
+        "Shameik Moore",
+        "Hailee Steinfeld",
+        "Oscar Isaac",
+        "Daniel Kaluuya"
+      ],
       "releaseDate": "2023-06-02",
-      "languages": ["Subtitulada", "Doblada"],
-      "formats": ["2D", "IMAX", "4DX"],
-      "prices": ["$9.50", "$14.50"],
+      "languages": [
+        "Subtitulada",
+        "Doblada"
+      ],
+      "formats": [
+        "2D",
+        "IMAX",
+        "4DX"
+      ],
+      "prices": [
+        "$9.50",
+        "$14.50"
+      ],
       "averageRating": "4.9/5"
     },
     {
@@ -200,14 +424,32 @@
       "featured": false,
       "duration": "122 min",
       "synopsis": "Arthur Fleck, un payaso ignorado y maltratado por la sociedad en una caótica Gotham, desciende a una espiral de violencia y locura hasta convertirse en el Guasón.",
-      "showtimes": ["16:00", "19:15", "22:30"],
+      "showtimes": [
+        "16:00",
+        "19:15",
+        "22:30"
+      ],
       "trailerUrl": "https://www.youtube.com/embed/zAGVQLHvwOY?autoplay=1&mute=1&controls=0&loop=1&playlist=zAGVQLHvwOY",
       "director": "Todd Phillips",
-      "cast": ["Joaquin Phoenix", "Robert De Niro", "Zazie Beetz", "Frances Conroy"],
+      "cast": [
+        "Joaquin Phoenix",
+        "Robert De Niro",
+        "Zazie Beetz",
+        "Frances Conroy"
+      ],
       "releaseDate": "2019-10-04",
-      "languages": ["Subtitulada", "Doblada"],
-      "formats": ["2D", "IMAX"],
-      "prices": ["$8.50", "$13.50"],
+      "languages": [
+        "Subtitulada",
+        "Doblada"
+      ],
+      "formats": [
+        "2D",
+        "IMAX"
+      ],
+      "prices": [
+        "$8.50",
+        "$13.50"
+      ],
       "averageRating": "4.8/5"
     },
     {
@@ -221,14 +463,32 @@
       "featured": false,
       "duration": "148 min",
       "synopsis": "Dom Cobb es un maestro en el arte de la extracción: robar valiosos secretos de las profundidades del subconsciente durante los sueños. Ahora debe lograr lo imposible: implantar una idea.",
-      "showtimes": ["14:15", "17:30", "20:45"],
+      "showtimes": [
+        "14:15",
+        "17:30",
+        "20:45"
+      ],
       "trailerUrl": "https://www.youtube.com/embed/YoHD9XEInc0?autoplay=1&mute=1&controls=0&loop=1&playlist=YoHD9XEInc0",
       "director": "Christopher Nolan",
-      "cast": ["Leonardo DiCaprio", "Joseph Gordon-Levitt", "Elliot Page", "Tom Hardy"],
+      "cast": [
+        "Leonardo DiCaprio",
+        "Joseph Gordon-Levitt",
+        "Elliot Page",
+        "Tom Hardy"
+      ],
       "releaseDate": "2010-07-16",
-      "languages": ["Subtitulada", "Doblada"],
-      "formats": ["2D", "IMAX"],
-      "prices": ["$9.50", "$14.50"],
+      "languages": [
+        "Subtitulada",
+        "Doblada"
+      ],
+      "formats": [
+        "2D",
+        "IMAX"
+      ],
+      "prices": [
+        "$9.50",
+        "$14.50"
+      ],
       "averageRating": "4.9/5"
     },
     {
@@ -242,14 +502,32 @@
       "featured": false,
       "duration": "99 min",
       "synopsis": "Experimenta el día en que el mundo quedó en completo silencio. Sam debe sobrevivir al colapso de la ruidosa ciudad de Nueva York tras la invasión de depredadores alienígenas con oído hipersensible.",
-      "showtimes": ["15:30", "18:30", "21:30"],
+      "showtimes": [
+        "15:30",
+        "18:30",
+        "21:30"
+      ],
       "trailerUrl": "https://www.youtube.com/embed/YPY7J-flzE8?autoplay=1&mute=1&controls=0&loop=1&playlist=YPY7J-flzE8",
       "director": "Michael Sarnoski",
-      "cast": ["Lupita Nyong'o", "Joseph Quinn", "Alex Wolff", "Djimon Hounsou"],
+      "cast": [
+        "Lupita Nyong'o",
+        "Joseph Quinn",
+        "Alex Wolff",
+        "Djimon Hounsou"
+      ],
       "releaseDate": "2024-06-28",
-      "languages": ["Subtitulada", "Doblada"],
-      "formats": ["2D", "4DX"],
-      "prices": ["$9.00", "$13.50"],
+      "languages": [
+        "Subtitulada",
+        "Doblada"
+      ],
+      "formats": [
+        "2D",
+        "4DX"
+      ],
+      "prices": [
+        "$9.00",
+        "$13.50"
+      ],
       "averageRating": "4.3/5"
     }
   ],
@@ -265,9 +543,23 @@
       "language": "Doblada",
       "date": "Hoy",
       "time": "06:30 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
       "cols": 8,
-      "occupiedSeats": ["A-3", "A-4", "B-1", "B-6", "C-4", "C-5"]
+      "occupiedSeats": [
+        "A-3",
+        "A-4",
+        "B-1",
+        "B-6",
+        "C-4",
+        "C-5"
+      ]
     },
     {
       "id": "fn-1-4dx-2",
@@ -280,9 +572,21 @@
       "language": "Doblada",
       "date": "Hoy",
       "time": "09:30 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
       "cols": 8,
-      "occupiedSeats": ["B-2", "B-5", "D-4", "D-5"]
+      "occupiedSeats": [
+        "B-2",
+        "B-5",
+        "D-4",
+        "D-5"
+      ]
     },
     {
       "id": "fn-1-kids-1",
@@ -295,9 +599,20 @@
       "language": "Doblada",
       "date": "Hoy",
       "time": "08:20 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
       "cols": 8,
-      "occupiedSeats": ["C-3", "C-4", "D-5"]
+      "occupiedSeats": [
+        "C-3",
+        "C-4",
+        "D-5"
+      ]
     },
     {
       "id": "fn-1-imax-1",
@@ -310,9 +625,25 @@
       "language": "Subtitulada",
       "date": "Hoy",
       "time": "04:00 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
       "cols": 10,
-      "occupiedSeats": ["D-4", "D-5", "E-5", "E-6", "G-1", "H-10"]
+      "occupiedSeats": [
+        "D-4",
+        "D-5",
+        "E-5",
+        "E-6",
+        "G-1",
+        "H-10"
+      ]
     },
     {
       "id": "fn-1-imax-2",
@@ -325,9 +656,25 @@
       "language": "Subtitulada",
       "date": "Hoy",
       "time": "07:45 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
       "cols": 10,
-      "occupiedSeats": ["A-1", "A-2", "C-4", "C-5", "D-6", "F-7"]
+      "occupiedSeats": [
+        "A-1",
+        "A-2",
+        "C-4",
+        "C-5",
+        "D-6",
+        "F-7"
+      ]
     },
     {
       "id": "fn-1-imax-3",
@@ -340,9 +687,22 @@
       "language": "Subtitulada",
       "date": "Hoy",
       "time": "10:30 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
       "cols": 10,
-      "occupiedSeats": ["E-3", "E-4", "F-5"]
+      "occupiedSeats": [
+        "E-3",
+        "E-4",
+        "F-5"
+      ]
     },
     {
       "id": "fn-1-std-1",
@@ -355,9 +715,20 @@
       "language": "Doblada",
       "date": "Hoy",
       "time": "05:15 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
       "cols": 8,
-      "occupiedSeats": ["B-4", "B-5", "F-1"]
+      "occupiedSeats": [
+        "B-4",
+        "B-5",
+        "F-1"
+      ]
     },
     {
       "id": "fn-1-std-2",
@@ -370,9 +741,21 @@
       "language": "Doblada",
       "date": "Hoy",
       "time": "08:45 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
       "cols": 8,
-      "occupiedSeats": ["C-1", "C-2", "D-7", "D-8"]
+      "occupiedSeats": [
+        "C-1",
+        "C-2",
+        "D-7",
+        "D-8"
+      ]
     },
     {
       "id": "fn-1-manana-imax-1",
@@ -385,9 +768,23 @@
       "language": "Subtitulada",
       "date": "Mañana",
       "time": "03:30 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
       "cols": 10,
-      "occupiedSeats": ["B-4", "B-5", "C-6", "D-7"]
+      "occupiedSeats": [
+        "B-4",
+        "B-5",
+        "C-6",
+        "D-7"
+      ]
     },
     {
       "id": "fn-1-manana-imax-2",
@@ -400,9 +797,27 @@
       "language": "Subtitulada",
       "date": "Mañana",
       "time": "07:15 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
       "cols": 10,
-      "occupiedSeats": ["B-1", "B-2", "C-5", "C-6", "E-4", "E-5", "F-5", "F-6"]
+      "occupiedSeats": [
+        "B-1",
+        "B-2",
+        "C-5",
+        "C-6",
+        "E-4",
+        "E-5",
+        "F-5",
+        "F-6"
+      ]
     },
     {
       "id": "fn-1-manana-4dx-1",
@@ -415,9 +830,21 @@
       "language": "Doblada",
       "date": "Mañana",
       "time": "05:45 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
       "cols": 8,
-      "occupiedSeats": ["A-2", "A-7", "C-3", "C-6"]
+      "occupiedSeats": [
+        "A-2",
+        "A-7",
+        "C-3",
+        "C-6"
+      ]
     },
     {
       "id": "fn-1-manana-kids-1",
@@ -430,9 +857,22 @@
       "language": "Doblada",
       "date": "Mañana",
       "time": "04:15 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
       "cols": 8,
-      "occupiedSeats": ["A-3", "A-4", "B-3", "B-4", "C-3"]
+      "occupiedSeats": [
+        "A-3",
+        "A-4",
+        "B-3",
+        "B-4",
+        "C-3"
+      ]
     },
     {
       "id": "fn-1-sab-imax-1",
@@ -445,9 +885,27 @@
       "language": "Subtitulada",
       "date": "Sábado 22",
       "time": "02:00 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
       "cols": 10,
-      "occupiedSeats": ["C-4", "C-5", "D-4", "D-5", "D-6", "E-4", "E-5", "E-6"]
+      "occupiedSeats": [
+        "C-4",
+        "C-5",
+        "D-4",
+        "D-5",
+        "D-6",
+        "E-4",
+        "E-5",
+        "E-6"
+      ]
     },
     {
       "id": "fn-1-sab-imax-2",
@@ -460,9 +918,34 @@
       "language": "Subtitulada",
       "date": "Sábado 22",
       "time": "06:00 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
       "cols": 10,
-      "occupiedSeats": ["B-1", "B-2", "B-3", "B-4", "B-5", "B-6", "C-3", "C-4", "C-5", "C-6", "C-7", "D-5", "D-6", "E-5", "E-6"]
+      "occupiedSeats": [
+        "B-1",
+        "B-2",
+        "B-3",
+        "B-4",
+        "B-5",
+        "B-6",
+        "C-3",
+        "C-4",
+        "C-5",
+        "C-6",
+        "C-7",
+        "D-5",
+        "D-6",
+        "E-5",
+        "E-6"
+      ]
     },
     {
       "id": "fn-1-sab-4dx-1",
@@ -475,9 +958,23 @@
       "language": "Doblada",
       "date": "Sábado 22",
       "time": "08:30 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
       "cols": 8,
-      "occupiedSeats": ["A-1", "B-2", "C-3", "D-4", "E-5", "F-6"]
+      "occupiedSeats": [
+        "A-1",
+        "B-2",
+        "C-3",
+        "D-4",
+        "E-5",
+        "F-6"
+      ]
     },
     {
       "id": "fn-1-dom-imax-1",
@@ -490,9 +987,25 @@
       "language": "Subtitulada",
       "date": "Domingo 23",
       "time": "05:00 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
       "cols": 10,
-      "occupiedSeats": ["D-3", "D-4", "D-7", "D-8", "F-1", "F-2"]
+      "occupiedSeats": [
+        "D-3",
+        "D-4",
+        "D-7",
+        "D-8",
+        "F-1",
+        "F-2"
+      ]
     },
     {
       "id": "fn-2-4dx-1",
@@ -505,9 +1018,21 @@
       "language": "Doblada",
       "date": "Hoy",
       "time": "06:30 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
       "cols": 8,
-      "occupiedSeats": ["A-1", "A-8", "B-3"]
+      "occupiedSeats": [
+        "A-1",
+        "A-8",
+        "B-3",
+        "F-7"
+      ]
     },
     {
       "id": "fn-2-imax-1",
@@ -520,9 +1045,22 @@
       "language": "Subtitulada",
       "date": "Hoy",
       "time": "08:15 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
       "cols": 10,
-      "occupiedSeats": ["C-5", "C-6", "E-4"]
+      "occupiedSeats": [
+        "C-5",
+        "C-6",
+        "E-4"
+      ]
     },
     {
       "id": "fn-2-manana-imax-1",
@@ -535,10 +1073,51 @@
       "language": "Subtitulada",
       "date": "Mañana",
       "time": "06:00 p. m.",
-      "rows": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "rows": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
       "cols": 10,
-      "occupiedSeats": ["A-5", "B-5", "D-2", "D-9"]
+      "occupiedSeats": [
+        "A-5",
+        "B-5",
+        "D-2",
+        "D-9"
+      ]
     }
   ],
-  "reservations": []
+  "reservations": [
+    {
+      "id": "ucafejk",
+      "movieId": "2",
+      "userEmail": "milton@cine.com",
+      "date": "Hoy",
+      "time": "06:30 p. m.",
+      "seats": [
+        "F-7"
+      ],
+      "format": "4DX 2D",
+      "code": "CM-NFIGF5",
+      "total": 31.5
+    },
+    {
+      "id": "lq8juu0",
+      "movieId": "2",
+      "userEmail": "milton@cine.com",
+      "date": "Hoy",
+      "time": "06:30 p. m.",
+      "seats": [
+        "F-7"
+      ],
+      "format": "4DX 2D",
+      "code": "CM-LNMYBL",
+      "total": 31.5
+    }
+  ]
 }

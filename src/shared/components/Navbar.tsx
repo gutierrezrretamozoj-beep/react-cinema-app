@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { Home, Film, CalendarClock, Ticket, User, Menu, X } from "lucide-react";
+import { Home, Film, CalendarClock, Ticket, User, Menu, X, LogOut } from "lucide-react";
 import logoCine from "../../assets/icons/logo-cine.svg";
 import nombreCine from "../../assets/icons/nombre-cine.svg";
+import { useAuth } from "@/shared/context/AuthContext";
 
 interface NavLinkItem {
   path: string;
@@ -18,6 +19,7 @@ const NAV_LINKS: NavLinkItem[] = [
 ];
 
 export const Navbar = () => {
+  const { user, logout } = useAuth();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -70,7 +72,7 @@ export const Navbar = () => {
             <img
               src={nombreCine}
               alt="DEXUS FILMS"
-              className="h-5.5 sm:h-6.5 w-auto object-contain transition-opacity group-hover:opacity-90"
+              className="hidden sm:block h-5.5 sm:h-6.5 w-auto object-contain transition-opacity group-hover:opacity-90"
             />
           </Link>
 
@@ -116,24 +118,37 @@ export const Navbar = () => {
             }`}
             title="Mis Boletos y Reservas"
           >
-            <Ticket className={`h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-[-8deg] group-hover:scale-110 ${
-              isTicketsActive ? "text-cinema-text" : "text-cinema-text"
-            }`} />
+            <Ticket className="h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-[-8deg] group-hover:scale-110 text-cinema-text" />
           </Link>
 
-          {/* Icono de Login / Perfil */}
-          <Link
-            to="/auth/login"
-            className={`flex h-8.5 w-8.5 items-center justify-center rounded-full border transition-all duration-300 backdrop-blur-md shadow-sm hover:scale-105 active:scale-95 ${
-              isLoginActive
-                ? "border-cinema-text/60 bg-cinema-electric/20 text-cinema-text shadow-[0_0_12px_rgba(0,210,255,0.3)]"
-                : "border-white/12 bg-white/4 hover:border-cinema-turquoise/40 hover:bg-white/8 text-cinema-text/80 hover:text-cinema-text"
-            }`}
-            title="Iniciar Sesión / Mi Cuenta"
-            aria-label="Iniciar Sesión"
-          >
-            <User className="h-4 w-4" />
-          </Link>
+          {/* Autenticación / Perfil */}
+          {user ? (
+            <div className="flex items-center gap-2">
+              <span className="text-[0.75rem] text-neutral-300 font-sans hidden lg:inline">
+                Hola, <strong className="text-white">{user.name}</strong>
+              </span>
+              <button
+                onClick={logout}
+                title="Cerrar sesión"
+                className="flex h-8.5 w-8.5 items-center justify-center rounded-full border border-white/12 bg-white/4 hover:border-red-500/40 hover:bg-red-500/10 text-neutral-400 hover:text-red-400 transition-all backdrop-blur-md cursor-pointer"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/auth/login"
+              className={`flex h-8.5 w-8.5 items-center justify-center rounded-full border transition-all duration-300 backdrop-blur-md shadow-sm hover:scale-105 active:scale-95 ${
+                isLoginActive
+                  ? "border-cinema-text/60 bg-cinema-electric/20 text-cinema-text shadow-[0_0_12px_rgba(0,210,255,0.3)]"
+                  : "border-white/12 bg-white/4 hover:border-cinema-turquoise/40 hover:bg-white/8 text-cinema-text/80 hover:text-cinema-text"
+              }`}
+              title="Iniciar Sesión / Mi Cuenta"
+              aria-label="Iniciar Sesión"
+            >
+              <User className="h-4 w-4" />
+            </Link>
+          )}
         </div>
 
         {/* Botón Hamburguesa en Móvil */}
@@ -202,19 +217,38 @@ export const Navbar = () => {
                 <span>MIS BOLETOS</span>
               </Link>
 
-              {/* Iniciar Sesión / Mi Cuenta */}
-              <Link
-                to="/auth/login"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-monument tracking-[0.14em] transition-all ${
-                  isLoginActive
-                    ? "bg-cinema-electric/15 text-cinema-electric border border-cinema-electric/30 font-bold"
-                    : "text-cinema-muted/90 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <User className="h-4 w-4 shrink-0" />
-                <span>PERFIL</span>
-              </Link>
+              {/* Perfil / Iniciar Sesión / Cerrar Sesión */}
+              {user ? (
+                <>
+                  <div className="flex items-center justify-between px-3.5 py-2.5 text-xs text-neutral-300">
+                    <span className="font-monument text-[0.7rem] text-cinema-muted">USUARIO</span>
+                    <span className="font-semibold text-white truncate max-w-[160px]">{user.name}</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-monument tracking-[0.14em] text-red-400 hover:bg-red-500/10 transition-all text-left w-full cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4 shrink-0" />
+                    <span>CERRAR SESIÓN</span>
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/auth/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-monument tracking-[0.14em] transition-all ${
+                    isLoginActive
+                      ? "bg-cinema-electric/15 text-cinema-electric border border-cinema-electric/30 font-bold"
+                      : "text-cinema-muted/90 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <User className="h-4 w-4 shrink-0" />
+                  <span>PERFIL</span>
+                </Link>
+              )}
             </div>
           </motion.div>
         )}
