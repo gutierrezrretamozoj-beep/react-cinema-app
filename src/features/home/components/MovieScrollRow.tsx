@@ -115,7 +115,7 @@ export const MovieScrollRow = ({
           onClick={() => handleScroll("right")}
           aria-label="Desplazar a la derecha"
           disabled={!canScrollRight}
-          className={`hidden md:flex absolute right-0 top-0 bottom-4 z-20 w-16 items-center justify-center bg-transparent text-cinema-text  hover:text-cinema-electric/80 hover:bg-linear-to-r from-transparent to-black/60 transition-all hover:scale-110 active:scale-95 cursor-pointer rounded-r-lg ${
+          className={`hidden md:flex absolute right-0 top-0 bottom-4 z-20 w-16 items-center justify-center bg-transparent text-cinema-text  hover:text-cinema-electric/80 hover:bg-linear-to-r from-transparent  via-black/40 to-black/60 transition-all hover:scale-110 active:scale-95 cursor-pointer rounded-r-lg ${
             canScrollRight
               ? "opacity-80 hover:opacity-100"
               : "opacity-0 pointer-events-none"

@@ -4,7 +4,7 @@ export interface Promotion {
   subtitle: string;
   description: string;
   badge: string;
-  category: 'promo' | 'combo' | 'cineclub';
+  category: 'promo' | 'combo' | 'cineclub' | 'Combos Duo';
   imageUrl: string;
   backdropUrl: string;
   ctaText: string;
@@ -25,21 +25,21 @@ export const PROMOTIONS: Promotion[] = [
     backdropUrl: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1600&auto=format&fit=crop&q=80",
     ctaText: "Aprovechar 2x1",
     targetUrl: "/movies",
-    validUntil: "Todos los martes de 2026",
+    validUntil: "Todos los martes",
     terms: "Aplica en taquilla física y reservas en línea. No acumulable con otras promociones.",
   },
   {
-    id: "combo-estreno",
-    title: "Combo Estreno Dúo: Popcorn + Bebidas",
+    id: "combo-pareja",
+    title: "Dúo Cinéfilo: lo calsico x2",
     subtitle: "El compañero perfecto para tu película",
     description: "Disfruta de 2 palomitas gigantes con mantequilla extra, 2 gaseosas grandes y unos nachos con queso cheddar caliente con 25% de descuento.",
     badge: "CONFITERÍA VIP",
-    category: "combo",
+    category: "Combos Duo",
     imageUrl: "https://images.unsplash.com/photo-1572177191856-3cde618dee1f?w=900&auto=format&fit=crop&q=80",
     backdropUrl: "https://images.unsplash.com/photo-1505686994434-e3cc5abf1330?w=1600&auto=format&fit=crop&q=80",
     ctaText: "Ver Combos",
     targetUrl: "/movies/1/seats",
-    validUntil: "Disponible toda la temporada",
+    validUntil: "Fines de semana",
     terms: "Puedes agregarlo directamente al seleccionar tus butacas durante el checkout.",
   },
   {

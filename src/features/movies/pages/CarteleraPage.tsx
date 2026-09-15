@@ -142,7 +142,7 @@ export const CarteleraPage = () => {
             }}
             className={`pb-3 text-sm font-normal uppercase tracking-wider transition-all border-b-2 px-4 cursor-pointer font-monument ${
               activeTab === "now-playing"
-                ? "border-cinema-azure text-cinema-text"
+                ? "border-cinema-turquoise text-cinema-text"
                 : "border-transparent text-cinema-muted/70 hover:text-cinema-text"
             }`}
           >
@@ -156,7 +156,7 @@ export const CarteleraPage = () => {
             }}
             className={`pb-3 text-sm font-normal uppercase tracking-wider transition-all border-b-2 px-4 cursor-pointer font-monument ${
               activeTab === "coming-soon"
-                ? "border-cinema-azure text-cinema-text"
+                ? "border-cinema-turquoise text-cinema-text"
                 : "border-transparent text-cinema-muted/70 hover:text-cinema-text"
             }`}
           >
@@ -233,7 +233,7 @@ export const CarteleraPage = () => {
                 setActiveTab("now-playing");
                 setSearchParams({});
               }}
-              className="mt-4 rounded-lg bg-cinema-surface hover:bg-cinema-surface-elevated border border-white/15 px-4 py-2 text-xs font-semibold text-cinema-text transition cursor-pointer"
+              className="mt-4 rounded-lg bg-cinema-surface hover:bg-cinema-surface-card border border-white/15 px-4 py-2 text-xs font-semibold text-cinema-text transition cursor-pointer"
             >
               Restablecer filtros
             </button>

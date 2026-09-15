@@ -22,41 +22,39 @@
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-monument: 'Monument Extended', sans-serif;
 
-  /* PALETA DEXUS CINEMA: CORPORATE MIDNIGHT - Tokens Semánticos (Tailwind CSS v4) */
+  /* PALETA REAL DEXUS CINEMA (CORPORATE MIDNIGHT - Basada en vista Home) */
+  /* 1. Lienzo, Superficies y Bordes */
   --color-cinema-bg: #101929;
+  --color-cinema-midnight: #101929;
   --color-cinema-surface: #1a263c;
-  --color-cinema-surface-elevated: #22314d;
   --color-cinema-surface-card: #141f33;
   --color-cinema-border: rgba(154, 179, 207, 0.16);
-  --color-cinema-border-active: rgba(0, 210, 255, 0.5);
 
-  /* Colores Principales */
+  /* 2. Colores Principales de Marca y Acento */
   --color-cinema-primary: #183ebc;
   --color-cinema-primary-hover: #2350ea;
   --color-cinema-electric: #00d2ff;
-  --color-cinema-cyan: #00d2ff;
-  --color-cinema-azure: #0a66c2;
-  --color-cinema-midnight: #101929;
-  --color-cinema-slate: #1a263c;
-  --color-cinema-purple: #183ebc;
-
-  /* Colores de Acento */
   --color-cinema-turquoise: #00d2ff;
-  --color-cinema-orange: #ff5500;
+
+  /* 3. Acentos de Detalle */
   --color-cinema-gold: #ffb800;
-  --color-cinema-vip: #ffb800;
-  --color-cinema-magenta: #d100ff;
+  --color-cinema-orange: #ff5500;
 
-  /* Estados / Feedback */
-  --color-cinema-success: #00d26a;
-  --color-cinema-warning: #ffb800;
-  --color-cinema-error: #ff2e63;
-  --color-cinema-info: #00d2ff;
-
-  /* Textos y Jerarquía */
+  /* 4. Textos y Jerarquía */
   --color-cinema-text: #f9f9fb;
   --color-cinema-muted: #9ab3cf;
   --color-cinema-dim: #647d9e;
+
+  /* 5. Clasificaciones por Edad (Badges) */
+  --color-badge-familiar: #10b981;
+  --color-badge-15: #f59e0b;
+  --color-badge-18: #f97316;
+  --color-badge-naptp: #f43f5e;
+
+  /* 6. Estados de Sala y Feedback */
+  --color-seat-accessible: #06b6d4;
+  --color-status-success: #10b981;
+  --color-status-danger: #ef4444;
 }
 
 :root {

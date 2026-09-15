@@ -16,6 +16,7 @@ import { ConfectioneryPage } from "@/features/concessions/ConfectioneryPage";
 import { Navbar } from "@/shared/components";
 import { useAuth } from "@/shared/context/AuthContext";
 import { ErrorBoundary } from "@/shared/components/ErrorBoundary";
+import Footer from "@/shared/components/Footer";
 
 // Componente de Proteccion de Rutas Privadas
 // Protege las rutas que requieren inicio de sesion obligatorio
@@ -85,6 +86,7 @@ const PageShell = () => {
           </ErrorBoundary>
         </motion.main>
       </AnimatePresence>
+      <Footer/>
     </div>
   );
 };

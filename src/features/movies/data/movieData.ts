@@ -40,37 +40,37 @@ export const getRatingBadgeProps = (rating?: string): RatingBadgeProps => {
     case 'A':
       return {
         label: 'Familiar',
-        badgeClass: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
-        badgeBg: 'bg-emerald-500/15',
-        badgeText: 'text-emerald-400',
-        badgeBorder: 'border-emerald-500/30',
+        badgeClass: 'bg-badge-familiar/15 text-badge-familiar border border-badge-familiar/30',
+        badgeBg: 'bg-badge-familiar/15',
+        badgeText: 'text-badge-familiar',
+        badgeBorder: 'border-badge-familiar/30',
       };
     case '+15':
     case 'B':
     case 'B15':
       return {
         label: '+15',
-        badgeClass: 'bg-amber-500/15 text-amber-400 border border-amber-500/30',
-        badgeBg: 'bg-amber-500/15',
-        badgeText: 'text-amber-400',
-        badgeBorder: 'border-amber-500/30',
+        badgeClass: 'bg-badge-15/15 text-badge-15 border border-badge-15/30',
+        badgeBg: 'bg-badge-15/15',
+        badgeText: 'text-badge-15',
+        badgeBorder: 'border-badge-15/30',
       };
     case '+18':
     case 'C':
       return {
         label: '+18',
-        badgeClass: 'bg-orange-500/15 text-orange-400 border border-orange-500/30',
-        badgeBg: 'bg-orange-500/15',
-        badgeText: 'text-orange-400',
-        badgeBorder: 'border-orange-500/30',
+        badgeClass: 'bg-badge-18/15 text-badge-18 border border-badge-18/30',
+        badgeBg: 'bg-badge-18/15',
+        badgeText: 'text-badge-18',
+        badgeBorder: 'border-badge-18/30',
       };
     case 'NAPTP':
       return {
         label: 'NAPTP',
-        badgeClass: 'bg-rose-500/15 text-rose-400 border border-rose-500/30',
-        badgeBg: 'bg-rose-500/15',
-        badgeText: 'text-rose-400',
-        badgeBorder: 'border-rose-500/30',
+        badgeClass: 'bg-badge-naptp/15 text-badge-naptp border border-badge-naptp/30',
+        badgeBg: 'bg-badge-naptp/15',
+        badgeText: 'text-badge-naptp',
+        badgeBorder: 'border-badge-naptp/30',
       };
     default:
       return {

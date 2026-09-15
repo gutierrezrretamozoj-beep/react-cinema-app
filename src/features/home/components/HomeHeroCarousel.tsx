@@ -102,10 +102,10 @@ export const HomeHeroCarousel = () => {
       id: `promo-${PROMOTIONS[1].id}`,
       title: PROMOTIONS[1].title,
       subtitle: PROMOTIONS[1].subtitle,
-      validity: "Toda la temporada",
+      validity: `${PROMOTIONS[1].validUntil}`,
       benefit: "Combo Dúo",
       averageRating: "4.9",
-      categoryLabel: "Confitería Gourmet",
+      categoryLabel: `${PROMOTIONS[1].category}`,
       synopsis: PROMOTIONS[1].description,
       backdropUrl: PROMOTIONS[1].backdropUrl,
       badgeText: PROMOTIONS[1].badge,
@@ -158,7 +158,7 @@ export const HomeHeroCarousel = () => {
 
   return (
     <div
-      className="relative w-full h-[70dvh] sm:h-[75vh] overflow-hidden bg-neutral-950 select-none group"
+      className="relative w-full h-[80dvh] sm:h-[75vh] overflow-hidden bg-neutral-950 select-none group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onTouchStart={handleTouchStart}
@@ -241,12 +241,14 @@ export const HomeHeroCarousel = () => {
                 </Link>
               </div>
 
-              {/* FILA DE MÉTRICAS CONTEXTUALES */}
+              {/*--------------------------- FILA DE MÉTRICAS CONTEXTUALES ---------------------------*/}
+
+              {/* FILA DE MÉTRICAS PELICULAS */}
               <div className="pt-4 mt-2 border-t border-white/10 grid grid-cols-3 sm:grid-cols-4 gap-0 text-left">
                 {currentSlide.type === "movie" ? (
                   <>
-                    <div>
-                      <div className="text-xs sm:text-sm font-black text-white font-mono leading-none">
+                    <div >
+                      <div className="text-xs sm:text-sm font-black text-white font-mono leading-none ">
                         {currentSlide.duration}
                       </div>
                       <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
@@ -264,7 +266,7 @@ export const HomeHeroCarousel = () => {
                     </div>
 
                     <div>
-                      <div className="text-xs sm:text-sm font-black text-white font-mono leading-none">
+                      <div className="text-xs sm:text-sm font-black text-cinema-turquoise font-mono leading-none">
                         {getFriendlyRating(currentSlide.rating)}
                       </div>
                       <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
@@ -273,7 +275,7 @@ export const HomeHeroCarousel = () => {
                     </div>
 
                     <div className="hidden sm:block">
-                      <div className="text-xs sm:text-sm font-black text-cinema-turquoise font-mono leading-none">
+                      <div className="text-xs sm:text-sm font-black text-cinema-text font-mono leading-none">
                         {currentSlide.genre}
                       </div>
                       <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
@@ -283,8 +285,10 @@ export const HomeHeroCarousel = () => {
                   </>
                 ) : (
                   <>
+
+                  {/* FILA DE MÉTRICAS PROMOCIONES */}
                     <div>
-                      <div className="text-xs sm:text-sm font-black text-white font-mono leading-none">
+                      <div className="w-25 text-xs sm:text-sm font-black text-white font-mono leading-none">
                         {currentSlide.validity}
                       </div>
                       <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
@@ -293,7 +297,7 @@ export const HomeHeroCarousel = () => {
                     </div>
 
                     <div>
-                      <div className="text-xs sm:text-sm font-black text-cinema-gold font-mono leading-none">
+                      <div className="text-xs sm:text-sm font-black text-cinema-turquoise font-mono leading-none">
                         {currentSlide.benefit}
                       </div>
                       <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">
@@ -302,7 +306,7 @@ export const HomeHeroCarousel = () => {
                     </div>
 
                     <div>
-                      <div className="text-xs sm:text-sm font-black text-cinema-turquoise font-mono leading-none">
+                      <div className="text-xs sm:text-sm font-black text-cinema-gold font-mono leading-none">
                         {currentSlide.averageRating} ★
                       </div>
                       <div className="text-[9px] uppercase tracking-widest text-neutral-400 mt-1">

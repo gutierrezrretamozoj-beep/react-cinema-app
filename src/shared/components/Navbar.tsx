@@ -67,12 +67,12 @@ export const Navbar = () => {
             <img
               src={logoCine}
               alt="Dexus Logo"
-              className="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-105 drop-shadow-[0_2px_8px_rgba(0,59,255,0.3)]"
+              className="hidden sm:block h-7 w-auto object-contain transition-transform group-hover:scale-105 drop-shadow-[0_2px_8px_rgba(0,59,255,0.3)]"
             />
             <img
               src={nombreCine}
               alt="DEXUS FILMS"
-              className="hidden sm:block h-5.5 sm:h-6.5 w-auto object-contain transition-opacity group-hover:opacity-90"
+              className="h-5.5 sm:h-6.5 w-auto object-contain transition-opacity group-hover:opacity-90"
             />
           </Link>
 
@@ -188,7 +188,7 @@ export const Navbar = () => {
                     key={link.path}
                     to={link.path}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-monument font-normal tracking-[0.14em] transition-all ${
+                    className={`flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-sans font-black tracking-[0.14em] transition-all ${
                       isActive
                         ? "bg-cinema-primary/15 text-blue-500 border border-cinema-turquoise/30"
                         : "text-cinema-muted/90 hover:text-white hover:bg-white/5"
@@ -207,7 +207,7 @@ export const Navbar = () => {
               <Link
                 to="/tickets"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-monument tracking-[0.14em] transition-all ${
+                className={`flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-sans font-black tracking-[0.14em] transition-all ${
                   isTicketsActive
                     ? "bg-cinema-turquoise/15 text-blue-500 border border-cinema-turquoise/30 font-bold"
                     : "text-cinema-muted/90 hover:text-white hover:bg-white/5"
@@ -221,15 +221,15 @@ export const Navbar = () => {
               {user ? (
                 <>
                   <div className="flex items-center justify-between px-3.5 py-2.5 text-xs text-neutral-300">
-                    <span className="font-monument text-[0.7rem] text-cinema-muted">USUARIO</span>
-                    <span className="font-semibold text-white truncate max-w-[160px]">{user.name}</span>
+                    <span className="font-sans font-black text-[0.7rem] text-cinema-muted">USUARIO</span>
+                    <span className="font-sans font-black text-white truncate max-w-40">{user.name}</span>
                   </div>
                   <button
                     onClick={() => {
                       logout();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-monument tracking-[0.14em] text-red-400 hover:bg-red-500/10 transition-all text-left w-full cursor-pointer"
+                    className="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-sans font-black tracking-[0.14em] text-red-400 hover:bg-red-500/10 transition-all text-left w-full cursor-pointer"
                   >
                     <LogOut className="h-4 w-4 shrink-0" />
                     <span>CERRAR SESIÓN</span>

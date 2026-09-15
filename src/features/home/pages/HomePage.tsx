@@ -2,6 +2,7 @@ import { MOVIES } from "@/features/movies/data/movieData";
 import { HomeHeroCarousel } from "../components/HomeHeroCarousel";
 import { MovieScrollRow } from "../components/MovieScrollRow";
 import { CinemaTheatersSection } from "../components/CinemaTheatersSection";
+import Footer from "@/shared/components/Footer";
 
 // HomePage: Vista principal cinematográfica basada en el boceto a mano
 export const HomePage = () => {
@@ -45,19 +46,6 @@ export const HomePage = () => {
         <CinemaTheatersSection />
 
       </div>
-
-      {/* Footer elegante y sutil de la app */}
-      <footer className="w-full border-t border-cinema-border bg-black/25 backdrop-blur-md py-10 mt-12 text-center text-xs text-cinema-muted">
-        <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-6">
-            <img src="/src/assets/icons/logo-cine.svg" className="w-10 h-10" alt="Logo" />
-            <img src="/src/assets/icons/nombre-cine.svg" className="w-30 h-auto" alt="Logo" />
-            <span className="text-neutral-600">|</span>
-            <span>Experiencia Cinemática 3D</span>
-          </div>
-          <p>© 2026 DEXUS Cinemas. Todos los derechos reservados.</p>
-        </div>
-      </footer>
     </div>
   );
 };
