@@ -19,3 +19,5 @@ Cuando consumas herramientas MCP de diseño (Stitch, UXMagic, AIDesigner):
    - La salida nunca debe ser HTML plano. Debe ser JSX/TSX tipado con interfaces explícitas.
    - Mantén componentes modulares y limpios, respetando la estructura de carpetas de `src/features/`.
    - Nunca modifiques o reemplaces la lógica de Three.js / Canvas 3D ni el estado del stepper multipasos si solo se solicitó un rediseño de presentación visual.    
+
+4. 
