@@ -1,10 +1,11 @@
 export type MovieRating = 'familiar' | '+15' | '+18' | 'NAPTP';
+export type MovieGenre = 'Acción' | 'Animación' | 'Aventura' | 'Comedia' | 'Documental' | 'Drama' | 'Sci-Fi' | 'Terror' | 'Thriller';
 
 // Movie: Interfaz para definir el modelo de datos de una película
 export interface Movie {
   id: string;
   title: string;
-  genre: 'Acción' | 'Drama' | 'Sci-Fi' | 'Thriller' | 'Terror';
+  genre: MovieGenre;
   rating: MovieRating;
   status: 'now-playing' | 'coming-soon';
   posterUrl: string;
@@ -261,7 +262,7 @@ export const MOVIES: Movie[] = [
   {
     id: "9",
     title: "Spider-Man: A Través del Spider-Verso",
-    genre: "Acción",
+    genre: "Animación",
     rating: "familiar",
     status: "now-playing",
     posterUrl: "https://m.media-amazon.com/images/M/MV5BNThiZjA3MjItZGY5Ni00ZmJhLWEwN2EtOTBlYTA4Y2E0M2ZmXkEyXkFqcGc@._V1_SX600.jpg",
@@ -341,5 +342,68 @@ export const MOVIES: Movie[] = [
     formats: ["2D", "4DX"],
     prices: ["$9.00", "$13.50"],
     averageRating: "4.3/5",
+  },
+  {
+    id: "13",
+    title: "Intensamente 2",
+    genre: "Animación",
+    rating: "familiar",
+    status: "now-playing",
+    posterUrl: "https://image.tmdb.org/t/p/w600_and_h900_bestv2/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/xg270UXie02N02IZHmStkiZGPPz.jpg",
+    featured: true,
+    duration: "96 min",
+    synopsis: "Riley entra en la adolescencia y su cuartel general sufre una repentina demolición para dar paso a algo totalmente inesperado: ¡nuevas emociones como Ansiedad, Envidia y Vergüenza!",
+    showtimes: ["14:00", "16:30", "19:00"],
+    trailerUrl: "https://www.youtube.com/embed/LEjhY15eCx0?autoplay=1&mute=1&controls=0&loop=1&playlist=LEjhY15eCx0",
+    director: "Kelsey Mann",
+    cast: ["Amy Poehler", "Maya Hawke", "Kensington Tallman", "Liza Lapira"],
+    releaseDate: "2024-06-14",
+    languages: ["Doblada", "Subtitulada"],
+    formats: ["2D", "3D"],
+    prices: ["$8.50", "$12.50"],
+    averageRating: "4.8/5",
+  },
+  {
+    id: "14",
+    title: "Planeta Salvaje: Océanos",
+    genre: "Documental",
+    rating: "familiar",
+    status: "now-playing",
+    posterUrl: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=900&fit=crop&q=80",
+    backdropUrl: "https://images.unsplash.com/photo-1682687220063-4742bd7fd538?w=1280&auto=format&fit=crop&q=80",
+    featured: false,
+    duration: "89 min",
+    synopsis: "Una fascinante expedición visual submarina que explora los ecosistemas marítimos más remotos y los secretos mejor guardados de las profundidades del océano.",
+    showtimes: ["15:15", "18:00"],
+    trailerUrl: "https://www.youtube.com/embed/aETNYyrqNYE?autoplay=1&mute=1&controls=0&loop=1",
+    director: "David Attenborough Team",
+    cast: ["David Attenborough (Narración)"],
+    releaseDate: "2024-04-22",
+    languages: ["Subtitulada", "Doblada"],
+    formats: ["2D", "IMAX"],
+    prices: ["$7.50", "$11.00"],
+    averageRating: "4.9/5",
+  },
+  {
+    id: "15",
+    title: "Deadpool & Wolverine",
+    genre: "Comedia",
+    rating: "+18",
+    status: "now-playing",
+    posterUrl: "https://image.tmdb.org/t/p/w600_and_h900_bestv2/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/w1280/yDHYTfA3R0jFYba16jBB1ef8oIt.jpg",
+    featured: true,
+    duration: "128 min",
+    synopsis: "Un apático Wade Wilson se esfuerza por adaptarse a la vida civil, pero cuando su mundo enfrenta una amenaza existencial, debe convencer a un reacio Wolverine de unirse a la batalla.",
+    showtimes: ["16:45", "19:30", "22:15"],
+    trailerUrl: "https://www.youtube.com/embed/73_1biulkYk?autoplay=1&mute=1&controls=0&loop=1&playlist=73_1biulkYk",
+    director: "Shawn Levy",
+    cast: ["Ryan Reynolds", "Hugh Jackman", "Emma Corrin", "Matthew Macfadyen"],
+    releaseDate: "2024-07-26",
+    languages: ["Subtitulada", "Doblada"],
+    formats: ["2D", "IMAX", "4DX"],
+    prices: ["$9.50", "$14.50"],
+    averageRating: "4.7/5",
   },
 ];

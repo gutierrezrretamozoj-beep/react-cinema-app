@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { Home, Film, CalendarClock, Ticket, User, Menu, X, LogOut } from "lucide-react";
+import { Home, Film, CalendarClock, Tickets, User, Menu, X, LogOut, Popcorn, Tags } from "lucide-react";
 import logoCine from "../../assets/icons/logo-cine.svg";
 import nombreCine from "../../assets/icons/nombre-cine.svg";
 import { useAuth } from "@/shared/context/AuthContext";
@@ -16,6 +16,8 @@ const NAV_LINKS: NavLinkItem[] = [
   { path: "/", label: "INICIO", icon: Home },
   { path: "/movies", label: "CARTELERA", icon: Film },
   { path: "/coming-movies", label: "PROXIMAMENTE", icon: CalendarClock },
+  { path: "/concessions", label: "DULCERIA", icon: Popcorn },
+  { path: "/promotions", label: "PROMOCIONES", icon: Tags },
 ];
 
 export const Navbar = () => {
@@ -24,7 +26,7 @@ export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const isHome = location.pathname === "/";
+  const hasHero = location.pathname === "/" || location.pathname === "/movies";
   const isTicketsActive = location.pathname.startsWith("/tickets");
   const isLoginActive = location.pathname.startsWith("/auth");
 
@@ -49,7 +51,7 @@ export const Navbar = () => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
-  const isTransparent = isHome && !isScrolled && !isMobileMenuOpen;
+  const isTransparent = hasHero && !isScrolled && !isMobileMenuOpen;
 
   return (
     <header
@@ -59,7 +61,7 @@ export const Navbar = () => {
           : "bg-neutral-950/85 backdrop-blur-md border-b border-neutral-800/80 shadow-2xl py-3"
       }`}
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between xl:max-w-[90%]">
+      <div className="mx-auto max-w-7xl px-4 flex items-center justify-between xl:max-w-[95%]">
         
         {/* Logo / Nombre del Cine (Estilo Eclipse Cinema) */}
         <div className="flex items-center gap-8">
@@ -77,7 +79,7 @@ export const Navbar = () => {
           </Link>
 
           {/* Menú de Navegación Desktop: Texto limpio y tipografía de cine */}
-          <nav className="hidden md:flex items-center gap-1 sm:gap-2">
+          <nav className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map((link) => {
               const isActive =
                 link.path === "/"
@@ -118,7 +120,7 @@ export const Navbar = () => {
             }`}
             title="Mis Boletos y Reservas"
           >
-            <Ticket className="h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-[-8deg] group-hover:scale-110 text-cinema-text" />
+            <Tickets className="h-4.5 w-4.5 transition-transform duration-300 group-hover:rotate-[-15deg] group-hover:scale-110 text-cinema-text" />
           </Link>
 
           {/* Autenticación / Perfil */}
@@ -213,15 +215,18 @@ export const Navbar = () => {
                     : "text-cinema-muted/90 hover:text-white hover:bg-white/5"
                 }`}
               >
-                <Ticket className="h-4 w-4 shrink-0" />
+                <Tickets className="h-4 w-4 shrink-0" />
                 <span>MIS BOLETOS</span>
               </Link>
 
               {/* Perfil / Iniciar Sesión / Cerrar Sesión */}
               {user ? (
                 <>
-                  <div className="flex items-center justify-between px-3.5 py-2.5 text-xs text-neutral-300">
-                    <span className="font-sans font-black text-[0.7rem] text-cinema-muted">USUARIO</span>
+                  <div className="flex items-center gap-4 px-3.5 py-2.5 text-xs text-neutral-300">
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 shrink-0" />
+                      <span className="font-sans font-black text-[0.7rem] text-cinema-muted">USUARIO</span>
+                    </div>
                     <span className="font-sans font-black text-white truncate max-w-40">{user.name}</span>
                   </div>
                   <button

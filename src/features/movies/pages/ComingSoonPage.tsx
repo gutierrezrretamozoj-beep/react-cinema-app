@@ -13,10 +13,10 @@ export const ComingSoonPage = () => {
           <span className="h-2 w-2 rounded-full bg-cinema-turquoise animate-pulse" />
           <span className="text-xs font-bold uppercase tracking-widest text-cinema-turquoise font-mono">Próximos Lanzamientos</span>
         </div>
-        <h1 className="text-2xl sm:text-3.5xl font-extrabold text-cinema-text tracking-wider uppercase font-monument">
+        <h1 className="text-2xl sm:text-3.5xl font-normal text-cinema-text tracking-wider uppercase font-monument">
           Muy Pronto en Nuestras Salas
         </h1>
-        <p className="text-sm text-cinema-muted max-w-2xl">
+        <p className="text-xs text-cinema-muted max-w-2xl">
           Conoce los títulos más esperados que llegarán a nuestras pantallas en las próximas semanas. Reserva tu lugar en preventa exclusiva.
         </p>
       </div>

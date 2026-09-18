@@ -1,6 +1,7 @@
 // router/index.tsx — Configuracion de rutas y arquitectura de navegacion de CineApp
+import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { createBrowserRouter, Link, Navigate, Outlet, useLocation } from "react-router";
+import { createBrowserRouter, Link, Navigate, Outlet, useLocation, ScrollRestoration } from "react-router";
 // Importamos todas las paginas de la aplicacion
 import { LoginPage } from "@/features/auth/pages/login/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/register/RegisterPage";
@@ -63,29 +64,32 @@ const PublicOnlyRoute = ({ children }: { children: React.ReactNode }) => {
 const PageShell = () => {
   const location = useLocation();
   const { user } = useAuth();
-  const isHome = location.pathname === "/";
+  const hasHero = location.pathname === "/" || location.pathname === "/movies";
+
+  // Resetea el scroll de la ventana al cambiar de ruta
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen bg-transparent text-cinema-text">
+      <ScrollRestoration />
       {/* Barra de navegación superior */}
       <Navbar />
       {/* El carrito flotante solo se muestra si el usuario ha iniciado sesión */}
       {user && <FloatingCart />}
       {/* Contenedor animado de transiciones entre rutas */}
-      <AnimatePresence>
-        <motion.main
-          key={location.pathname}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className={`w-full ${isHome ? "" : "pt-16"}`}
-        >
-          <ErrorBoundary>
-            <Outlet />
-          </ErrorBoundary>
-        </motion.main>
-      </AnimatePresence>
+      <motion.main
+        key={location.pathname}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className={`w-full ${hasHero ? "" : "pt-16"}`}
+      >
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
+      </motion.main>
       <Footer/>
     </div>
   );

@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { motion, AnimatePresence } from "framer-motion";
-import { Badge } from "./Badge";
-import type { Movie } from "../data/movieData";
+import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router";
+import { motion } from "framer-motion";
+import { getRatingBadgeProps, type Movie } from "../data/movieData";
 
 interface MovieCardProps {
   movie: Movie;
@@ -11,34 +10,41 @@ interface MovieCardProps {
   onPreviewChange?: (movieId: string | null) => void;
 }
 
-export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: MovieCardProps) => {
-  const { id, title, genre, rating, posterUrl, duration, synopsis, showtimes, trailerUrl } = movie;
-  const navigate = useNavigate();
+// Formateador de URL para reproducción de tráiler automática y en bucle mudo
+const formatAutoplayUrl = (url?: string) => {
+  if (!url) return "";
+  let finalUrl = url;
+  if (!finalUrl.includes("autoplay=1")) {
+    finalUrl += `${finalUrl.includes("?") ? "&" : "?"}autoplay=1`;
+  }
+  if (!finalUrl.includes("mute=1") && !finalUrl.includes("muted=1")) {
+    finalUrl += "&mute=1";
+  }
+  if (!finalUrl.includes("controls=")) {
+    finalUrl += "&controls=0";
+  }
+  if (!finalUrl.includes("playsinline=")) {
+    finalUrl += "&playsinline=1";
+  }
+  if (!finalUrl.includes("modestbranding=")) {
+    finalUrl += "&modestbranding=1";
+  }
+  if (!finalUrl.includes("rel=")) {
+    finalUrl += "&rel=0";
+  }
+  return finalUrl;
+};
 
-  const [selectedTime, setSelectedTime] = useState<string | null>(showtimes[0] ?? null);
+// MovieCard: Tarjeta cinematográfica que se ensancha en hover con mini-tráiler 16:9 panorámico sin recorte
+export const MovieCard = ({
+  movie,
+  isDimmed = false,
+  onPreviewChange,
+}: MovieCardProps) => {
   const [isPreviewing, setIsPreviewing] = useState(false);
-  const [isPeeling, setIsPeeling] = useState(false);
-  const [isTearing, setIsTearing] = useState(false);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const PREVIEW_DELAY = 400;
-
-  const formatAutoplayUrl = (url?: string) => {
-    if (!url) return "";
-    let finalUrl = url;
-    if (!finalUrl.includes("autoplay=1")) {
-      finalUrl += `${finalUrl.includes("?") ? "&" : "?"}autoplay=1`;
-    }
-    if (!finalUrl.includes("mute=1") && !finalUrl.includes("muted=1")) {
-      finalUrl += "&mute=1";
-    }
-    if (!finalUrl.includes("controls=")) {
-      finalUrl += "&controls=0";
-    }
-    if (!finalUrl.includes("playsinline=")) {
-      finalUrl += "&playsinline=1";
-    }
-    return finalUrl;
-  };
+  const ratingProps = getRatingBadgeProps(movie.rating);
+  const PREVIEW_DELAY = 350;
 
   const clearHoverTimer = () => {
     if (hoverTimerRef.current) {
@@ -51,257 +57,194 @@ export const MovieCard = ({ movie, onBuy, isDimmed = false, onPreviewChange }: M
     return () => clearHoverTimer();
   }, []);
 
-  const handlePreviewStart = () => {
+  const handleMouseEnter = () => {
     clearHoverTimer();
-    hoverTimerRef.current = window.setTimeout(() => {
+    hoverTimerRef.current = setTimeout(() => {
       setIsPreviewing(true);
       onPreviewChange?.(movie.id);
     }, PREVIEW_DELAY);
   };
 
-  const handlePreviewEnd = () => {
+  const handleMouseLeave = () => {
     clearHoverTimer();
     setIsPreviewing(false);
     onPreviewChange?.(null);
   };
 
-  const isTimeAvailable = (_time: string, index: number) => {
-    return !((Number(id) % 2 === 0 && index === 0) || (Number(id) % 3 === 0 && index === 2));
-  };
-
-  const handleBuy = () => {
-    if (!selectedTime || isPeeling) return;
-
-    setIsTearing(true);
-
-    setTimeout(() => {
-      setIsPeeling(true);
-    }, 50);
-
-    setTimeout(() => {
-      onBuy?.(movie, selectedTime);
-      navigate(`/movies/${id}/seats?time=${encodeURIComponent(selectedTime)}`);
-    }, 1400);
-  };
+  const hasActiveTrailer = isPreviewing && Boolean(movie.trailerUrl);
 
   return (
-    <motion.div
-      id={`movie-card-${id}`}
-      initial={false}
-      animate={{
-        scale: isPreviewing ? 1.08 : isDimmed ? 0.96 : 1,
-        y: isPreviewing ? -18 : isDimmed ? 6 : 0,
-        zIndex: isPreviewing ? 40 : isDimmed ? 8 : 10,
-        opacity: isPreviewing ? 1 : isDimmed ? 0.62 : 1,
-        boxShadow: isPreviewing ? "0 24px 60px -20px rgba(0,0,0,0.85)" : "0 0 0 rgba(0,0,0,0)",
-        filter: isPreviewing ? "none" : isDimmed ? "saturate(0.7) blur(0.25px)" : "none",
-      }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      onMouseEnter={handlePreviewStart}
-      onMouseLeave={handlePreviewEnd}
-      onFocus={handlePreviewStart}
-      onBlur={handlePreviewEnd}
-      tabIndex={0}
-      className="mx-auto flex h-full w-full max-w-17rem flex-col items-stretch select-none group relative cursor-pointer"
-    >
-      <div className={`flex h-full flex-col overflow-hidden rounded-[1.3rem] border border-white/10 bg-cinema-surface/90 backdrop-blur-md transition-all duration-300 ${isPreviewing ? "border-cinema-electric/40 shadow-[0_0_20px_rgba(0,210,255,0.2)]" : isDimmed ? "border-white/5" : "border-white/10"}`}>
-        <div className={`relative h-56 w-full overflow-hidden bg-[#060c18] transition-all duration-500 ${isPreviewing ? "h-64" : "h-56"}`}>
-          {isPreviewing && trailerUrl ? (
-            <div className="absolute inset-0 pointer-events-none">
-              <iframe
-                src={formatAutoplayUrl(trailerUrl)}
-                title={`${title} trailer`}
-                className="h-full w-full border-0 object-cover scale-110"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
-            </div>
-          ) : (
-            <img
-              src={posterUrl}
-              alt={title}
-              className="h-full w-full object-cover opacity-85 transition-transform duration-500 group-hover:scale-105"
-            />
-          )}
-
-          <div className={`absolute inset-0 pointer-events-none transition-all duration-300 ${isPreviewing ? "bg-linear-to-t from-cinema-surface-card/60 via-transparent to-transparent" : "bg-linear-to-t from-cinema-surface-card via-transparent to-[#060c18]/40"}`} />
-
-          {isPreviewing && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="absolute inset-x-0 bottom-0 pointer-events-none bg-linear-to-t from-cinema-surface-card via-cinema-surface-card/80 to-transparent px-3 py-3"
-            >
-              <p className="text-[10px] uppercase tracking-[0.3em] text-cinema-electric font-semibold">Preview en vivo</p>
-              <p className="mt-1 text-[11px] text-cinema-text line-clamp-1">{title}</p>
-            </motion.div>
-          )}
-
-          <div className="absolute left-3 top-3 flex items-center gap-1.5 pointer-events-none">
-            <Badge variant="genre" text={genre} />
-            {movie.status === "coming-soon" && <Badge variant="pre-purchase" text="Precompra" />}
-          </div>
-          <Badge variant="rating" text={rating} ratingType={rating} className="absolute right-3 top-3 pointer-events-none" />
-        </div>
-
-        <div className="flex flex-1 flex-col gap-3 bg-cinema-surface/95 p-4">
-          <div>
-            <h2 className="text-base font-semibold text-cinema-text leading-snug line-clamp-1 group-hover:font-black transition-colors"> {/*cambiar esto por un h1*/}
-              {title}
-            </h2>
-            <p className="mt-0.5 text-[10px] uppercase tracking-[0.2em] text-cinema-muted font-mono">
-              {duration} • {genre}
-            </p>
-          </div>
-
-          <p className="text-[11px] leading-relaxed text-cinema-muted line-clamp-3">
-            {synopsis}
-          </p>
-
-          <div className="mt-auto space-y-2">
-            <div className="flex flex-wrap gap-1.5">
-              {showtimes.map((time, index) => {
-                const available = isTimeAvailable(time, index);
-                const isSelected = selectedTime === time;
-                return (
-                  <button
-                    key={index}
-                    disabled={!available || isPeeling}
-                    onClick={() => setSelectedTime(time)}
-                    className={`rounded-lg border px-2.5 py-1.5 text-[10px] font-mono font-bold transition-all duration-150 cursor-pointer ${
-                      !available
-                        ? "cursor-not-allowed border-white/5 bg-black/20 text-cinema-muted/30 line-through"
-                        : isSelected
-                        ? "border-cinema-electric bg-cinema-electric text-neutral-950 shadow-md shadow-cinema-electric/20"
-                        : "border-white/10 bg-white/5 text-cinema-muted hover:border-cinema-electric/40 hover:text-cinema-electric hover:bg-cinema-electric/5"
-                    }`}
-                  >
-                    {time}
-                  </button>
-                );
-              })}
-            </div>
-
-            <Link
-              to={`/movies/${movie.id}`}
-              className="flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-cinema-text transition-all hover:border-cinema-electric/40 hover:bg-cinema-electric/10 hover:text-cinema-electric"
-            >
-              Ver detalles
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <div className="relative w-full h-6 bg-cinema-surface/90 flex items-center justify-between z-10 overflow-visible">
-        <div className="absolute -left-3 h-6 w-6 rounded-full bg-[#070d18] z-20" />
-
-        {!isTearing && (
-          <div className="flex-1 border-b-2 border-dashed border-white/20 mx-3" />
-        )}
-
-        {isTearing && (
-          <svg
-            className="absolute inset-x-3 top-1/2 -translate-y-1/2 overflow-visible"
-            height="10"
-            style={{ width: 'calc(100% - 1.5rem)' }}
-            preserveAspectRatio="none"
-          >
-            <motion.path
-              d="M0,5 L14,2 L28,8 L42,1 L56,7 L70,2 L84,9 L98,3 L112,7 L126,1 L140,8 L154,3 L168,7 L182,2 L196,8 L210,3 L224,7 L238,2 L252,6 L266,1 L280,5"
-              fill="none"
-              stroke="rgba(0,210,255,0.7)"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 1 }}
-              transition={{ duration: 0.32, ease: "easeInOut" }}
-              style={{ vectorEffect: 'non-scaling-stroke' }}
-            />
-            <motion.path
-              d="M0,5 L14,2 L28,8 L42,1 L56,7 L70,2 L84,9 L98,3 L112,7 L126,1 L140,8 L154,3 L168,7 L182,2 L196,8 L210,3 L224,7 L238,2 L252,6 L266,1 L280,5"
-              fill="none"
-              stroke="rgba(0,0,0,0.4)"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 0.6 }}
-              transition={{ duration: 0.32, ease: "easeInOut", delay: 0.02 }}
-              style={{ vectorEffect: 'non-scaling-stroke' }}
-            />
-          </svg>
-        )}
-
-        <div className="absolute -right-3 h-6 w-6 rounded-full bg-[#070d18] z-20" />
-      </div>
-
-      <div className="w-full h-20 relative z-0" style={{ perspective: '600px', perspectiveOrigin: '50% 0%' }}>
-        <AnimatePresence>
-          {!isPeeling ? (
-            <motion.div
-              key="stub-button"
-              initial={{ rotateX: 0, rotateY: 0, rotateZ: 0, scaleX: 1, x: 0, y: 0, opacity: 1 }}
-              exit={{
-                scaleX:  [1, 0.75, 0.45, 0.15, 0],
-                rotateY: [0, -90, -180, -270, -360],
-                rotateZ: [0, 8, 15, 8, 0],
-                x:       [0, 12, 32, 55, 75],
-                y:       [0, -4, -8, -2, 10],
-                opacity: [1, 1, 0.95, 0.8, 0],
-              }}
-              transition={{
-                duration: 1.1,
-                times: [0, 0.25, 0.5, 0.75, 1],
-                ease: "easeInOut"
-              }}
-              style={{ 
-                transformOrigin: 'right center', 
-                transformStyle: 'preserve-3d'
-              }}
-              className="absolute inset-0 w-full bg-cinema-surface/90 border-x border-b border-white/10 rounded-b-2xl p-4 flex items-center justify-center shadow-md overflow-hidden"
-            >
-              <motion.div
-                initial={{ opacity: 0 }}
-                exit={{ opacity: 0.8 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0 bg-linear-to-tr from-black/90 via-black/45 to-transparent pointer-events-none"
-              />
-
-              <button
-                onClick={handleBuy}
-                disabled={!selectedTime}
-                className={`w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-md relative z-10 ${
-                  !selectedTime
-                    ? 'bg-cinema-surface-card border border-white/5 text-cinema-muted/40 cursor-not-allowed'
-                    : 'bg-cinema-primary/40 hover:bg-cinema-primary text-cinema-text active:scale-95 hover:shadow-lg hover:shadow-cinema-electric/25 cursor-pointer'
-                }`}
-              >
-                {movie.status === 'coming-soon' ? 'Precomprar Ticket' : 'Comprar Ticket'}
-              </button>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="stub-confirmed"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.5, duration: 0.4 }}
-              className="absolute inset-0 w-full bg-cinema-surface/40 border-x border-b border-dashed border-white/20 rounded-b-2xl p-2.5 flex flex-col items-center justify-center gap-1.5"
-            >
-              <svg className="w-10 h-10 text-cinema-electric/80 opacity-90" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M2 2h6v6H2V2zm1 1v4h4V3H3zm1 1h2v2H4V4zM16 2h6v6h-6V2zm1 1v4h4V3h-3zm1 1h2v2h-2V4zM2 16h6v6H2v-6zm1 1v4h4V3H3zm1 1h2v2H4v-2z" />
-                <path d="M12 2h2v2h-2zm0 4h2v2h-2zm4 8h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 4h2v2h-2zm-8-4h2v2H8zm4-8h2v2h-2zm8 4h2v2h-2z" />
-                <path d="M10 10h2v2h-2zm2 2h2v2h-2zm-2 2h2v2h-2zm6-4h2v2h-2zm2 2h2v2h-2zm-4 4h2v2h-2z" />
-              </svg>
-              <div className="flex flex-col items-center text-center">
-                <span className="text-[8px] font-bold text-cinema-text uppercase tracking-widest leading-none">TICKET COMPRADO • {selectedTime}</span>
-                <span className="text-[7.5px] text-cinema-muted mt-1 max-w-190px leading-tight">Escanea el código o revisa tu correo para ver tu boleto.</span>
+    // Contenedor ancla en el grid para preservar el flujo exacto de las columnas sin saltos
+    <div className="relative w-full aspect-2/3 select-none">
+      <motion.div
+        layout
+        id={`movie-card-${movie.id}`}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        animate={
+          hasActiveTrailer
+            ? {
+                width: "155%",
+                left: "-27.5%",
+                top: "-20px",
+                height: "auto",
+                zIndex: 50,
+                boxShadow:
+                  "0 25px 60px -15px rgba(0,0,0,0.95), 0 0 25px rgba(0,255,204,0.3)",
+              }
+            : {
+                width: "100%",
+                left: "0%",
+                top: "0px",
+                height: "100%",
+                zIndex: 10,
+                boxShadow: "0 8px 20px -5px rgba(0,0,0,0.5)",
+              }
+        }
+        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+        className={`absolute rounded-2xl overflow-hidden border transition-colors duration-300 ${
+          hasActiveTrailer
+            ? "border-cinema-turquoise/50 bg-neutral-950"
+            : "h-full border-white/10 bg-cinema-surface/75 hover:border-cinema-turquoise/40 hover:-translate-y-1.5"
+        } ${isDimmed && !hasActiveTrailer ? "opacity-50 blur-[0.3px]" : "opacity-100"}`}
+      >
+        <Link to={`/movies/${movie.id}`} className="flex flex-col w-full h-full cursor-pointer">
+          {/* ESTADO 1: Tráiler Activo Panorámico 16:9 (Completamente sin recortes) */}
+          {hasActiveTrailer ? (
+            <div className="flex flex-col w-full bg-neutral-950">
+              {/* Contenedor de video 16:9 panorámico nativo */}
+              <div className="relative w-full aspect-video overflow-hidden bg-black">
+                <iframe
+                  src={formatAutoplayUrl(movie.trailerUrl)}
+                  title={`${movie.title} tráiler`}
+                  className="w-full h-full object-cover border-0 pointer-events-none"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                />
+                <div className="absolute top-2.5 left-3 flex items-center gap-1.5 bg-neutral-950/80 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10">
+                  <span className="h-1.5 w-1.5 rounded-full bg-cinema-turquoise animate-pulse" />
+                  <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-cinema-turquoise">
+                    Tráiler
+                  </span>
+                </div>
               </div>
-            </motion.div>
+
+              {/* Panel inferior expandido con título, métricas y botón */}
+              <div className="p-3.5 flex flex-col gap-2 bg-linear-to-b from-neutral-950 via-neutral-900 to-neutral-950 border-t border-white/10">
+                <div className="flex items-start justify-between gap-2">
+                  <h4 className="text-xs sm:text-sm font-bold text-white leading-snug drop-shadow line-clamp-1">
+                    {movie.title}
+                  </h4>
+                  {movie.averageRating && (
+                    <span className="text-[10px] font-mono font-bold text-cinema-gold shrink-0">
+                      {movie.averageRating} ★
+                    </span>
+                  )}
+                </div>
+
+                {/* Métricas compactas */}
+                <div className="flex items-center gap-2 text-[10px] text-white/80">
+                  <span className="font-mono">{movie.duration}</span>
+                  <span className="text-white/30">•</span>
+                  <span className="text-cinema-turquoise font-mono uppercase font-semibold">
+                    {movie.genre}
+                  </span>
+                  <span className="text-white/30">•</span>
+                  <span
+                    className={`text-[8.5px] font-bold px-1.5 py-0.2 rounded-md ${ratingProps.badgeClass}`}
+                  >
+                    {ratingProps.label}
+                  </span>
+                </div>
+
+                {/* Botón Ver Detalles */}
+                <div className="pt-1 flex items-center justify-between">
+                  <div className="relative group/btn inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase text-cinema-turquoise transition-all">
+                    <span>Ver detalles</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-1"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.91 19.92l6.52-6.52a1.5 1.5 0 000-2.12L8.91 4.08" />
+                    </svg>
+                    <span className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-cinema-turquoise/50" />
+                  </div>
+
+                  <span className="text-[9px] text-neutral-400 font-mono">
+                    Toca para horarios
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* ESTADO 2: Tarjeta Vertical en Reposo (Full-Bleed 2:3) */
+            <div className="relative w-full h-full">
+              {/* Póster a sangre completa */}
+              <img
+                src={movie.posterUrl}
+                alt={movie.title}
+                loading="lazy"
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+              />
+
+              {/* Badge sutil de clasificación en reposo */}
+              <div className="absolute top-2.5 right-2.5 z-5 pointer-events-none">
+                <span
+                  className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-md backdrop-blur-md ${ratingProps.badgeClass}`}
+                >
+                  {ratingProps.label}
+                </span>
+              </div>
+
+              {/* Capa de oscurecimiento suave en hover previo a la expansión del tráiler */}
+              <div className="absolute inset-0 z-10 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black/75 backdrop-blur-[2px] flex flex-col justify-between p-3.5 text-center">
+                <div className="pt-1">
+                  <h4 className="text-xs sm:text-sm font-bold text-white leading-snug drop-shadow line-clamp-2">
+                    {movie.title}
+                  </h4>
+                </div>
+
+                <div className="my-auto flex flex-col items-center gap-1.5">
+                  <div className="flex items-center justify-center gap-1.5 text-[10px] sm:text-xs">
+                    <span className="font-mono text-white/90 font-medium">
+                      {movie.duration}
+                    </span>
+                    <span className="text-white/40">|</span>
+                    <span
+                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md ${ratingProps.badgeClass}`}
+                    >
+                      {ratingProps.label}
+                    </span>
+                  </div>
+
+                  <span className="text-[10px] text-cinema-turquoise uppercase tracking-widest font-mono font-semibold">
+                    {movie.genre}
+                  </span>
+                </div>
+
+                <div className="pb-1 flex justify-center">
+                  <div className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase text-white/90">
+                    <span>Ver detalles</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      className="w-3 h-3 text-cinema-turquoise"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.91 19.92l6.52-6.52a1.5 1.5 0 000-2.12L8.91 4.08" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
-        </AnimatePresence>
-      </div>
-    </motion.div>
+        </Link>
+      </motion.div>
+    </div>
   );
 };
